@@ -12,11 +12,11 @@ namespace Leopotam.EcsLite.UnityEditor
 {
     public sealed class EcsWorldDebugSystem : IEcsPreInitSystem, IEcsRunSystem, IEcsWorldEventListener
     {
-        private readonly GameObject m_RootGO;
+        private readonly GameObject m_RootGo;
         private readonly Transform m_EntitiesRoot;
         private readonly bool m_BakeComponentsInName;
         private readonly string m_EntityNameFormat;
-        private EcsWorld m_World;
+        private readonly EcsWorld m_World;
         private EcsEntityDebugView[] m_Entities;
         private Dictionary<int, byte> m_DirtyEntities;
         private Type[] m_TypesCache;
@@ -26,27 +26,28 @@ namespace Leopotam.EcsLite.UnityEditor
             m_World = world;
             m_BakeComponentsInName = bakeComponentsInName;
             m_EntityNameFormat = entityNameFormat;
-            m_RootGO = new GameObject("[ECS-WORLD]");
-            Object.DontDestroyOnLoad(m_RootGO);
-            m_RootGO.hideFlags = HideFlags.NotEditable;
+            m_RootGo = new GameObject("[ECS-WORLD]");
+            Object.DontDestroyOnLoad(m_RootGo);
+            m_RootGo.hideFlags = HideFlags.NotEditable;
             m_EntitiesRoot = new GameObject("Entities").transform;
             m_EntitiesRoot.gameObject.hideFlags = HideFlags.NotEditable;
-            m_EntitiesRoot.SetParent(m_RootGO.transform, false);
+            m_EntitiesRoot.SetParent(m_RootGo.transform, false);
         }
 
         void IEcsPreInitSystem.PreInit(EcsSystems _)
         {
             // world
             if (m_World == null) { throw new Exception("Cant find required world."); }
-            var worldDebugView = m_RootGO.AddComponent<EcsWorldDebugView>();
+            var worldDebugView = m_RootGo.AddComponent<EcsWorldDebugView>();
             worldDebugView.ecsWorld = m_World;
             worldDebugView.debugSystem = this;
 
             // systems
-            var systemRootGo = new GameObject("Systems");
-            systemRootGo.transform.parent = m_RootGO.transform;
-            systemRootGo.hideFlags = HideFlags.DontSave;
-            var view = systemRootGo.AddComponent<EcsSystemsDebugView>();
+            // var systemRootGo = new GameObject("Systems");
+            // systemRootGo.transform.parent = m_RootGo.transform;
+            // systemRootGo.hideFlags = HideFlags.NotEditable;
+            var view = m_RootGo.AddComponent<EcsSystemsDebugView>();
+            view.hideFlags = HideFlags.DontSave;
             view.ecsSystemsList = m_World.ecsSystemsList;
             view.debugSystem = this;
 
@@ -131,7 +132,7 @@ namespace Leopotam.EcsLite.UnityEditor
         void IEcsWorldEventListener.OnWorldDestroyed(EcsWorld world)
         {
             m_World.RemoveEventListener(this);
-            Object.Destroy(m_RootGO);
+            Object.Destroy(m_RootGo);
         }
 
         public EcsEntityDebugView GetEntityView(int entity)

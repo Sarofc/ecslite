@@ -16,9 +16,10 @@ namespace Leopotam.EcsLite.UnityEditor.Inspectors
             EditorGUILayout.PrefixLabel(label);
             if (value.Unpack(entityView.world, out var unpackedEntity))
             {
-                if (GUILayout.Button("Ping entity"))
+                var ent = entityView.debugSystem.GetEntityView(unpackedEntity);
+                if (GUILayout.Button($"Ping [{ent.entity}]"))
                 {
-                    EditorGUIUtility.PingObject(entityView.debugSystem.GetEntityView(unpackedEntity));
+                    EditorGUIUtility.PingObject(ent);
                 }
             }
             else
@@ -32,6 +33,7 @@ namespace Leopotam.EcsLite.UnityEditor.Inspectors
                     EditorGUILayout.SelectableLabel("<Invalid entity>", GUILayout.MaxHeight(EditorGUIUtility.singleLineHeight));
                 }
             }
+
             EditorGUILayout.EndHorizontal();
             return false;
         }

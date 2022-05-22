@@ -20,14 +20,13 @@ namespace Leopotam.EcsLite.UnityEditor.Inspectors
             var indent = EditorGUI.indentLevel;
             EditorGUI.indentLevel = 0;
 
-            var rowHeight = 16;
+            const int rowHeight = 16;
 
             bool changed = false;
 
             for (int i = 0; i < 4; i++)
             {
                 var row = value.GetRow(i);
-                ref var pRow = ref row;
 
                 var rect = new Rect(position.x, position.y + rowHeight * i, position.width, rowHeight);
 

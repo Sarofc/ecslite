@@ -39,7 +39,7 @@ namespace Leopotam.EcsLite.UnityEditor
                     var component = _componentsCache[i];
                     _componentsCache[i] = null;
                     var type = component.GetType();
-                    GUILayout.BeginVertical(GUI.skin.box);
+                    GUILayout.BeginVertical("helpbox");
                     var typeName = EditorExtensions.GetCleanGenericTypeName(type);
                     var pool = debugView.world.GetPoolByType(type);
                     var (rendered, changed, newValue) = EcsComponentInspectors.Render(typeName, type, component, debugView);

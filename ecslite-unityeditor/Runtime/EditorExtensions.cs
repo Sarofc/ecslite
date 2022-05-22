@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.WSA;
 
 namespace Leopotam.EcsLite.UnityEditor
 {

@@ -18,9 +18,10 @@ namespace Leopotam.EcsLite.UnityEditor.Inspectors
             {
                 if (unpackedWorld == entityView.world)
                 {
-                    if (GUILayout.Button("Ping entity"))
+                    var ent = entityView.debugSystem.GetEntityView(unpackedEntity);
+                    if (GUILayout.Button($"Ping [{ent.entity}]"))
                     {
-                        EditorGUIUtility.PingObject(entityView.debugSystem.GetEntityView(unpackedEntity));
+                        EditorGUIUtility.PingObject(ent);
                     }
                 }
                 else

@@ -13,10 +13,11 @@ namespace Leopotam.EcsLite.UnityEditor
     {
         private IEcsSystem[] m_Systems;
         private IEcsPool[] m_Pools;
+        private bool m_PoolFoldout = false;
 
         public override void OnInspectorGUI()
         {
-            var observer = (EcsWorldDebugView)target;
+            var observer = (EcsWorldDebugView) target;
             if (observer.ecsWorld != null)
             {
                 DrawComponents(observer);
@@ -38,15 +39,18 @@ namespace Leopotam.EcsLite.UnityEditor
 
                 EditorGUILayout.Space();
                 var poolCount = world.GetAllPools(ref m_Pools);
-                EditorGUILayout.LabelField("PoolsCount: " + poolCount);
-                var indentLevel = EditorGUI.indentLevel;
-                EditorGUI.indentLevel++;
-                for (int i = 0; i < poolCount; i++)
+                m_PoolFoldout = EditorGUILayout.Foldout(m_PoolFoldout, "PoolsCount: " + poolCount);
+                if (m_PoolFoldout)
                 {
-                    var pool = m_Pools[i];
-                    EditorGUILayout.LabelField(pool.ToString());
+                    var indentLevel = EditorGUI.indentLevel;
+                    EditorGUI.indentLevel++;
+                    for (int i = 0; i < poolCount; i++)
+                    {
+                        var pool = m_Pools[i];
+                        EditorGUILayout.LabelField(pool.ToString());
+                    }
+                    EditorGUI.indentLevel = indentLevel;
                 }
-                EditorGUI.indentLevel = indentLevel;
             }
         }
     }

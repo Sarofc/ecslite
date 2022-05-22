@@ -189,8 +189,8 @@ namespace Leopotam.EcsLite
             if (!m_World.IsEntityAliveInternal(entity)) { throw new Exception("Cant touch destroyed entity."); }
             //if (_sparseItems[entity] > 0) { throw new Exception ($"Component \"{typeof (T).Name}\" already attached to entity."); }
 #endif
-            // API µ÷Õû
-            // ÒÑÓµÓÐ£¬¾ÍÖ±½Ó·µ»Ø×é¼þ
+            // API è°ƒæ•´
+            // å·²æ‹¥æœ‰ï¼Œå°±ç›´æŽ¥è¿”å›žç»„ä»¶
             if (m_SparseItems[entity] > 0)
             {
                 return ref m_DenseItems[m_SparseItems[entity]];
@@ -213,7 +213,7 @@ namespace Leopotam.EcsLite
             }
             m_SparseItems[entity] = idx;
             m_World.OnEntityChangeInternal(entity, m_Id, true);
-            m_World.entities[entity].ComponentsCount++;
+            m_World.entities[entity].componentsCount++;
 #if DEBUG || LEOECSLITE_WORLD_EVENTS
             m_World.RaiseEntityChangeEvent(entity);
 #endif
@@ -263,11 +263,11 @@ namespace Leopotam.EcsLite
                 }
                 sparseData = 0;
                 ref var entityData = ref m_World.entities[entity];
-                entityData.ComponentsCount--;
+                entityData.componentsCount--;
 #if DEBUG || LEOECSLITE_WORLD_EVENTS
                 m_World.RaiseEntityChangeEvent(entity);
 #endif
-                if (entityData.ComponentsCount == 0)
+                if (entityData.componentsCount == 0)
                 {
                     m_World.DelEntity(entity);
                 }

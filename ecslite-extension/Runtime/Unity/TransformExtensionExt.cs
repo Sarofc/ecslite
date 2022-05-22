@@ -2,7 +2,7 @@
 
 namespace Leopotam.EcsLite.Extension
 {
-    public static class TransfromExtensionExt
+    public static class TransformExtensionExt
     {
         public static IEcsMonoLink Link(this Transform self)
         {

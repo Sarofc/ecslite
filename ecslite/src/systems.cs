@@ -47,7 +47,7 @@ namespace Leopotam.EcsLite
     {
         public string SystemsLabel { get; private set; }
         private readonly EcsWorld m_DefaultWorld;
-        [System.Obsolete("TODO systemÀï±£´æÆäËûworldµÄÒâÒå£¿")]
+        [System.Obsolete("TODO systemï¿½ï±£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½worldï¿½ï¿½ï¿½ï¿½ï¿½å£¿")]
         private readonly Dictionary<string, EcsWorld> m_Worlds;
         private readonly List<IEcsSystem> m_AllSystems;
         private readonly object m_Shared;
