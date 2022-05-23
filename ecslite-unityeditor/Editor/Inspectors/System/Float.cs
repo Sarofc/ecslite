@@ -9,7 +9,7 @@ namespace Leopotam.EcsLite.UnityEditor.Inspectors
 {
     internal sealed class FloatInspector : EcsComponentInspectorTyped<float>
     {
-        public override bool OnGuiTyped(string label, ref float value, EcsEntityDebugView entityView)
+        protected override bool OnGuiTyped(string label, ref float value, EcsEntityDebugView entityView)
         {
             var newValue = EditorGUILayout.FloatField(label, value);
             if (System.Math.Abs(newValue - value) < float.Epsilon) { return false; }

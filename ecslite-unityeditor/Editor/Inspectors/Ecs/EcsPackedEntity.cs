@@ -10,14 +10,14 @@ namespace Leopotam.EcsLite.UnityEditor.Inspectors
 {
     internal sealed class EcsPackedEntityInspector : EcsComponentInspectorTyped<EcsPackedEntity>
     {
-        public override bool OnGuiTyped(string label, ref EcsPackedEntity value, EcsEntityDebugView entityView)
+        protected override bool OnGuiTyped(string label, ref EcsPackedEntity value, EcsEntityDebugView entityView)
         {
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.PrefixLabel(label);
             if (value.Unpack(entityView.world, out var unpackedEntity))
             {
                 var ent = entityView.debugSystem.GetEntityView(unpackedEntity);
-                if (GUILayout.Button($"Ping [{ent.entity}]"))
+                if (GUILayout.Button($"Ping [{ent.entity:x8}]"))
                 {
                     EditorGUIUtility.PingObject(ent);
                 }

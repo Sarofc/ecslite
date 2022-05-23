@@ -21,9 +21,17 @@ namespace Leopotam.EcsLite.UnityEditor
 
         public override void OnInspectorGUI()
         {
-            var observer = (EcsEntityDebugView)target;
+            var observer = (EcsEntityDebugView) target;
             if (observer.world != null)
             {
+                bool guiEnable = GUI.enabled;
+                GUI.enabled = observer.world.IsEntityAliveInternal(observer.entity);
+                if (GUILayout.Button("Destroy"))
+                {
+                    observer.world.DelEntity(observer.entity);
+                }
+                GUI.enabled = guiEnable;
+
                 DrawComponents(observer);
                 EditorUtility.SetDirty(target);
             }
@@ -45,7 +53,13 @@ namespace Leopotam.EcsLite.UnityEditor
                     var (rendered, changed, newValue) = EcsComponentInspectors.Render(typeName, type, component, debugView);
                     if (!rendered)
                     {
+                        EditorGUILayout.BeginHorizontal();
                         EditorGUILayout.LabelField(typeName, EditorStyles.boldLabel);
+                        if (GUILayout.Button("-", GUILayout.Width(24)))
+                        {
+                            pool.Del(debugView.entity);
+                        }
+                        EditorGUILayout.EndHorizontal();
                         var indent = EditorGUI.indentLevel;
                         EditorGUI.indentLevel++;
                         foreach (var field in type.GetFields(BindingFlags.Instance | BindingFlags.Public))
@@ -62,6 +76,7 @@ namespace Leopotam.EcsLite.UnityEditor
                             pool.SetRaw(debugView.entity, newValue);
                         }
                     }
+
                     GUILayout.EndVertical();
                     EditorGUILayout.Space();
                 }
@@ -80,11 +95,12 @@ namespace Leopotam.EcsLite.UnityEditor
                     GUILayout.BeginHorizontal();
                     EditorGUILayout.LabelField(field.Name, GUILayout.MaxWidth(EditorGUIUtility.labelWidth - 16));
                     var newObjValue = EditorGUILayout.ObjectField(fieldValue as Object, fieldType, true);
-                    if (newObjValue != (Object)fieldValue)
+                    if (newObjValue != (Object) fieldValue)
                     {
                         field.SetValue(component, newObjValue);
                         pool.SetRaw(debugView.entity, component);
                     }
+
                     GUILayout.EndHorizontal();
                 }
                 else if (fieldType.IsEnum)
@@ -104,6 +120,7 @@ namespace Leopotam.EcsLite.UnityEditor
                     {
                         strVal = strVal.Substring(0, MaxFieldToStringLength);
                     }
+
                     GUILayout.BeginHorizontal();
                     EditorGUILayout.PrefixLabel(field.Name);
                     EditorGUILayout.SelectableLabel(strVal, GUILayout.MaxHeight(EditorGUIUtility.singleLineHeight));
@@ -155,12 +172,13 @@ namespace Leopotam.EcsLite.UnityEditor
                 var (changed, newValue) = inspector.OnGui(label, value, debugView);
                 return (true, changed, newValue);
             }
+
             return (false, false, null);
         }
 
         public static (bool, object) RenderEnum(string label, object value, bool isFlags)
         {
-            var enumValue = (Enum)value;
+            var enumValue = (Enum) value;
             Enum newValue;
             if (isFlags)
             {
@@ -170,7 +188,12 @@ namespace Leopotam.EcsLite.UnityEditor
             {
                 newValue = EditorGUILayout.EnumPopup(label, enumValue);
             }
-            if (Equals(newValue, value)) { return (default, default); }
+
+            if (Equals(newValue, value))
+            {
+                return (default, default);
+            }
+
             return (true, newValue);
         }
     }
@@ -185,10 +208,10 @@ namespace Leopotam.EcsLite.UnityEditor
     public abstract class EcsComponentInspectorTyped<T> : IEcsComponentInspector
     {
         public Type GetFieldType() => typeof(T);
-        public virtual bool IsNullAllowed() => false;
+        protected virtual bool IsNullAllowed() => false;
         public virtual int GetPriority() => 0;
 
-        public (bool, object) OnGui(string label, object value, EcsEntityDebugView entityView)
+        (bool, object) IEcsComponentInspector.OnGui(string label, object value, EcsEntityDebugView entityView)
         {
             if (value == null && !IsNullAllowed())
             {
@@ -198,15 +221,17 @@ namespace Leopotam.EcsLite.UnityEditor
                 GUILayout.EndHorizontal();
                 return (default, default);
             }
-            var typedValue = (T)value;
+
+            var typedValue = (T) value;
             var changed = OnGuiTyped(label, ref typedValue, entityView);
             if (changed)
             {
                 return (true, typedValue);
             }
+
             return (default, default);
         }
 
-        public abstract bool OnGuiTyped(string label, ref T value, EcsEntityDebugView entityView);
+        protected abstract bool OnGuiTyped(string label, ref T value, EcsEntityDebugView entityView);
     }
 }

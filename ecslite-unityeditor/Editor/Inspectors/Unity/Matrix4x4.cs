@@ -10,7 +10,7 @@ namespace Leopotam.EcsLite.UnityEditor.Inspectors
 {
     internal sealed class Matrix4x4Inspector : EcsComponentInspectorTyped<Matrix4x4>
     {
-        public override bool OnGuiTyped(string label, ref Matrix4x4 value, EcsEntityDebugView entityView)
+        protected override bool OnGuiTyped(string label, ref Matrix4x4 value, EcsEntityDebugView entityView)
         {
             var position = EditorGUILayout.GetControlRect(false, 64);
 

@@ -10,7 +10,7 @@ namespace Leopotam.EcsLite.UnityEditor.Inspectors
 {
     internal sealed class QuaternionInspector : EcsComponentInspectorTyped<Quaternion>
     {
-        public override bool OnGuiTyped(string label, ref Quaternion value, EcsEntityDebugView entityView)
+        protected override bool OnGuiTyped(string label, ref Quaternion value, EcsEntityDebugView entityView)
         {
             var eulerAngles = value.eulerAngles;
             var newValue = EditorGUILayout.Vector3Field(label, eulerAngles);

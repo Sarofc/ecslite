@@ -10,7 +10,7 @@ namespace Leopotam.EcsLite.UnityEditor.Inspectors
 {
     internal sealed class BoundsInspector : EcsComponentInspectorTyped<Bounds>
     {
-        public override bool OnGuiTyped(string label, ref Bounds value, EcsEntityDebugView entityView)
+        protected override bool OnGuiTyped(string label, ref Bounds value, EcsEntityDebugView entityView)
         {
             var newValue = EditorGUILayout.BoundsField(label, value);
             if (newValue == value) { return false; }

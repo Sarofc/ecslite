@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using Saro;
+using UnityEngine;
 
 namespace Leopotam.EcsLite.Authoring
 {
@@ -27,4 +29,77 @@ namespace Leopotam.EcsLite.Authoring
     {
         public abstract int ConvertToEntity(EcsWorld world);
     }
+
+    /*
+     TODO 这些可能更实用？
+    [CreateAssetMenu(menuName = "ECS/GenericSO")]
+    public class GenericSOEntityAuthoring : ScriptableObject, IEcsConvertToEntity
+    {
+        public IEcsComponent[] components = new IEcsComponent[0];
+
+        public int ConvertToEntity(EcsWorld world)
+        {
+            int ent = world.NewEntity();
+
+            if (components != null && components.Length > 0)
+            {
+                for (int i = 0; i < components.Length; i++)
+                {
+                    var module = components[i];
+                    var pool = world.GetPoolByType(module.GetType());
+                    if (pool != null)
+                    {
+                        pool.AddRaw(ent, module);
+                    }
+                    else
+                    {
+                        Log.ERROR($"please ensure pooltype: {module.GetType()}");
+                    }
+                }
+            }
+
+            PostprocessEntity(world, ent);
+            return ent;
+        }
+
+        protected virtual void PostprocessEntity(EcsWorld world, int ent)
+        {
+        }
+    }
+
+    public class GenericMonoEntityAuthoring : MonoBehaviour, IEcsConvertToEntity
+    {
+        public IEcsComponent[] components = new IEcsComponent[0];
+
+        public int ConvertToEntity(EcsWorld world)
+        {
+            int ent = world.NewEntity();
+
+            if (components != null && components.Length > 0)
+            {
+                for (int i = 0; i < components.Length; i++)
+                {
+                    var module = components[i];
+                    var pool = world.GetPoolByType(module.GetType());
+                    if (pool != null)
+                    {
+                        pool.AddRaw(ent, module);
+                    }
+                    else
+                    {
+                        Log.ERROR($"please ensure pooltype: {module.GetType()}");
+                    }
+                }
+            }
+
+            PostprocessEntity(world, ent);
+            return ent;
+        }
+
+
+        protected virtual void PostprocessEntity(EcsWorld world, int ent)
+        {
+        }
+    }
+    */
 }

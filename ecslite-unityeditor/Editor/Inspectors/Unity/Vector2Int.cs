@@ -10,7 +10,7 @@ namespace Leopotam.EcsLite.UnityEditor.Inspectors
 {
     internal sealed class Vector2IntInspector : EcsComponentInspectorTyped<Vector2Int>
     {
-        public override bool OnGuiTyped(string label, ref Vector2Int value, EcsEntityDebugView entityView)
+        protected override bool OnGuiTyped(string label, ref Vector2Int value, EcsEntityDebugView entityView)
         {
             var newValue = EditorGUILayout.Vector2IntField(label, value);
             if (newValue == value) { return false; }

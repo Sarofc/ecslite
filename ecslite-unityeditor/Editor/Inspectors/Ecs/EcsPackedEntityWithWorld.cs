@@ -10,7 +10,7 @@ namespace Leopotam.EcsLite.UnityEditor.Inspectors
 {
     internal sealed class EcsPackedEntityWithWorldInspector : EcsComponentInspectorTyped<EcsPackedEntityWithWorld>
     {
-        public override bool OnGuiTyped(string label, ref EcsPackedEntityWithWorld value, EcsEntityDebugView entityView)
+        protected override bool OnGuiTyped(string label, ref EcsPackedEntityWithWorld value, EcsEntityDebugView entityView)
         {
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.PrefixLabel(label);
@@ -19,7 +19,7 @@ namespace Leopotam.EcsLite.UnityEditor.Inspectors
                 if (unpackedWorld == entityView.world)
                 {
                     var ent = entityView.debugSystem.GetEntityView(unpackedEntity);
-                    if (GUILayout.Button($"Ping [{ent.entity}]"))
+                    if (GUILayout.Button($"Ping [{ent.entity:x8}]"))
                     {
                         EditorGUIUtility.PingObject(ent);
                     }

@@ -77,6 +77,7 @@ namespace Leopotam.EcsLite.UnityEditor
                     {
                         entityName = $"{entityName}:{EditorExtensions.GetCleanGenericTypeName(m_TypesCache[i])}";
                     }
+                    entityName += ":";
                 }
                 m_Entities[entity].name = entityName;
             }

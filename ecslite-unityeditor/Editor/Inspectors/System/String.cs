@@ -9,12 +9,12 @@ namespace Leopotam.EcsLite.UnityEditor.Inspectors
 {
     internal sealed class StringInspector : EcsComponentInspectorTyped<string>
     {
-        public override bool IsNullAllowed()
+        protected override bool IsNullAllowed()
         {
             return true;
         }
 
-        public override bool OnGuiTyped(string label, ref string value, EcsEntityDebugView entityView)
+        protected override bool OnGuiTyped(string label, ref string value, EcsEntityDebugView entityView)
         {
             var newValue = EditorGUILayout.TextField(label, value);
             if (newValue == value) { return false; }

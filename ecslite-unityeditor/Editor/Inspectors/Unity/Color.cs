@@ -10,7 +10,7 @@ namespace Leopotam.EcsLite.UnityEditor.Inspectors
 {
     internal sealed class ColorInspector : EcsComponentInspectorTyped<Color>
     {
-        public override bool OnGuiTyped(string label, ref Color value, EcsEntityDebugView entityView)
+        protected override bool OnGuiTyped(string label, ref Color value, EcsEntityDebugView entityView)
         {
             var newValue = EditorGUILayout.ColorField(label, value);
             if (newValue == value) { return false; }

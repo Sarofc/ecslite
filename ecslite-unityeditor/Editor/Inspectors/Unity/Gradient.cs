@@ -10,7 +10,7 @@ namespace Leopotam.EcsLite.UnityEditor.Inspectors
 {
     internal sealed class GradientInspector : EcsComponentInspectorTyped<Gradient>
     {
-        public override bool OnGuiTyped(string label, ref Gradient value, EcsEntityDebugView entityView)
+        protected override bool OnGuiTyped(string label, ref Gradient value, EcsEntityDebugView entityView)
         {
             var newValue = EditorGUILayout.GradientField(label, value);
             if (newValue.Equals(value)) { return false; }

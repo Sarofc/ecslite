@@ -10,7 +10,7 @@ namespace Leopotam.EcsLite.UnityEditor.Inspectors
 {
     internal sealed class RectInspector : EcsComponentInspectorTyped<Rect>
     {
-        public override bool OnGuiTyped(string label, ref Rect value, EcsEntityDebugView entityView)
+        protected override bool OnGuiTyped(string label, ref Rect value, EcsEntityDebugView entityView)
         {
             var newValue = EditorGUILayout.RectField(label, value);
             if (newValue == value) { return false; }
