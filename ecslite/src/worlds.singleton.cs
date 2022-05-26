@@ -12,7 +12,7 @@
             return m_SingletonEntityId;
         }
 
-        public ref T GetSingleton<T>() where T : struct
+        public ref T GetSingleton<T>() where T : struct, IEcsComponent
         {
             var singletonID = GetSingletonEntity();
 

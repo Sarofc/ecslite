@@ -1,8 +1,12 @@
-﻿namespace Leopotam.EcsLite.Extension
+﻿// #define LOG_ECS_MSG
+
+using Saro;
+
+namespace Leopotam.EcsLite.Extension
 {
     public static class EcsEventExt
     {
-        public static void SendMessage<T>(this EcsWorld self, in T e) where T : struct
+        public static void SendMessage<T>(this EcsWorld self, in T e) where T : struct, IEcsComponent
         {
             var ent = self.NewEntity();
 
@@ -11,10 +15,12 @@
                 msg = e;
             }
 
-            //Log.ERROR($"SendMessage: {@event}");
+#if LOG_ECS_MSG
+            Log.ERROR($"SendMessage: {e}");
+#endif
         }
 
-        public static void SendMessage<T1, T2>(this EcsWorld self, in T1 e1, in T2 e2) where T1 : struct where T2 : struct
+        public static void SendMessage<T1, T2>(this EcsWorld self, in T1 e1, in T2 e2) where T1 : struct, IEcsComponent where T2 : struct, IEcsComponent
         {
             var ent = self.NewEntity();
 
@@ -28,7 +34,9 @@
                 msg = e2;
             }
 
-            //Log.ERROR($"SendMessage: {evt1} {evt2}");
+#if LOG_ECS_MSG
+            Log.ERROR($"SendMessage: {e1} {e2}");
+#endif
         }
     }
 }

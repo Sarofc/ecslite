@@ -7,7 +7,7 @@ namespace Leopotam.EcsLite.Extension
     /// TODO 类似 unity dynamic buffer
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public struct ComponentArray<T> : IEcsAutoReset<ComponentArray<T>>
+    public struct ComponentArray<T> : IEcsAutoReset<ComponentArray<T>>,IEcsComponent
         where T : struct
     {
         public T[] Value;
@@ -21,7 +21,7 @@ namespace Leopotam.EcsLite.Extension
     /// TODO 实现一个 dynamic buffer 代替
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public struct ComponentList<T> : IEcsAutoReset<ComponentList<T>>
+    public struct ComponentList<T> : IEcsAutoReset<ComponentList<T>>,IEcsComponent
         where T : struct
     {
         public List<T> Value => m_Value ??= ListPool<T>.Rent();
@@ -37,13 +37,13 @@ namespace Leopotam.EcsLite.Extension
         }
     }
 
-    public struct ComponentStack<T> where T : struct
+    public struct ComponentStack<T> where T : struct,IEcsComponent
     {
         public Stack<T> Value => m_Value ??= new Stack<T>();
         private Stack<T> m_Value;
     }
 
-    public struct ComponentQueue<T> where T : struct
+    public struct ComponentQueue<T> where T : struct,IEcsComponent
     {
         public Queue<T> Value => m_Value ??= new Queue<T>();
         private Queue<T> m_Value;

@@ -316,12 +316,12 @@ namespace Leopotam.EcsLite
             return m_FreeMasksCount;
         }
 
-        public EcsPool<T> GetPool<T>() where T : struct
+        public EcsPool<T> GetPool<T>() where T : struct, IEcsComponent
         {
             return GetPool<T>(m_PoolDenseSize, m_PoolRecycledSize);
         }
 
-        public EcsPool<T> GetPool<T>(int denseCapacity, int recycledCapacity) where T : struct
+        public EcsPool<T> GetPool<T>(int denseCapacity, int recycledCapacity) where T : struct, IEcsComponent
         {
             var poolType = typeof(T);
             if (m_PoolHashes.TryGetValue(poolType, out var rawPool))
@@ -397,7 +397,7 @@ namespace Leopotam.EcsLite
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [System.Obsolete("use Filter() instead", true)]
-        public Mask Filter<T>() where T : struct
+        public Mask Filter<T>() where T : struct, IEcsComponent
         {
             var mask = m_FreeMasksCount > 0 ? m_Masks[--m_FreeMasksCount] : new Mask(this);
             return mask.Inc<T>();
@@ -692,7 +692,7 @@ namespace Leopotam.EcsLite
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public Mask Inc<T>() where T : struct
+            public Mask Inc<T>() where T : struct, IEcsComponent
             {
                 var poolId = m_World.GetPool<T>().GetId();
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
@@ -724,7 +724,7 @@ namespace Leopotam.EcsLite
             [UnityEngine.Scripting.Preserve]
 #endif
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public Mask Exc<T>() where T : struct
+            public Mask Exc<T>() where T : struct, IEcsComponent
             {
                 var poolId = m_World.GetPool<T>().GetId();
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS

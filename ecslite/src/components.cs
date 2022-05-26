@@ -34,7 +34,7 @@ namespace Leopotam.EcsLite
     [Il2CppSetOption (Option.NullChecks, false)]
     [Il2CppSetOption (Option.ArrayBoundsChecks, false)]
 #endif
-    public sealed class EcsPool<T> : IEcsPool where T : struct
+    public sealed class EcsPool<T> : IEcsPool where T : struct, IEcsComponent
     {
         private readonly Type m_Type;
         private readonly EcsWorld m_World;

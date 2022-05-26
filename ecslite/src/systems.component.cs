@@ -12,24 +12,29 @@ namespace Leopotam.EcsLite
             var pool = ent.World.GetPool<T>(); 大数组时，非常耗时
 
             改为 ComponentPool.TPool.直接引用 EcsPool
-            
          */
 
         // TODO 没有检查 ent 是否存活
-        public static ref T Add<T>(this EcsPackedEntityWithWorld ent) where T : struct
+        public static ref T Add<T>(this EcsPackedEntity ent, EcsWorld world) where T : struct, IEcsComponent
+        {
+            var pool = world.GetPool<T>();
+            return ref pool.Add(ent.id);
+        }
+        
+        public static ref T Add<T>(this EcsPackedEntityWithWorld ent) where T : struct, IEcsComponent
         {
             var pool = ent.world.GetPool<T>();
             return ref pool.Add(ent.id);
         }
 
         // TODO 没有检查 ent 是否存活
-        public static ref T Add<T>(this int ent, EcsWorld world) where T : struct
+        public static ref T Add<T>(this int ent, EcsWorld world) where T : struct, IEcsComponent
         {
             var pool = world.GetPool<T>();
             return ref pool.Add(ent);
         }
 
-        public static ref T Add<T>(this int ent, T component, EcsWorld world) where T : struct
+        public static ref T Add<T>(this int ent, T component, EcsWorld world) where T : struct, IEcsComponent
         {
             var pool = world.GetPool<T>();
             ref var cc = ref pool.Add(ent);
@@ -38,28 +43,34 @@ namespace Leopotam.EcsLite
         }
 
         // TODO 没有检查 ent 是否存活
-        public static bool Has<T>(this int ent, EcsWorld world) where T : struct
+        public static bool Has<T>(this int ent, EcsWorld world) where T : struct, IEcsComponent
         {
             var pool = world.GetPool<T>();
             return pool.Has(ent);
         }
+        
+        public static bool Has<T>(this EcsPackedEntity ent, EcsWorld world) where T : struct, IEcsComponent
+        {
+            var pool = world.GetPool<T>();
+            return pool.Has(ent.id);
+        }
 
         // TODO 没有检查 ent 是否存活
-        public static bool Has<T>(this EcsPackedEntityWithWorld ent) where T : struct
+        public static bool Has<T>(this EcsPackedEntityWithWorld ent) where T : struct, IEcsComponent
         {
             var pool = ent.world.GetPool<T>();
             return pool.Has(ent.id);
         }
 
         // TODO 没有检查 ent 是否存活
-        public static ref T Get<T>(this EcsPackedEntityWithWorld self) where T : struct
+        public static ref T Get<T>(this EcsPackedEntityWithWorld self) where T : struct, IEcsComponent
         {
             var pool = self.world.GetPool<T>();
             return ref pool.Get(self.id);
         }
 
         // TODO 没有检查 ent 是否存活
-        public static ref T Get<T>(this EcsPackedEntity self, EcsWorld world) where T : struct
+        public static ref T Get<T>(this EcsPackedEntity self, EcsWorld world) where T : struct, IEcsComponent
         {
             //if(self.Unpack(world, out _))
             {
@@ -69,21 +80,28 @@ namespace Leopotam.EcsLite
         }
 
         // TODO 没有检查 ent 是否存活
-        public static ref T Get<T>(this int ent, EcsWorld world) where T : struct
+        public static ref T Get<T>(this int ent, EcsWorld world) where T : struct, IEcsComponent
         {
             var pool = world.GetPool<T>();
             return ref pool.Get(ent);
         }
 
         // TODO 没有检查 ent 是否存活
-        public static void Del<T>(this EcsPackedEntityWithWorld self) where T : struct
+        public static void Del<T>(this EcsPackedEntityWithWorld self) where T : struct, IEcsComponent
         {
             var pool = self.world.GetPool<T>();
             pool.Del(self.id);
         }
+        
+        // TODO 没有检查 ent 是否存活
+        public static void Del<T>(this EcsPackedEntity self, EcsWorld world) where T : struct, IEcsComponent
+        {
+            var pool = world.GetPool<T>();
+            pool.Del(self.id);
+        }
 
         // TODO 没有检查 ent 是否存活
-        public static void Del<T>(this int ent, EcsWorld world) where T : struct
+        public static void Del<T>(this int ent, EcsWorld world) where T : struct, IEcsComponent
         {
             var pool = world.GetPool<T>();
             pool.Del(ent);
