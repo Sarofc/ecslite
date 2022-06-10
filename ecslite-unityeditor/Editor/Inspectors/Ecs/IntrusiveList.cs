@@ -24,7 +24,7 @@ namespace Saro.Entities.UnityEditor.Inspectors
                     {
                         EditorGUILayout.BeginHorizontal();
                         EditorGUILayout.LabelField($"Element {i}");
-                        EcsEntityRefInspector.DrawEntity(item, entityView);
+                        EcsEntityInspector.DrawEntity(item, entityView);
                         EditorGUILayout.EndHorizontal();
                         ++i;
                     }

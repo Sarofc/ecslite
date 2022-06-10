@@ -138,21 +138,5 @@ namespace Saro.Entities
         {
             return new(entity, world.GetEntityGen(entity), world.worldID);
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Unpack(this in EcsEntity packedEntity, out EcsWorld world, out int entity)
-        {
-            if (packedEntity.World == null || !packedEntity.World.IsAlive() ||
-                !packedEntity.World.IsEntityAlive_Internal(packedEntity.id) ||
-                packedEntity.World.GetEntityGen(packedEntity.id) != packedEntity.gen)
-            {
-                world = null;
-                entity = -1;
-                return false;
-            }
-            world = packedEntity.World;
-            entity = packedEntity.id;
-            return true;
-        }
     }
 }

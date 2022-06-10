@@ -30,12 +30,12 @@ namespace Saro.Entities.UnityEditor.Inspectors
 
         public static void DrawEntity(ref EcsEntity value, EcsEntityDebugView entityView)
         {
-            if (value.Unpack(out var unpackedWorld, out var unpackedEntity))
+            if (value.IsAlive())
             {
-                if (unpackedWorld == entityView.world)
+                if (value.World == entityView.world)
                 {
-                    var _entityView = entityView.debugSystem.GetEntityView(unpackedEntity);
-                    var entityName = Name.GetEntityName(unpackedEntity, unpackedWorld);
+                    var _entityView = entityView.debugSystem.GetEntityView(value.id);
+                    var entityName = Name.GetEntityName(value.id, value.World);
                     if (GUILayout.Button($"Ping [{entityName}]"))
                     {
                         EditorGUIUtility.PingObject(_entityView);

@@ -6,7 +6,7 @@ namespace Saro.Entities.Extension
     {
         public ref EcsEntity Entity => ref m_Entity;
 
-        public bool IsAlive => m_Entity.Unpack(out _, out _);
+        public bool IsAlive => m_Entity.IsAlive();
 
         private EcsEntity m_Entity;
 
