@@ -17,7 +17,6 @@ namespace Saro.Entities
 
     public static partial class EcsEntityExtensions
     {
-        // TODO 没有检查 ent 是否存活
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ref T Add<T>(in this EcsPackedEntity self, EcsWorld world) where T : struct, IEcsComponent
         {
@@ -32,7 +31,6 @@ namespace Saro.Entities
             return ref pool.Add(self.id);
         }
 
-        // TODO 没有检查 ent 是否存活
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ref T Add<T>(this int self, EcsWorld world) where T : struct, IEcsComponent
         {
@@ -49,7 +47,6 @@ namespace Saro.Entities
             return ref cc;
         }
 
-        // TODO 没有检查 ent 是否存活
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Has<T>(this int self, EcsWorld world) where T : struct, IEcsComponent
         {
@@ -64,7 +61,6 @@ namespace Saro.Entities
             return pool.Has(ent.id);
         }
 
-        // TODO 没有检查 ent 是否存活
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Has<T>(in this EcsPackedEntityWithWorld ent) where T : struct, IEcsComponent
         {
@@ -72,7 +68,6 @@ namespace Saro.Entities
             return pool.Has(ent.id);
         }
 
-        // TODO 没有检查 ent 是否存活
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ref T Get<T>(in this EcsPackedEntityWithWorld self) where T : struct, IEcsComponent
         {
@@ -80,18 +75,13 @@ namespace Saro.Entities
             return ref pool.Get(self.id);
         }
 
-        // TODO 没有检查 ent 是否存活
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ref T Get<T>(in this EcsPackedEntity self, EcsWorld world) where T : struct, IEcsComponent
         {
-            //if(self.Unpack(world, out _))
-            {
-                var pool = world.GetPool<T>();
-                return ref pool.Get(self.id);
-            }
+            var pool = world.GetPool<T>();
+            return ref pool.Get(self.id);
         }
 
-        // TODO 没有检查 ent 是否存活
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ref T Get<T>(this int self, EcsWorld world) where T : struct, IEcsComponent
         {
@@ -99,7 +89,6 @@ namespace Saro.Entities
             return ref pool.Get(self);
         }
 
-        // TODO 没有检查 ent 是否存活
         [System.Obsolete("use Has and Get instead", true)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryGet<T>(this int self, EcsWorld world, out T component) where T : struct, IEcsComponent
@@ -109,7 +98,6 @@ namespace Saro.Entities
             return pool.TryGet(self, out component);
         }
 
-        // TODO 没有检查 ent 是否存活
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Del<T>(in this EcsPackedEntityWithWorld self) where T : struct, IEcsComponent
         {
@@ -117,7 +105,6 @@ namespace Saro.Entities
             pool.Del(self.id);
         }
 
-        // TODO 没有检查 ent 是否存活
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Del<T>(in this EcsPackedEntity self, EcsWorld world) where T : struct, IEcsComponent
         {
@@ -125,7 +112,6 @@ namespace Saro.Entities
             pool.Del(self.id);
         }
 
-        // TODO 没有检查 ent 是否存活
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Del<T>(this int self, EcsWorld world) where T : struct, IEcsComponent
         {

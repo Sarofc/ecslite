@@ -319,20 +319,16 @@ namespace Saro.Entities
             return entities;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int GetFreeMaskCount()
         {
             return m_FreeMasksCount;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public EcsPool<T> GetPool<T>() where T : struct, IEcsComponent
         {
-            GProfiler.BeginSample("[Ecs] GetPool");
-
-            var pool = GetPool<T>(m_PoolDenseSize, m_PoolRecycledSize);
-
-            GProfiler.EndSample();
-
-            return pool;
+            return GetPool<T>(m_PoolDenseSize, m_PoolRecycledSize);
         }
 
         public EcsPool<T> GetPool<T>(int denseCapacity, int recycledCapacity) where T : struct, IEcsComponent
@@ -439,6 +435,33 @@ namespace Saro.Entities
             }
 
             return itemsCount;
+        }
+
+        public void GetComponents(int entity, ref List<object> list)
+        {
+            var itemsCount = entities[entity].componentsCount;
+            if (itemsCount == 0)
+            {
+                return;
+            }
+
+            if (list == null)
+            {
+                list = new List<object>(m_Pools.Length);
+            }
+
+            if (list.Count < itemsCount)
+            {
+                list.Capacity = itemsCount;
+            }
+
+            for (int i = 0, iMax = m_PoolsCount; i < iMax; i++)
+            {
+                if (m_Pools[i].Has(entity))
+                {
+                    list.Add(m_Pools[i].GetRaw(entity));
+                }
+            }
         }
 
         public int GetComponentTypes(int entity, ref Type[] array)

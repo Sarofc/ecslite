@@ -19,6 +19,7 @@ namespace Saro.Entities
         void OnEntityRemoved(int entity);
     }
 #endif
+
 #if ENABLE_IL2CPP
     [Il2CppSetOption (Option.NullChecks, false)]
     [Il2CppSetOption (Option.ArrayBoundsChecks, false)]

@@ -1,5 +1,6 @@
 using System;
 using Saro.Entities.Authoring;
+using Saro.Entities.Serialization;
 
 namespace Saro.Entities.Transforms
 {

@@ -1,9 +1,12 @@
-﻿namespace Saro.Entities
+﻿using System.Runtime.CompilerServices;
+
+namespace Saro.Entities
 {
     public partial class EcsWorld
     {
         private int m_SingletonEntityId = -1;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int GetSingletonEntity()
         {
             if (m_SingletonEntityId < 0)
@@ -12,6 +15,7 @@
             return m_SingletonEntityId;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ref T GetSingleton<T>() where T : struct, IEcsComponent
         {
             var singletonID = GetSingletonEntity();

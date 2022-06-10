@@ -11,22 +11,12 @@ namespace Saro.Entities.Authoring
 
         补充，华佗也支持直接挂载脚本，所以这个应该不是啥问题了
     */
+
+    /// <summary>
+    /// component 实现这个接口，才能被 <see cref="IEcsConvertToEntity"/> 所使用
+    /// </summary>
     public interface IEcsComponentAuthoring : IEcsComponent
     { }
-
-    /// <summary>
-    /// 此组件不会被添加！<see cref="GenericEntityAuthoring"/>
-    /// </summary>
-    public interface IEcsComponentNotAdd
-    { }
-
-    /// <summary>
-    /// 添加全部组件后初始化！建议单个组件不要依赖过多组件！<see cref="GenericEntityAuthoring"/>
-    /// </summary>
-    public interface IEcsComponentPostInit
-    {
-        void PostInitialize(EcsWorld world, int entity);
-    }
 
     /// <summary>
     /// Ecs转换接口

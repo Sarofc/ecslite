@@ -51,6 +51,7 @@ namespace Saro.Entities
             // TODO 测试
             //  1. DelEntity 节点时，是否正确删除
             // 2. world.OnDestroy 时，是否正确删除
+            // 3. 所有 DelEntity 的地方都要注意！
 
             // 有children组件的entity，需要递归调用，保证层级正确
             if (ChildrenPool.Has(entity))
