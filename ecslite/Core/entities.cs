@@ -12,59 +12,31 @@ using Unity.IL2CPP.CompilerServices;
 
 namespace Saro.Entities
 {
-    public readonly struct EcsPackedEntity : IEquatable<EcsPackedEntity>
+    /*
+     * TODO 潜在危险
+     * 
+     * 可能存在外部系统(ecs之外) 引用entity, world被销毁, 又new了一个新的同id的world, 获取entity数据会报错
+     * 
+     */
+    public readonly struct EcsEntity : IEquatable<EcsEntity>
     {
-        public static readonly EcsPackedEntity k_Null = default;
+        public static readonly EcsEntity k_Null = default;
+
         public readonly int id;
-        internal readonly int gen;
+        internal readonly short gen;
+        internal readonly short world;
 
-        public EcsPackedEntity(int id, int gen)
+        public EcsWorld World
         {
-            this.gen = gen;
-            this.id = id;
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => EcsWorld.s_Worlds[world];
         }
 
-        public bool Equals(EcsPackedEntity other)
-        {
-            return id == other.id && gen == other.gen;
-        }
-
-        public override bool Equals(object obj)
-        {
-            return obj is EcsPackedEntity other && Equals(other);
-        }
-
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(id, gen);
-        }
-
-        public static bool operator !=(in EcsPackedEntity x, in EcsPackedEntity y)
-        {
-            return !(x == y);
-        }
-
-        public static bool operator ==(in EcsPackedEntity x, in EcsPackedEntity y)
-        {
-            if (x.id != y.id) return false;
-            if (x.gen != y.gen) return false;
-
-            return true;
-        }
-    }
-
-    public readonly struct EcsPackedEntityWithWorld : IEquatable<EcsPackedEntityWithWorld>
-    {
-        public static readonly EcsPackedEntityWithWorld k_Null = default;
-        public readonly int id;
-        internal readonly int gen;
-        internal readonly EcsWorld world;
-
-        public EcsPackedEntityWithWorld(int id, int gen = 0, EcsWorld world = null)
+        public EcsEntity(int id, short gen = 0, short worldID = 0)
         {
             this.id = id;
             this.gen = gen;
-            this.world = world;
+            this.world = worldID;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -73,9 +45,9 @@ namespace Saro.Entities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsAlive()
         {
-            if (world == null || !world.IsAlive() ||
-                !world.IsEntityAlive_Internal(id) ||
-                world.GetEntityGen(id) != gen)
+            if (World == null || !World.IsAlive() ||
+                !World.IsEntityAlive_Internal(id) ||
+                World.GetEntityGen(id) != gen)
             {
                 return false;
             }
@@ -84,31 +56,29 @@ namespace Saro.Entities
 
 
 #if DEBUG
-        // For using in IDE debugger.
-        internal object[] DebugComponentsView
+        private object[] DebugComponentsViewForIDE
         {
             get
             {
-                if (world != null && world.IsAlive() && world.IsEntityAlive_Internal(id) &&
-                    world.GetEntityGen(id) == gen)
+                if (World != null && World.IsAlive() && World.IsEntityAlive_Internal(id) &&
+                    World.GetEntityGen(id) == gen)
                 {
-                    object[] array = new object[DebugComponentsCount];
-                    var count = world.GetComponents(id, ref array);
+                    object[] array = new object[DebugComponentsCountForIDE];
+                    var count = World.GetComponents(id, ref array);
                     return array;
                 }
                 return null;
             }
         }
 
-        // For using in IDE debugger.
-        internal int DebugComponentsCount
+        private int DebugComponentsCountForIDE
         {
             get
             {
-                if (world != null && world.IsAlive() && world.IsEntityAlive_Internal(id) &&
-                    world.GetEntityGen(id) == gen)
+                if (World != null && World.IsAlive() && World.IsEntityAlive_Internal(id) &&
+                    World.GetEntityGen(id) == gen)
                 {
-                    return world.GetComponentsCount(id);
+                    return World.GetComponentsCount(id);
                 }
                 return 0;
             }
@@ -121,12 +91,12 @@ namespace Saro.Entities
             {
                 return "Entity-Null";
             }
-            if (world == null || !world.IsAlive() || !world.IsEntityAlive_Internal(id) || world.GetEntityGen(id) != gen)
+            if (World == null || !World.IsAlive() || !World.IsEntityAlive_Internal(id) || World.GetEntityGen(id) != gen)
             {
                 return "Entity-NonAlive";
             }
             System.Type[] types = null;
-            var count = world.GetComponentTypes(id, ref types);
+            var count = World.GetComponentTypes(id, ref types);
             System.Text.StringBuilder sb = null;
             if (count > 0)
             {
@@ -141,38 +111,20 @@ namespace Saro.Entities
                 }
             }
 
-            return $"\'{Name.GetEntityName(id, world)}\' {id}:{gen} [{sb}]";
+            return $"\'{Name.GetEntityName(id, World)}\' {world}:{id}.{gen} [{sb}]";
         }
 #endif
-        public bool Equals(EcsPackedEntityWithWorld other)
-        {
-            return id == other.id && gen == other.gen && Equals(world, other.world);
-        }
+        public bool Equals(EcsEntity other)
+            => id == other.id && gen == other.gen && Equals(World, other.World);
 
         public override bool Equals(object obj)
-        {
-            return obj is EcsPackedEntityWithWorld other && Equals(other);
-        }
+            => obj is EcsEntity other && Equals(other);
 
-        public override int GetHashCode()
-        {
-            // TODO calc hash
-            return HashCode.Combine(id, gen, world);
-        }
+        public override int GetHashCode() => id; // TODO 先这么处理吧, 原则上, 同一个world的entity,才能放到一个map里
 
-        public static bool operator !=(in EcsPackedEntityWithWorld x, in EcsPackedEntityWithWorld y)
-        {
-            return !(x == y);
-        }
+        public static bool operator !=(in EcsEntity x, in EcsEntity y) => !(x == y);
 
-        public static bool operator ==(in EcsPackedEntityWithWorld x, in EcsPackedEntityWithWorld y)
-        {
-            if (x.id != y.id) return false;
-            if (x.gen != y.gen) return false;
-            if (x.world != y.world) return false;
-
-            return true;
-        }
+        public static bool operator ==(in EcsEntity x, in EcsEntity y) => x.id == y.id && x.gen == y.gen && x.World == y.World;
     }
 
 #if ENABLE_IL2CPP
@@ -182,56 +134,25 @@ namespace Saro.Entities
     public static partial class EcsEntityExtensions
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static EcsPackedEntity PackEntity(this EcsWorld world, int entity)
+        public static EcsEntity Pack(this EcsWorld world, int entity)
         {
-            return new(entity, world.GetEntityGen(entity));
+            return new(entity, world.GetEntityGen(entity), world.worldID);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Unpack(this in EcsPackedEntity packed, EcsWorld world, out int entity)
+        public static bool Unpack(this in EcsEntity packedEntity, out EcsWorld world, out int entity)
         {
-            if (!world.IsAlive() || !world.IsEntityAlive_Internal(packed.id) ||
-                world.GetEntityGen(packed.id) != packed.gen)
-            {
-                entity = -1;
-                return false;
-            }
-            entity = packed.id;
-            return true;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool EqualsTo(this in EcsPackedEntity a, in EcsPackedEntity b)
-        {
-            return a.id == b.id && a.gen == b.gen;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static EcsPackedEntityWithWorld PackEntityWithWorld(this EcsWorld world, int entity)
-        {
-            return new(entity, world.GetEntityGen(entity), world);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Unpack(this in EcsPackedEntityWithWorld packedEntity, out EcsWorld world, out int entity)
-        {
-            if (packedEntity.world == null || !packedEntity.world.IsAlive() ||
-                !packedEntity.world.IsEntityAlive_Internal(packedEntity.id) ||
-                packedEntity.world.GetEntityGen(packedEntity.id) != packedEntity.gen)
+            if (packedEntity.World == null || !packedEntity.World.IsAlive() ||
+                !packedEntity.World.IsEntityAlive_Internal(packedEntity.id) ||
+                packedEntity.World.GetEntityGen(packedEntity.id) != packedEntity.gen)
             {
                 world = null;
                 entity = -1;
                 return false;
             }
-            world = packedEntity.world;
+            world = packedEntity.World;
             entity = packedEntity.id;
             return true;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool EqualsTo(this in EcsPackedEntityWithWorld a, in EcsPackedEntityWithWorld b)
-        {
-            return a.id == b.id && a.gen == b.gen && a.world == b.world;
         }
     }
 }

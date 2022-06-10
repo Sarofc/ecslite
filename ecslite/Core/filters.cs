@@ -52,34 +52,22 @@ namespace Saro.Entities
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public EcsWorld GetWorld()
-        {
-            return m_World;
-        }
+        public EcsWorld GetWorld() => m_World;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetEntitiesCount()
-        {
-            return m_EntitiesCount;
-        }
+        public int GetEntitiesCount() => m_EntitiesCount;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int[] GetRawEntities()
-        {
-            return m_DenseEntities;
-        }
+        public int[] GetRawEntities() => m_DenseEntities;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int[] GetSparseIndex()
-        {
-            return sparseEntities;
-        }
+        public int[] GetSparseIndex() => sparseEntities;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Enumerator GetEnumerator()
         {
             m_LockCount++;
-            return new Enumerator(this);
+            return new(this);
         }
 
 #if LEOECSLITE_FILTER_EVENTS
@@ -111,16 +99,10 @@ namespace Saro.Entities
 #endif
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void ResizeSparseIndex(int capacity)
-        {
-            Array.Resize(ref sparseEntities, capacity);
-        }
+        internal void ResizeSparseIndex(int capacity) => Array.Resize(ref sparseEntities, capacity);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal EcsWorld.Mask GetMask()
-        {
-            return m_Mask;
-        }
+        internal EcsWorld.Mask GetMask() => m_Mask;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void AddEntity(int entity)
@@ -233,22 +215,16 @@ namespace Saro.Entities
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public bool MoveNext()
-            {
-                return ++m_Idx < m_Count;
-            }
+            public bool MoveNext() => ++m_Idx < m_Count;
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void Dispose()
-            {
-                m_Filter.Unlock();
-            }
+            public void Dispose() => m_Filter.Unlock();
         }
 
         private struct DelayedOp
         {
-            public bool added;
             public int entity;
+            public bool added;
         }
     }
 }

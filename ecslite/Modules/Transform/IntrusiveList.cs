@@ -15,32 +15,32 @@ namespace Saro.Entities.Collections
 
     public struct IntrusiveListNode : IEcsComponent
     {
-        public EcsPackedEntityWithWorld next;
-        public EcsPackedEntityWithWorld prev;
-        public EcsPackedEntityWithWorld data;
+        public EcsEntity next;
+        public EcsEntity prev;
+        public EcsEntity data;
     }
 
     public interface IIntrusiveList
     {
         int Count { get; }
 
-        void Add(in EcsPackedEntityWithWorld entity);
-        void AddFirst(in EcsPackedEntityWithWorld entity);
-        bool Remove(in EcsPackedEntityWithWorld entity);
-        int RemoveAll(in EcsPackedEntityWithWorld entity);
-        bool Replace(in EcsPackedEntityWithWorld entity, int index);
-        bool Insert(in EcsPackedEntityWithWorld entity, int onIndex);
+        void Add(in EcsEntity entity);
+        void AddFirst(in EcsEntity entity);
+        bool Remove(in EcsEntity entity);
+        int RemoveAll(in EcsEntity entity);
+        bool Replace(in EcsEntity entity, int index);
+        bool Insert(in EcsEntity entity, int onIndex);
         void Clear(bool destroyData = false);
         bool RemoveAt(int index, bool destroyData = false);
         int RemoveRange(int from, int to, bool destroyData = false);
-        EcsPackedEntityWithWorld GetValue(int index);
-        bool Contains(in EcsPackedEntityWithWorld entity);
-        EcsPackedEntityWithWorld GetFirst();
-        EcsPackedEntityWithWorld GetLast();
+        EcsEntity GetValue(int index);
+        bool Contains(in EcsEntity entity);
+        EcsEntity GetFirst();
+        EcsEntity GetLast();
         bool RemoveLast(bool destroyData = false);
         bool RemoveFirst(bool destroyData = false);
 
-        IEnumerator<EcsPackedEntityWithWorld> GetRange(int from, int to);
+        IEnumerator<EcsEntity> GetRange(int from, int to);
 
         // BufferArray<EcsPackedEntityWithWorld> ToArray();
         IntrusiveList.Enumerator GetEnumerator();
@@ -61,11 +61,11 @@ namespace Saro.Entities.Collections
 #endif
 
 #if DEBUG
-        internal List<EcsPackedEntityWithWorld> DataArrayForDebug
+        internal List<EcsEntity> DataArrayForDebug
         {
             get
             {
-                var list = new List<EcsPackedEntityWithWorld>();
+                var list = new List<EcsEntity>();
 
                 foreach (var item in this)
                 {
@@ -77,17 +77,17 @@ namespace Saro.Entities.Collections
         }
 #endif
 
-        public struct Enumerator : IEnumerator<EcsPackedEntityWithWorld>
+        public struct Enumerator : IEnumerator<EcsEntity>
         {
-            private readonly EcsPackedEntityWithWorld m_Root;
-            private EcsPackedEntityWithWorld m_Head;
+            private readonly EcsEntity m_Root;
+            private EcsEntity m_Head;
             private int m_Id;
 
-            EcsPackedEntityWithWorld IEnumerator<EcsPackedEntityWithWorld>.Current
-                => m_Root.world.NodePool.Get(m_Id).data;
+            EcsEntity IEnumerator<EcsEntity>.Current
+                => m_Root.World.NodePool.Get(m_Id).data;
 
-            public ref readonly EcsPackedEntityWithWorld Current
-                => ref m_Root.world.NodePool.Get(m_Id).data;
+            public ref readonly EcsEntity Current
+                => ref m_Root.World.NodePool.Get(m_Id).data;
 
 #if INLINE_METHODS
             [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
@@ -108,7 +108,7 @@ namespace Saro.Entities.Collections
 
                 m_Id = m_Head.id;
 
-                m_Head = m_Head.world.NodePool.Get(m_Head.id).next;
+                m_Head = m_Head.World.NodePool.Get(m_Head.id).next;
 
                 return true;
             }
@@ -130,10 +130,10 @@ namespace Saro.Entities.Collections
         }
 
         // [ME.ECS.Serializer.SerializeFieldAttribute]
-        private EcsPackedEntityWithWorld m_Root;
+        private EcsEntity m_Root;
 
         // [ME.ECS.Serializer.SerializeFieldAttribute]
-        private EcsPackedEntityWithWorld m_Head;
+        private EcsEntity m_Head;
 
         // [ME.ECS.Serializer.SerializeFieldAttribute]
         private int m_Count;
@@ -175,7 +175,7 @@ namespace Saro.Entities.Collections
 #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
 #endif
-        public bool Contains(in EcsPackedEntityWithWorld entity)
+        public bool Contains(in EcsEntity entity)
         {
             if (m_Count == 0) return false;
 
@@ -199,14 +199,14 @@ namespace Saro.Entities.Collections
             while (m_Root.IsAlive() == true)
             {
                 var node = m_Root;
-                m_Root = m_Root.world.NodePool.Get(m_Root.id).next;
+                m_Root = m_Root.World.NodePool.Get(m_Root.id).next;
                 //root = root.Get<IntrusiveListNode>().next;
                 if (destroyData == true) DestroyData(node);
                 node.Destroy();
             }
 
-            m_Root = EcsPackedEntityWithWorld.k_Null;
-            m_Head = EcsPackedEntityWithWorld.k_Null;
+            m_Root = EcsEntity.k_Null;
+            m_Head = EcsEntity.k_Null;
             m_Count = 0;
         }
 
@@ -218,14 +218,14 @@ namespace Saro.Entities.Collections
 #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
 #endif
-        public IEnumerator<EcsPackedEntityWithWorld> GetRange(int from, int to)
+        public IEnumerator<EcsEntity> GetRange(int from, int to)
         {
             while (from < to)
             {
                 var node = FindNode(from);
                 if (node.IsAlive() == true)
                 {
-                    yield return node.world.NodePool.Get(node.id).data;
+                    yield return node.World.NodePool.Get(node.id).data;
                     //yield return node.Get<IntrusiveListNode>().data;
                 }
                 else
@@ -280,7 +280,7 @@ namespace Saro.Entities.Collections
                 {
                     if (node.IsAlive() == true)
                     {
-                        var next = node.world.NodePool.Get(node.id).next;
+                        var next = node.World.NodePool.Get(node.id).next;
                         //var next = node.Get<IntrusiveListNode>().next;
                         RemoveNode(in node, destroyData);
                         node = next;
@@ -305,18 +305,18 @@ namespace Saro.Entities.Collections
 #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
 #endif
-        public EcsPackedEntityWithWorld GetValue(int index)
+        public EcsEntity GetValue(int index)
         {
-            if (m_Count == 0) return EcsPackedEntityWithWorld.k_Null;
+            if (m_Count == 0) return EcsEntity.k_Null;
 
             var node = FindNode(index);
             if (node.IsAlive() == true)
             {
-                return node.world.NodePool.Get(node.id).data;
+                return node.World.NodePool.Get(node.id).data;
                 //return node.Get<IntrusiveListNode>().data;
             }
 
-            return EcsPackedEntityWithWorld.k_Null;
+            return EcsEntity.k_Null;
         }
 
         /// <summary>
@@ -328,7 +328,7 @@ namespace Saro.Entities.Collections
 #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
 #endif
-        public bool Insert(in EcsPackedEntityWithWorld entity, int index)
+        public bool Insert(in EcsEntity entity, int index)
         {
             if (m_Count == 0)
             {
@@ -348,14 +348,14 @@ namespace Saro.Entities.Collections
             if (node.IsAlive() == true)
             {
                 var newNode = CreateNode(in entity);
-                ref var newNodeLink = ref newNode.world.NodePool.Get(newNode.id);
+                ref var newNodeLink = ref newNode.World.NodePool.Get(newNode.id);
                 //ref var newNodeLink = ref newNode.Get<IntrusiveListNode>();
 
-                var link = node.world.NodePool.Get(node.id);
+                var link = node.World.NodePool.Get(node.id);
                 //var link = node.Get<IntrusiveListNode>();
                 if (link.prev.IsAlive() == true)
                 {
-                    link.prev.world.NodePool.Get(link.prev.id).next = newNode;
+                    link.prev.World.NodePool.Get(link.prev.id).next = newNode;
                     //link.prev.Get<IntrusiveListNode>().next = newNode;
                     newNodeLink.prev = link.prev;
                 }
@@ -384,14 +384,14 @@ namespace Saro.Entities.Collections
 #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
 #endif
-        public bool Replace(in EcsPackedEntityWithWorld entity, int index)
+        public bool Replace(in EcsEntity entity, int index)
         {
             if (m_Count == 0) return false;
 
             var node = FindNode(index);
             if (node.IsAlive() == true)
             {
-                ref var link = ref node.world.NodePool.Get(node.id);
+                ref var link = ref node.World.NodePool.Get(node.id);
                 //ref var link = ref node.Get<IntrusiveListNode>();
                 link.data = entity;
                 return true;
@@ -408,7 +408,7 @@ namespace Saro.Entities.Collections
 #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
 #endif
-        public bool Remove(in EcsPackedEntityWithWorld entity)
+        public bool Remove(in EcsEntity entity)
         {
             if (m_Count == 0) return false;
 
@@ -430,7 +430,7 @@ namespace Saro.Entities.Collections
 #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
 #endif
-        public int RemoveAll(in EcsPackedEntityWithWorld entity)
+        public int RemoveAll(in EcsEntity entity)
         {
             if (m_Count == 0) return 0;
 
@@ -438,7 +438,7 @@ namespace Saro.Entities.Collections
             var count = 0;
             do
             {
-                var nextLink = root.world.NodePool.Get(root.id);
+                var nextLink = root.World.NodePool.Get(root.id);
                 //var nextLink = root.Get<IntrusiveListNode>();
                 if (nextLink.data == entity)
                 {
@@ -460,7 +460,7 @@ namespace Saro.Entities.Collections
 #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
 #endif
-        public void Add(in EcsPackedEntityWithWorld entity)
+        public void Add(in EcsEntity entity)
         {
             var node = IntrusiveList.CreateNode(in entity);
             if (m_Count == 0)
@@ -469,9 +469,9 @@ namespace Saro.Entities.Collections
             }
             else
             {
-                ref var nodeLink = ref node.world.NodePool.Get(node.id);
+                ref var nodeLink = ref node.World.NodePool.Get(node.id);
                 //ref var nodeLink = ref node.Get<IntrusiveListNode>();
-                ref var headLink = ref m_Head.world.NodePool.Get(m_Head.id);
+                ref var headLink = ref m_Head.World.NodePool.Get(m_Head.id);
                 //ref var headLink = ref head.Get<IntrusiveListNode>();
                 headLink.next = node;
                 nodeLink.prev = m_Head;
@@ -484,7 +484,7 @@ namespace Saro.Entities.Collections
 #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
 #endif
-        public void Add(in EcsPackedEntityWithWorld entity, out EcsPackedEntityWithWorld node)
+        public void Add(in EcsEntity entity, out EcsEntity node)
         {
             node = IntrusiveList.CreateNode(entity);
             if (m_Count == 0)
@@ -493,9 +493,9 @@ namespace Saro.Entities.Collections
             }
             else
             {
-                ref var nodeLink = ref node.world.NodePool.Get(node.id);
+                ref var nodeLink = ref node.World.NodePool.Get(node.id);
                 //ref var nodeLink = ref node.Get<IntrusiveListNode>();
-                ref var headLink = ref m_Head.world.NodePool.Get(m_Head.id);
+                ref var headLink = ref m_Head.World.NodePool.Get(m_Head.id);
                 //ref var headLink = ref head.Get<IntrusiveListNode>();
                 headLink.next = node;
                 nodeLink.prev = m_Head;
@@ -512,7 +512,7 @@ namespace Saro.Entities.Collections
 #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
 #endif
-        public void AddFirst(in EcsPackedEntityWithWorld entity)
+        public void AddFirst(in EcsEntity entity)
         {
             Insert(entity, 0);
         }
@@ -521,11 +521,11 @@ namespace Saro.Entities.Collections
         /// Returns first element.
         /// </summary>
         /// <returns>Returns instance, default if not found</returns>
-        public EcsPackedEntityWithWorld GetFirst()
+        public EcsEntity GetFirst()
         {
-            if (m_Root.IsAlive() == false) return EcsPackedEntityWithWorld.k_Null;
+            if (m_Root.IsAlive() == false) return EcsEntity.k_Null;
 
-            return m_Root.world.NodePool.Get(m_Root.id).data;
+            return m_Root.World.NodePool.Get(m_Root.id).data;
             //return root.Get<IntrusiveListNode>().data;
         }
 
@@ -533,11 +533,11 @@ namespace Saro.Entities.Collections
         /// Returns last element.
         /// </summary>
         /// <returns>Returns instance, default if not found</returns>
-        public EcsPackedEntityWithWorld GetLast()
+        public EcsEntity GetLast()
         {
-            if (m_Head.IsAlive() == false) return EcsPackedEntityWithWorld.k_Null;
+            if (m_Head.IsAlive() == false) return EcsEntity.k_Null;
 
-            return m_Head.world.NodePool.Get(m_Head.id).data;
+            return m_Head.World.NodePool.Get(m_Head.id).data;
             //return head.Get<IntrusiveListNode>().data;
         }
 
@@ -570,15 +570,15 @@ namespace Saro.Entities.Collections
 #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
 #endif
-        private EcsPackedEntityWithWorld FindNode(in EcsPackedEntityWithWorld entity)
+        private EcsEntity FindNode(in EcsEntity entity)
         {
-            if (m_Count == 0) return EcsPackedEntityWithWorld.k_Null;
+            if (m_Count == 0) return EcsEntity.k_Null;
 
             var node = m_Root;
             do
             {
                 var retNode = node;
-                ref readonly var nodeLink = ref node.world.NodePool.Get(node.id);
+                ref readonly var nodeLink = ref node.World.NodePool.Get(node.id);
                 //ref readonly var nodeLink = ref node.Get<IntrusiveListNode>();
                 var nodeData = nodeLink.data;
                 node = nodeLink.next;
@@ -590,20 +590,20 @@ namespace Saro.Entities.Collections
             while (node.IsAlive() == true);
 
 
-            return EcsPackedEntityWithWorld.k_Null;
+            return EcsEntity.k_Null;
         }
 
 #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
 #endif
-        private EcsPackedEntityWithWorld FindNode(int index)
+        private EcsEntity FindNode(int index)
         {
             var idx = 0;
             var node = m_Root;
             do
             {
                 var retNode = node;
-                ref readonly var nodeLink = ref node.world.NodePool.Get(node.id);
+                ref readonly var nodeLink = ref node.World.NodePool.Get(node.id);
                 //ref readonly var nodeLink = ref node.Get<IntrusiveListNode>();
                 node = nodeLink.next;
                 if (idx == index)
@@ -615,31 +615,31 @@ namespace Saro.Entities.Collections
                 if (idx >= m_Count) break;
             } while (node.IsAlive() == true);
 
-            return EcsPackedEntityWithWorld.k_Null;
+            return EcsEntity.k_Null;
         }
 
 #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
 #endif
-        private void RemoveNode(in EcsPackedEntityWithWorld node, bool destroyData)
+        private void RemoveNode(in EcsEntity node, bool destroyData)
         {
-            var link = node.world.NodePool.Get(node.id);
+            var link = node.World.NodePool.Get(node.id);
             if (link.prev.IsAlive() == true)
             {
-                link.prev.world.NodePool.Get(link.prev.id).next = link.next;
+                link.prev.World.NodePool.Get(link.prev.id).next = link.next;
             }
 
             if (link.next.IsAlive() == true)
             {
-                link.next.world.NodePool.Get(link.next.id).prev = link.prev;
+                link.next.World.NodePool.Get(link.next.id).prev = link.prev;
             }
 
             if (node == m_Root) m_Root = link.next;
             if (node == m_Head) m_Head = link.prev;
             if (m_Head == m_Root && m_Root == node)
             {
-                m_Root = EcsPackedEntityWithWorld.k_Null;
-                m_Head = EcsPackedEntityWithWorld.k_Null;
+                m_Root = EcsEntity.k_Null;
+                m_Head = EcsEntity.k_Null;
             }
 
             if (destroyData)
@@ -652,22 +652,22 @@ namespace Saro.Entities.Collections
 #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
 #endif
-        private static EcsPackedEntityWithWorld CreateNode(in EcsPackedEntityWithWorld data)
+        private static EcsEntity CreateNode(in EcsEntity data)
         {
-            var node = data.world.PackEntityWithWorld(data.world.NewEntity());
-            node.world.NodePool.Add(node.id).data = data;
+            var node = data.World.Pack(data.World.NewEntity());
+            node.World.NodePool.Add(node.id).data = data;
             return node;
         }
 
 #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
 #endif
-        private static void DestroyData(in EcsPackedEntityWithWorld node)
+        private static void DestroyData(in EcsEntity node)
         {
-            var ret = node.world.NodePool.Has(node.id);
+            var ret = node.World.NodePool.Has(node.id);
             if (!ret) return;
 
-            ref var data = ref node.world.NodePool.Get(node.id).data;
+            ref var data = ref node.World.NodePool.Get(node.id).data;
             if (data.IsAlive() == true) data.Destroy();
         }
 

@@ -56,7 +56,7 @@ namespace Saro.Entities
             // 有children组件的entity，需要递归调用，保证层级正确
             if (ChildrenPool.Has(entity))
             {
-                EcsTransformUtility.OnEntityDestroy(this.PackEntityWithWorld(entity));
+                EcsTransformUtility.OnEntityDestroy(this.Pack(entity));
             }
 
             DelEntity_Internal(entity);

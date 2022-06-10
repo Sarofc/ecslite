@@ -120,10 +120,7 @@ namespace Saro.Entities
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T GetShared<T>() where T : class
-        {
-            return m_Shared as T;
-        }
+        public T GetShared<T>() where T : class => m_Shared as T;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public EcsWorld GetWorld(string name = null)

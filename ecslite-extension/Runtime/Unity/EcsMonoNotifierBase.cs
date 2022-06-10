@@ -4,7 +4,7 @@ namespace Saro.Entities.Extension
 {
     public abstract class EcsMonoNotifierBase : MonoBehaviour
     {
-        protected ref EcsPackedEntityWithWorld Entity => ref Link.Entity;
+        protected ref EcsEntity Entity => ref Link.Entity;
 
         private IEcsMonoLink Link
         {

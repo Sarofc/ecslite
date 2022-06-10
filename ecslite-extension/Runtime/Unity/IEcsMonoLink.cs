@@ -2,8 +2,8 @@
 {
     public interface IEcsMonoLink
     {
-        ref EcsPackedEntityWithWorld Entity { get; }
+        ref EcsEntity Entity { get; }
         bool IsAlive { get; }
-        void Link(in EcsPackedEntityWithWorld ent);
+        void Link(in EcsEntity ent);
     }
 }

@@ -9,9 +9,9 @@ using UnityEngine;
 
 namespace Saro.Entities.UnityEditor.Inspectors
 {
-    internal sealed class EcsPackedEntityWithWorldInspector : EcsComponentInspectorTyped<EcsPackedEntityWithWorld>
+    internal sealed class EcsEntityInspector : EcsComponentInspectorTyped<EcsEntity>
     {
-        protected override bool OnGuiTyped(string label, ref EcsPackedEntityWithWorld value,
+        protected override bool OnGuiTyped(string label, ref EcsEntity value,
             EcsEntityDebugView entityView)
         {
             EditorGUILayout.BeginHorizontal();
@@ -23,12 +23,12 @@ namespace Saro.Entities.UnityEditor.Inspectors
             return false;
         }
 
-        public static void DrawEntity(EcsPackedEntityWithWorld value, EcsEntityDebugView entityView)
+        public static void DrawEntity(EcsEntity value, EcsEntityDebugView entityView)
         {
             DrawEntity(ref value, entityView);
         }
 
-        public static void DrawEntity(ref EcsPackedEntityWithWorld value, EcsEntityDebugView entityView)
+        public static void DrawEntity(ref EcsEntity value, EcsEntityDebugView entityView)
         {
             if (value.Unpack(out var unpackedWorld, out var unpackedEntity))
             {
@@ -49,7 +49,7 @@ namespace Saro.Entities.UnityEditor.Inspectors
             }
             else
             {
-                if (value.EqualsTo(default))
+                if (value == default)
                 {
                     EditorGUILayout.SelectableLabel("<Empty entity>",
                         GUILayout.MaxHeight(EditorGUIUtility.singleLineHeight));

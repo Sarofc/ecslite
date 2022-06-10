@@ -100,13 +100,15 @@ namespace Saro.Entities
         }
 #endif
 
-        public EcsWorld(string worldName, in Config cfg = default) : this(cfg)
+        internal static EcsWorld[] s_Worlds = new EcsWorld[4];
+        public readonly short worldID;
+        private readonly static IntDispenser k_WorldIdDispenser = new(0);
+        private readonly static object k_LockObject = new();
+
+        public EcsWorld(string worldName, in Config cfg = default)
         {
             this.worldName = worldName;
-        }
 
-        public EcsWorld(in Config cfg = default)
-        {
             // entities.
             var capacity = cfg.entities > 0 ? cfg.entities : Config.k_EntitiesDefault;
             entities = new EntityData[capacity];
@@ -133,24 +135,51 @@ namespace Saro.Entities
 #if DEBUG || LEOECSLITE_WORLD_EVENTS
             m_EventListeners = new List<IEcsWorldEventListener>(4);
 #endif
+
+            // rent worldID
+            var newID = k_WorldIdDispenser.Rent();
+            if (newID > short.MaxValue)
+            {
+                throw new EcsException($"only support {short.MaxValue} worlds");
+            }
+
+            worldID = (short)newID;
+
+            lock (k_LockObject)
+            {
+                if (s_Worlds.Length < worldID)
+                {
+                    var newLength = s_Worlds.Length << 1 > short.MaxValue ?
+                        short.MaxValue :
+                        s_Worlds.Length << 1;
+                    Array.Resize(ref s_Worlds, newLength);
+                }
+
+                s_Worlds[worldID] = this;
+            }
+
             m_Destroyed = false;
         }
 
         public void Destroy()
         {
+            if (m_Destroyed)
+            {
+                return;
+            }
+
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
             if (CheckForLeakedEntities())
             {
                 throw new EcsException($"Empty entity detected before EcsWorld.Destroy().");
             }
 #endif
-            m_Destroyed = true;
             for (var i = m_EntitiesCount - 1; i >= 0; i--)
             {
                 ref var entityData = ref entities[i];
                 if (entityData.componentsCount > 0)
                 {
-                    DelEntity(i);
+                    DelEntity_Internal(i); // 这里没必要管 层级变化,一股脑全销毁就完事了
                 }
             }
 
@@ -166,13 +195,19 @@ namespace Saro.Entities
                 m_EventListeners[ii].OnWorldDestroyed(this);
             }
 #endif
+
+            lock (k_LockObject)
+            {
+                s_Worlds[worldID] = null;
+            }
+
+            k_WorldIdDispenser.Return(worldID);
+
+            m_Destroyed = true;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool IsAlive()
-        {
-            return !m_Destroyed;
-        }
+        public bool IsAlive() => !m_Destroyed;
 
         public int NewEntity()
         {
@@ -278,58 +313,31 @@ namespace Saro.Entities
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetComponentsCount(int entity)
-        {
-            return entities[entity].componentsCount;
-        }
+        public int GetComponentsCount(int entity) => entities[entity].componentsCount;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public short GetEntityGen(int entity)
-        {
-            return entities[entity].gen;
-        }
+        public short GetEntityGen(int entity) => entities[entity].gen;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetAllocatedEntitiesCount()
-        {
-            return m_EntitiesCount;
-        }
+        public int GetAllocatedEntitiesCount() => m_EntitiesCount;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetWorldSize()
-        {
-            return entities.Length;
-        }
+        public int GetWorldSize() => entities.Length;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetPoolsCount()
-        {
-            return m_PoolsCount;
-        }
+        public int GetPoolsCount() => m_PoolsCount;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetEntitiesCount()
-        {
-            return m_EntitiesCount - m_RecycledEntitiesCount;
-        }
+        public int GetEntitiesCount() => m_EntitiesCount - m_RecycledEntitiesCount;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public EntityData[] GetRawEntities()
-        {
-            return entities;
-        }
+        public EntityData[] GetRawEntities() => entities;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetFreeMaskCount()
-        {
-            return m_FreeMasksCount;
-        }
+        public int GetFreeMaskCount() => m_FreeMasksCount;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public EcsPool<T> GetPool<T>() where T : struct, IEcsComponent
-        {
-            return GetPool<T>(m_PoolDenseSize, m_PoolRecycledSize);
-        }
+        public EcsPool<T> GetPool<T>() where T : struct, IEcsComponent => GetPool<T>(m_PoolDenseSize, m_PoolRecycledSize);
 
         public EcsPool<T> GetPool<T>(int denseCapacity, int recycledCapacity) where T : struct, IEcsComponent
         {
@@ -675,6 +683,8 @@ namespace Saro.Entities
             return true;
         }
 
+        public override string ToString() => $"WorldID: {worldID}  WorldName: {worldName}";
+
         public struct Config
         {
             public int entities;
@@ -801,8 +811,6 @@ namespace Saro.Entities
                 m_Built = true;
 #endif
 
-                //Array.Sort(Include, 0, IncludeCount);
-                //Array.Sort(Exclude, 0, ExcludeCount);
                 ArrayUtility.Sort(include, 0, includeCount);
                 ArrayUtility.Sort(exclude, 0, excludeCount);
 

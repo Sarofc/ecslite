@@ -14,21 +14,21 @@ namespace Saro.Entities.Transforms
 #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 #endif
-        public static void OnEntityDestroy(in EcsPackedEntityWithWorld toDestroy)
+        public static void OnEntityDestroy(in EcsEntity toDestroy)
         {
-            if (toDestroy.world.ParentPool.Has(toDestroy.id))
+            if (toDestroy.World.ParentPool.Has(toDestroy.id))
             {
                 // 此entity这个调用完毕后，就要被销毁，可以不用处理坐标系问题
-                SetParent_Internal(toDestroy, EcsPackedEntityWithWorld.k_Null);
+                SetParent_Internal(toDestroy, EcsEntity.k_Null);
             }
 
-            if (toDestroy.world.ChildrenPool.Has(toDestroy.id))
+            if (toDestroy.World.ChildrenPool.Has(toDestroy.id))
             {
                 // TODO: Possible stack overflow while using Clear(true) because of OnEntityDestroy call
-                ref var nodes = ref toDestroy.world.ChildrenPool.Get(toDestroy.id);
+                ref var nodes = ref toDestroy.World.ChildrenPool.Get(toDestroy.id);
                 foreach (ref readonly var child in nodes.items)
                 {
-                    child.world.ParentPool.Del(child.id);
+                    child.World.ParentPool.Del(child.id);
                 }
                 nodes.items.Clear(destroyData: true);
             }
@@ -39,15 +39,15 @@ namespace Saro.Entities.Transforms
 #endif
         public static void SetParent(this int child, int root, EcsWorld world)
         {
-            var _root = world.PackEntityWithWorld(root);
-            var _child = world.PackEntityWithWorld(child);
+            var _root = world.Pack(root);
+            var _child = world.Pack(child);
             _child.SetParent(_root, worldPositionStays: true);
         }
 
 #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 #endif
-        public static void SetParent(this in EcsPackedEntityWithWorld child, in EcsPackedEntityWithWorld root)
+        public static void SetParent(this in EcsEntity child, in EcsEntity root)
         {
             child.SetParent(root, worldPositionStays: true);
         }
@@ -55,7 +55,7 @@ namespace Saro.Entities.Transforms
 #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 #endif
-        public static void SetParent(this in EcsPackedEntityWithWorld child, in EcsPackedEntityWithWorld root,
+        public static void SetParent(this in EcsEntity child, in EcsEntity root,
             bool worldPositionStays)
         {
             if (worldPositionStays)
@@ -75,14 +75,14 @@ namespace Saro.Entities.Transforms
 #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 #endif
-        public static EcsPackedEntityWithWorld GetRoot(this in EcsPackedEntityWithWorld child)
+        public static EcsEntity GetRoot(this in EcsEntity child)
         {
-            EcsPackedEntityWithWorld root;
+            EcsEntity root;
             var parent = child;
             do
             {
                 root = parent;
-                parent = parent.world.ParentPool.Add(parent.id).entity;
+                parent = parent.World.ParentPool.Add(parent.id).entity;
             }
             while (parent.IsAlive());
 
@@ -93,7 +93,7 @@ namespace Saro.Entities.Transforms
 #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 #endif
-        public static bool TryGetParent(this int child, EcsWorld world, out EcsPackedEntityWithWorld parent)
+        public static bool TryGetParent(this int child, EcsWorld world, out EcsEntity parent)
         {
             var r = world.ParentPool.TryGet(child, out var c);
             parent = c.entity;
@@ -104,9 +104,9 @@ namespace Saro.Entities.Transforms
 #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 #endif
-        public static bool TryGetParent(this in EcsPackedEntityWithWorld entity, out EcsPackedEntityWithWorld parent)
+        public static bool TryGetParent(this in EcsEntity entity, out EcsEntity parent)
         {
-            return TryGetParent(entity.id, entity.world, out parent);
+            return TryGetParent(entity.id, entity.World, out parent);
         }
 
 #if INLINE_METHODS
@@ -120,15 +120,15 @@ namespace Saro.Entities.Transforms
 #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 #endif
-        public static bool HasParent(this in EcsPackedEntityWithWorld entity)
+        public static bool HasParent(this in EcsEntity entity)
         {
-            return HasParent(entity.id, entity.world);
+            return HasParent(entity.id, entity.World);
         }
 
 #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 #endif
-        public static EcsPackedEntityWithWorld GetParent(this int entity, EcsWorld world)
+        public static EcsEntity GetParent(this int entity, EcsWorld world)
         {
             return world.ParentPool.Add(entity).entity;
         }
@@ -136,32 +136,32 @@ namespace Saro.Entities.Transforms
 #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 #endif
-        public static EcsPackedEntityWithWorld GetParent(this in EcsPackedEntityWithWorld entity)
+        public static EcsEntity GetParent(this in EcsEntity entity)
         {
-            return GetParent(entity.id, entity.world);
+            return GetParent(entity.id, entity.World);
         }
 
 
 #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 #endif
-        private static void SetParent_Internal(in EcsPackedEntityWithWorld entity, in EcsPackedEntityWithWorld root)
+        private static void SetParent_Internal(in EcsEntity entity, in EcsEntity root)
         {
             if (entity == root) return;
 
-            if (root == EcsPackedEntityWithWorld.k_Null)
+            if (root == EcsEntity.k_Null)
             {
-                ref readonly var parent = ref entity.world.ParentPool.Add(entity.id).entity;
+                ref readonly var parent = ref entity.World.ParentPool.Add(entity.id).entity;
                 if (!parent.IsAlive()) return;
 
-                ref var nodes = ref parent.world.ChildrenPool.Add(parent.id);
-                entity.world.ParentPool.Del(entity.id);
+                ref var nodes = ref parent.World.ChildrenPool.Add(parent.id);
+                entity.World.ParentPool.Del(entity.id);
                 nodes.items.Remove(entity);
                 return;
             }
 
             {
-                ref var parent = ref entity.world.ParentPool.Add(entity.id).entity;
+                ref var parent = ref entity.World.ParentPool.Add(entity.id).entity;
                 if (parent == root || !root.IsAlive())
                 {
                     return;
@@ -171,11 +171,11 @@ namespace Saro.Entities.Transforms
 
                 if (parent.IsAlive())
                 {
-                    entity.SetParent(EcsPackedEntityWithWorld.k_Null);
+                    entity.SetParent(EcsEntity.k_Null);
                 }
 
                 parent = root;
-                ref var rootNodes = ref root.world.ChildrenPool.Add(root.id);
+                ref var rootNodes = ref root.World.ChildrenPool.Add(root.id);
                 rootNodes.items.Add(entity);
             }
         }
@@ -183,7 +183,7 @@ namespace Saro.Entities.Transforms
 #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 #endif
-        private static bool FindInHierarchy(int child, EcsWorld world, in EcsPackedEntityWithWorld root)
+        private static bool FindInHierarchy(int child, EcsWorld world, in EcsEntity root)
         {
             // ref readonly var childNode = xxx 貌似会导致防御性拷贝？
             ref var childNodes = ref world.ChildrenPool.Add(child);
@@ -194,7 +194,7 @@ namespace Saro.Entities.Transforms
 
             foreach (ref readonly var cc in childNodes.items)
             {
-                if (FindInHierarchy(cc.id, cc.world, root)) return true;
+                if (FindInHierarchy(cc.id, cc.World, root)) return true;
             }
 
             return false;
@@ -203,9 +203,9 @@ namespace Saro.Entities.Transforms
 #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 #endif
-        private static bool FindInHierarchy(in EcsPackedEntityWithWorld entity, in EcsPackedEntityWithWorld root)
+        private static bool FindInHierarchy(in EcsEntity entity, in EcsEntity root)
         {
-            return FindInHierarchy(entity.id, entity.world, root);
+            return FindInHierarchy(entity.id, entity.World, root);
         }
 
         // TODO new version?

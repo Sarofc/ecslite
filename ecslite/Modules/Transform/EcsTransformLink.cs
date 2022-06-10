@@ -6,7 +6,7 @@ namespace Saro.Entities.Transforms
 {
     internal struct Parent : IEcsComponent
     {
-        public EcsPackedEntityWithWorld entity;
+        public EcsEntity entity;
     }
 
     internal struct Children : IEcsComponent

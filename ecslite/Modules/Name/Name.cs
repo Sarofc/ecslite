@@ -31,29 +31,14 @@ namespace Saro.Entities
             return entity.ToString(entityNameFormat);
         }
 
-        public bool Equals(Name other)
-        {
-            return name == other.name;
-        }
+        public bool Equals(Name other) => name == other.name;
 
-        public override bool Equals(object obj)
-        {
-            return obj is Name other && Equals(other);
-        }
+        public override bool Equals(object obj) => obj is Name other && Equals(other);
 
-        public override int GetHashCode()
-        {
-            return (name != null ? name.GetHashCode() : 0);
-        }
+        public override int GetHashCode() => (name != null ? name.GetHashCode() : 0);
 
-        public static bool operator !=(in Name x, in Name y)
-        {
-            return !(x == y);
-        }
+        public static bool operator !=(in Name x, in Name y) => !(x == y);
 
-        public static bool operator ==(in Name x, in Name y)
-        {
-            return x.name == y.name;
-        }
+        public static bool operator ==(in Name x, in Name y) => x.name == y.name;
     }
 }
