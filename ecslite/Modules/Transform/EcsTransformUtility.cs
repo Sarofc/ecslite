@@ -2,17 +2,22 @@
 #define INLINE_METHODS
 #endif
 
+#if INLINE_METHODS
+using System.Runtime.CompilerServices;
+using Unity.IL2CPP.CompilerServices;
+#endif
+
 namespace Saro.Entities.Transforms
 {
 #if INLINE_METHODS
-    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
-    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
-    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+    [Il2CppSetOption(Option.NullChecks, false)]
+    [Il2CppSetOption(Option.ArrayBoundsChecks, false)]
+    [Il2CppSetOption(Option.DivideByZeroChecks, false)]
 #endif
     public static class EcsTransformUtility
     {
 #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
 #endif
         public static void OnEntityDestroy(in EcsEntity toDestroy)
         {
@@ -35,7 +40,7 @@ namespace Saro.Entities.Transforms
         }
 
 #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
 #endif
         public static void SetParent(this int child, int root, EcsWorld world)
         {
@@ -45,7 +50,7 @@ namespace Saro.Entities.Transforms
         }
 
 #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
 #endif
         public static void SetParent(this in EcsEntity child, in EcsEntity root)
         {
@@ -53,7 +58,7 @@ namespace Saro.Entities.Transforms
         }
 
 #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
 #endif
         public static void SetParent(this in EcsEntity child, in EcsEntity root,
             bool worldPositionStays)
@@ -73,7 +78,7 @@ namespace Saro.Entities.Transforms
         }
 
 #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
 #endif
         public static EcsEntity GetRoot(this in EcsEntity child)
         {
@@ -90,7 +95,7 @@ namespace Saro.Entities.Transforms
         }
 
 #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
 #endif
         public static bool HasParent(this int entity, EcsWorld world)
         {
@@ -98,7 +103,7 @@ namespace Saro.Entities.Transforms
         }
 
 #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
 #endif
         public static bool HasParent(this in EcsEntity entity)
         {
@@ -106,7 +111,7 @@ namespace Saro.Entities.Transforms
         }
 
 #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
 #endif
         public static EcsEntity GetParent(this int entity, EcsWorld world)
         {
@@ -114,7 +119,7 @@ namespace Saro.Entities.Transforms
         }
 
 #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
 #endif
         public static EcsEntity GetParent(this in EcsEntity entity)
         {
@@ -123,7 +128,7 @@ namespace Saro.Entities.Transforms
 
 
 #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
 #endif
         private static void SetParent_Internal(in EcsEntity entity, in EcsEntity root)
         {
@@ -161,7 +166,7 @@ namespace Saro.Entities.Transforms
         }
 
 #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
 #endif
         private static bool FindInHierarchy(int child, EcsWorld world, in EcsEntity root)
         {
@@ -181,7 +186,7 @@ namespace Saro.Entities.Transforms
         }
 
 #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
 #endif
         private static bool FindInHierarchy(in EcsEntity entity, in EcsEntity root)
         {
@@ -190,7 +195,7 @@ namespace Saro.Entities.Transforms
 
         // TODO new version?
         // #if INLINE_METHODS
-        //         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        //         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         // #endif
         //         public static void OnEntityVersionChanged(in EcsPackedEntityWithWorld entity)
         //         {
@@ -207,7 +212,7 @@ namespace Saro.Entities.Transforms
         //         }
         //
         // #if INLINE_METHODS
-        //         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        //         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         // #endif
         //         public static uint GetVersionInHierarchy(this in EcsPackedEntityWithWorld entity)
         //         {

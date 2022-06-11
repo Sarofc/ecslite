@@ -59,7 +59,6 @@ namespace Saro.Entities
         public static bool operator ==(in EcsEntity x, in EcsEntity y)
             => x.id == y.id && x.gen == y.gen && x.World == y.World;
 
-
 #if DEBUG
         private object[] DebugComponentsViewForIDE
         {
@@ -90,47 +89,7 @@ namespace Saro.Entities
         }
 
         // For using in IDE debugger.
-        public override string ToString()
-        {
-            if (id == 0 && gen == 0)
-            {
-                return "Entity-Null";
-            }
-            if (World == null || !World.IsAlive() || !World.IsEntityAlive_Internal(id) || World.GetEntityGen(id) != gen)
-            {
-                return "Entity-NonAlive";
-            }
-            Type[] types = null;
-            var count = World.GetComponentTypes(id, ref types);
-            StringBuilder sb = null;
-            if (count > 0)
-            {
-                sb = new StringBuilder(512);
-                for (var i = 0; i < count; i++)
-                {
-                    if (sb.Length > 0)
-                    {
-                        sb.Append(",");
-                    }
-                    sb.Append(types[i].Name);
-                }
-            }
-
-            return $"{Name.GetEntityInfo(id, World)} [{sb}]";
-        }
+        public override string ToString() => Name.GetEntityDetial(id, World);
 #endif
-    }
-
-#if ENABLE_IL2CPP
-    [Il2CppSetOption (Option.NullChecks, false)]
-    [Il2CppSetOption (Option.ArrayBoundsChecks, false)]
-#endif
-    public static partial class EcsEntityExtensions
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static EcsEntity Pack(this EcsWorld world, int entity)
-        {
-            return new(entity, world.GetEntityGen(entity), world.worldID);
-        }
     }
 }

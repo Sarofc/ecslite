@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using Saro.Entities.Authoring;
 
 namespace Saro.Entities
@@ -19,21 +20,52 @@ namespace Saro.Entities
 
         public static string GetEntityName(int entity, EcsWorld world, string entityNameFormat = k_EntityNameFormat)
         {
-            if (world.IsEntityAlive_Internal(entity))
+            if (entity == 0)
             {
-                var namePool = world.NamePool;
-                if (namePool.Has(entity))
-                {
-                    return $"{namePool.Get(entity).name}";
-                }
+                return "Entity-Null";
+            }
+
+            if (!world.IsAlive() || !world.IsEntityAlive_Internal(entity))
+            {
+                return "Entity-NonAlive";
+            }
+
+            var namePool = world.NamePool;
+            if (namePool.Has(entity))
+            {
+                return $"{namePool.Get(entity).name}";
             }
 
             return entity.ToString(entityNameFormat);
         }
 
-        public static string GetEntityInfo(int entity, EcsWorld world)
+        public static string GetEntityInfo(int entity, EcsWorld world, string entityNameFormat = k_EntityNameFormat)
         {
-            return $"{Name.GetEntityName(entity, world)}\t{world.worldID}:{entity}.{world.GetEntityGen(entity)}";
+            return $"{Name.GetEntityName(entity, world, entityNameFormat)}\t{world.worldID}:{entity}.{world.GetEntityGen(entity)}";
+        }
+
+        public static string GetEntityDetial(int entity, EcsWorld world, string entityNameFormat = k_EntityNameFormat)
+        {
+            StringBuilder sb = null;
+            if (world.IsAlive() && world.IsEntityAlive_Internal(entity))
+            {
+                Type[] types = null;
+                var count = world.GetComponentTypes(entity, ref types);
+                if (count > 0)
+                {
+                    sb = new StringBuilder(512);
+                    for (var i = 0; i < count; i++)
+                    {
+                        if (sb.Length > 0)
+                        {
+                            sb.Append(",");
+                        }
+                        sb.Append(types[i].Name);
+                    }
+                }
+            }
+
+            return $"{Name.GetEntityInfo(entity, world, entityNameFormat)} [{sb}]";
         }
 
         public bool Equals(Name other) => name == other.name;

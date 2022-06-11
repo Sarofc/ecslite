@@ -15,8 +15,18 @@ namespace Saro.Entities
         改为 ComponentPool.TPool.直接引用 EcsPool
     */
 
-    public static partial class EcsEntityExtensions
+#if ENABLE_IL2CPP
+    [Il2CppSetOption (Option.NullChecks, false)]
+    [Il2CppSetOption (Option.ArrayBoundsChecks, false)]
+#endif
+    public static class EcsEntityExtensions
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static EcsEntity Pack(this EcsWorld world, int entity)
+        {
+            return new(entity, world.GetEntityGen(entity), world.worldID);
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ref T Add<T>(in this EcsEntity self) where T : struct, IEcsComponent
         {
