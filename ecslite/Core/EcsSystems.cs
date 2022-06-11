@@ -26,6 +26,8 @@ namespace Saro.Entities
 
     public interface IEcsRunSystem : IEcsSystem
     {
+        bool Enable { get; set; }
+
         void Run(EcsSystems systems);
     }
 
@@ -45,7 +47,7 @@ namespace Saro.Entities
 #endif
     public class EcsSystems
     {
-        public string SystemsLabel { get; private set; }
+        public string SystemsName { get; private set; }
         private readonly EcsWorld m_DefaultWorld;
         private readonly Dictionary<string, EcsWorld> m_Worlds;
         private readonly List<IEcsSystem> m_AllSystems;
@@ -53,9 +55,9 @@ namespace Saro.Entities
         private IEcsRunSystem[] m_RunSystems;
         private int m_RunSystemsCount;
 
-        public EcsSystems(string systemsLabel, EcsWorld defaultWorld, object shared = null)
+        public EcsSystems(string systemsName, EcsWorld defaultWorld, object shared = null)
         {
-            SystemsLabel = systemsLabel;
+            SystemsName = systemsName;
             m_DefaultWorld = defaultWorld;
             m_Shared = shared;
             m_Worlds = new Dictionary<string, EcsWorld>(32);

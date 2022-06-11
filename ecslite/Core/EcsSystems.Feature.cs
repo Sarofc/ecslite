@@ -13,19 +13,15 @@ namespace Saro.Entities
 #endif
     public class EcsSystemFeature : IEcsPreInitSystem, IEcsInitSystem, IEcsRunSystem, IEcsDestroySystem, IEcsPostDestroySystem
     {
-        public string FeatureName { get; protected set; }
-        public bool Tick { get; set; }
+        public bool Enable { get; set; } = true;
 
         public IReadOnlyList<IEcsSystem> Systems => m_Systems;
 
         private readonly List<IEcsSystem> m_Systems;
         private readonly List<IEcsRunSystem> m_RunSystems;
 
-        public EcsSystemFeature(string featureName)
+        public EcsSystemFeature()
         {
-            FeatureName = featureName;
-            Tick = true;
-
             m_Systems = new List<IEcsSystem>();
             m_RunSystems = new List<IEcsRunSystem>();
         }
@@ -74,7 +70,7 @@ namespace Saro.Entities
 
         public void Run(EcsSystems systems)
         {
-            if (Tick)
+            if (Enable)
             {
                 for (int i = 0; i < m_RunSystems.Count; i++)
                 {

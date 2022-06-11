@@ -21,7 +21,7 @@ namespace Saro.Entities
      */
     public readonly struct EcsEntity : IEquatable<EcsEntity>
     {
-        public static readonly EcsEntity k_Null = default;
+        public static readonly EcsEntity k_Null = new(-1, 0, 0);
 
         public readonly int id;
         internal readonly short gen;
@@ -33,7 +33,8 @@ namespace Saro.Entities
             get => EcsWorld.s_Worlds[world];
         }
 
-        public EcsEntity(int id, short gen = 0, short worldID = 0)
+        // 外部不要调用，使用 world.Pack
+        internal EcsEntity(int id, short gen = 0, short worldID = 0)
         {
             this.id = id;
             this.gen = gen;
@@ -41,14 +42,14 @@ namespace Saro.Entities
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool IsNull() => id == 0 && gen == 0;
+        public bool IsNull() => this == k_Null;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsAlive()
-            => World != null && World.IsAlive() && World.IsEntityAlive_Internal(id) && World.GetEntityGen(id) == gen;
+            => id != -1 && World != null && World.IsAlive() && World.IsEntityAlive_Internal(id) && World.GetEntityGen(id) == gen;
 
         public bool Equals(EcsEntity other)
-            => id == other.id && gen == other.gen && Equals(World, other.World);
+            => id == other.id && gen == other.gen && world == other.world;
 
         public override bool Equals(object obj) => obj is EcsEntity other && Equals(other);
 
@@ -56,8 +57,7 @@ namespace Saro.Entities
 
         public static bool operator !=(in EcsEntity x, in EcsEntity y) => !(x == y);
 
-        public static bool operator ==(in EcsEntity x, in EcsEntity y)
-            => x.id == y.id && x.gen == y.gen && x.World == y.World;
+        public static bool operator ==(in EcsEntity x, in EcsEntity y) => x.Equals(y);
 
 #if DEBUG
         private object[] DebugComponentsViewForIDE

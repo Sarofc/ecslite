@@ -15,15 +15,18 @@ namespace Saro.Entities.UnityEditor
 
         public override void OnInspectorGUI()
         {
+            serializedObject.Update();
+
             var observer = (EcsSystemsDebugView)target;
             if (observer.ecsSystemsList != null)
             {
-                DrawComponents(observer);
-                EditorUtility.SetDirty(target);
+                DrawSystems(observer);
             }
+
+            serializedObject.ApplyModifiedProperties();
         }
 
-        private void DrawComponents(EcsSystemsDebugView debugView)
+        private void DrawSystems(EcsSystemsDebugView debugView)
         {
             if (debugView.gameObject.activeSelf)
             {
@@ -35,7 +38,7 @@ namespace Saro.Entities.UnityEditor
 
                     EditorGUILayout.BeginVertical("helpbox");
                     {
-                        EditorGUILayout.LabelField($"{systems.SystemsLabel}:", EditorStyles.boldLabel);
+                        EditorGUILayout.LabelField($"{systems.SystemsName}:", EditorStyles.boldLabel);
 
                         var systemNum = systems.GetAllSystems(ref m_Systems);
                         for (int i = 0; i < systemNum; i++)
@@ -46,30 +49,21 @@ namespace Saro.Entities.UnityEditor
                             {
                                 EditorGUILayout.BeginVertical("box");
                                 {
-                                    var rect = EditorGUILayout.GetControlRect();
-                                    var toggeRect = rect;
-                                    const float k_ToggleWidth = 15f;
-                                    toggeRect.width = k_ToggleWidth;
-                                    _feature.Tick = EditorGUI.Toggle(toggeRect, _feature.Tick);
+                                    DrawSystem(_feature, EditorStyles.boldLabel);
 
-                                    var featureRect = rect;
-                                    featureRect.x += k_ToggleWidth;
-                                    featureRect.width = rect.width - k_ToggleWidth;
-                                    EditorGUI.LabelField(featureRect, _feature.FeatureName);
-
-                                    EditorGUI.indentLevel += 2;
+                                    //EditorGUI.indentLevel += 1;
                                     for (int k = 0; k < _feature.Systems.Count; k++)
                                     {
                                         var subSystem = _feature.Systems[k];
-                                        EditorGUILayout.LabelField(subSystem.GetType().Name);
+                                        DrawSystem(subSystem, EditorStyles.label, 1);
                                     }
-                                    EditorGUI.indentLevel -= 2;
+                                    //EditorGUI.indentLevel -= 1;
                                 }
                                 EditorGUILayout.EndVertical();
                             }
                             else
                             {
-                                EditorGUILayout.LabelField(system.GetType().Name);
+                                DrawSystem(system, EditorStyles.label);
                             }
                         }
                     }
@@ -80,6 +74,30 @@ namespace Saro.Entities.UnityEditor
                         EditorGUILayout.Space();
                     }
                 }
+            }
+        }
+
+        private void DrawSystem(IEcsSystem system, GUIStyle style, int indentLevel = 0)
+        {
+            if (system is IEcsRunSystem runSystem)
+            {
+                // EditorGUI.indentLevel 不能和 EditorGUILayout.GetControlRect() 配合工作
+                // 排版是对的，但是 点击不了toggle
+                var rect = EditorGUILayout.GetControlRect();
+                rect.xMin += indentLevel * 15f;
+                var toggeRect = rect;
+                const float k_ToggleWidth = 15f;
+                toggeRect.width = k_ToggleWidth;
+                runSystem.Enable = EditorGUI.Toggle(toggeRect, runSystem.Enable);
+
+                var systemRect = rect;
+                systemRect.x += k_ToggleWidth;
+                systemRect.width = rect.width - k_ToggleWidth;
+                EditorGUI.LabelField(systemRect, runSystem.GetType().Name, style: style);
+            }
+            else
+            {
+                EditorGUILayout.LabelField(system.GetType().Name, style: style);
             }
         }
     }

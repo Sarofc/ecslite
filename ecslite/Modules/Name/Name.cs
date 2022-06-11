@@ -20,7 +20,7 @@ namespace Saro.Entities
 
         public static string GetEntityName(int entity, EcsWorld world, string entityNameFormat = k_EntityNameFormat)
         {
-            if (entity == 0)
+            if (entity <= EcsEntity.k_Null.id)
             {
                 return "Entity-Null";
             }

@@ -102,7 +102,7 @@ namespace Saro.Entities
         internal readonly short worldID;
         internal readonly string worldName;
         internal static EcsWorld[] s_Worlds = new EcsWorld[4];
-        private readonly static IntDispenser k_WorldIdDispenser = new(0);
+        private readonly static IntDispenser k_WorldIdDispenser = new(-1);
         private readonly static object k_LockObject = new();
 
         public EcsWorld(string worldName, in Config cfg = default)
@@ -362,24 +362,16 @@ namespace Saro.Entities
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IEcsPool GetPoolById(int typeId)
-        {
-            return typeId >= 0 && typeId < m_PoolsCount ? m_Pools[typeId] : null;
-        }
+        public IEcsPool GetPoolById(int typeId) => typeId >= 0 && typeId < m_PoolsCount ? m_Pools[typeId] : null;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IEcsPool GetPoolByType(Type type)
-        {
-            return m_PoolHashes.TryGetValue(type, out var pool) ? pool : null;
-        }
+        public IEcsPool GetPoolByType(Type type) => m_PoolHashes.TryGetValue(type, out var pool) ? pool : null;
 
         public int GetAllEntities(ref int[] entities)
         {
             var count = m_EntitiesCount - m_RecycledEntitiesCount;
             if (entities == null || entities.Length < count)
-            {
                 entities = new int[count];
-            }
 
             var id = 0;
             for (int i = 0, iMax = m_EntitiesCount; i < iMax; i++)
@@ -387,9 +379,7 @@ namespace Saro.Entities
                 ref var entityData = ref this.entities[i];
                 // should we skip empty entities here?
                 if (entityData.gen > 0 && entityData.componentsCount >= 0)
-                {
                     entities[id++] = i;
-                }
             }
 
             return count;
@@ -399,12 +389,22 @@ namespace Saro.Entities
         {
             var count = m_PoolsCount;
             if (pools == null || pools.Length < count)
-            {
                 pools = new IEcsPool[count];
-            }
 
             Array.Copy(m_Pools, 0, pools, 0, m_PoolsCount);
             return m_PoolsCount;
+        }
+
+        public int GetAllFilters(ref EcsFilter[] filters)
+        {
+            var count = m_AllFilters.Count;
+
+            if (filters == null || filters.Length < count)
+                filters = new EcsFilter[count];
+
+            m_AllFilters.CopyTo(filters);
+
+            return count;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -511,9 +511,11 @@ namespace Saro.Entities
                 return (filter, false);
             }
 
+            // create new filter
             filter = new EcsFilter(this, mask, capacity, entities.Length);
             m_HashedFilters[hash] = filter;
             m_AllFilters.Add(filter);
+
             // add to component dictionaries for fast compatibility scan.
             for (int i = 0, iMax = mask.includeCount; i < iMax; i++)
             {
@@ -802,7 +804,7 @@ namespace Saro.Entities
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public EcsFilter End(int capacity = 512, bool recycle = true)
+            public EcsFilter End(int capacity = 512)
             {
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
                 if (m_Built)
@@ -812,7 +814,9 @@ namespace Saro.Entities
 
                 m_Built = true;
 #endif
+                // TODO hash ÊÇ·ñÎ¨Ò»£¿
 
+                // sort include and exclude
                 ArrayUtility.Sort(include, 0, includeCount);
                 ArrayUtility.Sort(exclude, 0, excludeCount);
 
@@ -829,7 +833,7 @@ namespace Saro.Entities
                 }
 
                 var (filter, isNew) = m_World.GetFilter_Internal(this, capacity);
-                if (!isNew && recycle)
+                if (!isNew)
                 {
                     Recycle();
                 }
@@ -841,6 +845,7 @@ namespace Saro.Entities
             private void Recycle()
             {
                 Reset();
+
                 if (m_World.m_FreeMasksCount == m_World.m_Masks.Length)
                 {
                     Array.Resize(ref m_World.m_Masks, m_World.m_FreeMasksCount << 1);

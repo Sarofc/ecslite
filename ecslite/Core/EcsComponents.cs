@@ -39,7 +39,7 @@ namespace Saro.Entities
     {
         private readonly Type m_Type;
         private readonly EcsWorld m_World;
-        private readonly int m_Id;
+        private readonly int m_ID;
         private readonly AutoResetHandler m_AutoReset;
 
         // 1-based index.
@@ -54,7 +54,7 @@ namespace Saro.Entities
 
         public override string ToString()
         {
-            return $"type: {m_Type.Name} id: {m_Id} denseItem: {m_DenseItems.Length} recycledItems: {m_RecycledItems.Length} sparseItems: {m_SparseItems.Length}";
+            return $"type: {m_Type.Name} id: {m_ID} denseItem: {m_DenseItems.Length} recycledItems: {m_RecycledItems.Length} sparseItems: {m_SparseItems.Length}";
         }
 
         internal EcsPool(EcsWorld world, int id, int denseCapacity, int sparseCapacity, int recycledCapacity)
@@ -69,7 +69,7 @@ namespace Saro.Entities
 #endif
 
             m_World = world;
-            m_Id = id;
+            m_ID = id;
             m_DenseItems = new T[denseCapacity + 1];
             m_SparseItems = new int[sparseCapacity];
             m_DenseItemsCount = 1;
@@ -117,7 +117,7 @@ namespace Saro.Entities
         public EcsWorld GetWorld() => m_World;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetId() => m_Id;
+        public int GetId() => m_ID;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Type GetComponentType() => m_Type;
@@ -157,7 +157,7 @@ namespace Saro.Entities
         public ref T Add(int entity)
         {
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
-            if (!m_World.IsEntityAlive_Internal(entity)) { throw new EcsException($"{typeof(T).Name}::Add. Cant touch destroyed entity: {entity}"); }
+            if (!m_World.IsEntityAlive_Internal(entity)) { throw new EcsException($"{typeof(T).Name}::Add. Cant touch destroyed entity: {entity} world: {m_World.worldID} world: {m_World.worldID}"); }
             //if (_sparseItems[entity] > 0) { throw new EcsException ($"Component \"{typeof (T).Name}\" already attached to entity."); }
 #endif
             // API 调整
@@ -183,8 +183,9 @@ namespace Saro.Entities
                 m_AutoReset?.Invoke(ref m_DenseItems[idx]);
             }
             m_SparseItems[entity] = idx;
-            m_World.OnEntityChange_Add_Internal(entity, m_Id);
+            m_World.OnEntityChange_Add_Internal(entity, m_ID);
             m_World.entities[entity].componentsCount++;
+
 #if DEBUG || LEOECSLITE_WORLD_EVENTS
             m_World.RaiseEntityChangeEvent(entity);
 #endif
@@ -195,7 +196,7 @@ namespace Saro.Entities
         public ref T Get(int entity)
         {
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
-            if (!m_World.IsEntityAlive_Internal(entity)) { throw new EcsException($"{typeof(T).Name}::Get. Cant touch destroyed entity: {entity}"); }
+            if (!m_World.IsEntityAlive_Internal(entity)) { throw new EcsException($"{typeof(T).Name}::Get. Cant touch destroyed entity: {entity} world: {m_World.worldID}"); }
             if (m_SparseItems[entity] == 0) { throw new EcsException($"Cant get \"{typeof(T).Name}\" component - not attached."); }
 #endif
             return ref m_DenseItems[m_SparseItems[entity]];
@@ -205,7 +206,7 @@ namespace Saro.Entities
         public bool Has(int entity)
         {
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
-            if (!m_World.IsEntityAlive_Internal(entity)) { throw new EcsException($"{typeof(T).Name}::Has. Cant touch destroyed entity: {entity}"); }
+            if (!m_World.IsEntityAlive_Internal(entity)) { throw new EcsException($"{typeof(T).Name}::Has. Cant touch destroyed entity: {entity} world: {m_World.worldID}"); }
 #endif
             return m_SparseItems[entity] > 0;
         }
@@ -213,12 +214,12 @@ namespace Saro.Entities
         public void Del(int entity)
         {
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
-            if (!m_World.IsEntityAlive_Internal(entity)) { throw new EcsException($"{typeof(T).Name}::Cant touch destroyed entity: {entity}"); }
+            if (!m_World.IsEntityAlive_Internal(entity)) { throw new EcsException($"{typeof(T).Name}::Cant touch destroyed entity: {entity} world: {m_World.worldID}"); }
 #endif
             ref var sparseData = ref m_SparseItems[entity];
             if (sparseData > 0)
             {
-                m_World.OnEntityChange_Remove_Internal(entity, m_Id);
+                m_World.OnEntityChange_Remove_Internal(entity, m_ID);
                 if (m_RecycledItemsCount == m_RecycledItems.Length)
                 {
                     Array.Resize(ref m_RecycledItems, m_RecycledItemsCount << 1);

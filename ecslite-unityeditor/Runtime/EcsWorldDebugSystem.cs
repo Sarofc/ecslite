@@ -15,6 +15,8 @@ namespace Saro.Entities.UnityEditor
 {
     public sealed class EcsWorldDebugSystem : IEcsPreInitSystem, IEcsRunSystem, IEcsWorldEventListener
     {
+        public bool Enable { get; set; } = true;
+
         private readonly GameObject m_RootGo;
         private readonly Transform m_EntitiesRoot;
         private readonly bool m_BakeComponentsInName;

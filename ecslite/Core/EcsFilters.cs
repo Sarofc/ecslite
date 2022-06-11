@@ -34,6 +34,7 @@ namespace Saro.Entities
         private int m_LockCount;
         private DelayedOp[] m_DelayedOps;
         private int m_DelayedOpsCount;
+
 #if LEOECSLITE_FILTER_EVENTS
         IEcsFilterEventListener[] m_EventListeners = new IEcsFilterEventListener[4];
         int m_EventListenersCount;
@@ -192,6 +193,41 @@ namespace Saro.Entities
             }
         }
 #endif
+
+        public override string ToString()
+        {
+            var sb = StringBuilderCache.Get(1024);
+
+            if (m_Mask.includeCount > 0)
+            {
+                sb.Append("Inc<");
+                for (int i = 0; i < m_Mask.includeCount; i++)
+                {
+                    var pool = m_World.GetPoolById(m_Mask.include[i]);
+                    var type = pool.GetType().GenericTypeArguments[0];
+                    sb.Append(type.Name);
+                    if (i < m_Mask.includeCount - 1) sb.Append(", ");
+                }
+                sb.Append(">");
+            }
+
+            if (m_Mask.excludeCount > 0)
+            {
+                sb.Append(".Exc<");
+                for (int i = 0; i < m_Mask.excludeCount; i++)
+                {
+                    var pool = m_World.GetPoolById(m_Mask.exclude[i]);
+                    var type = pool.GetType().GenericTypeArguments[0];
+                    sb.Append(type.Name);
+                    if (i < m_Mask.excludeCount - 1) sb.Append(", ");
+                }
+                sb.Append(">");
+            }
+            sb.Append("  worldID: " + m_World.worldID);
+            sb.Append("  hash: " + m_Mask.hash);
+
+            return StringBuilderCache.GetStringAndRelease(sb);
+        }
 
         public struct Enumerator : IDisposable
         {
