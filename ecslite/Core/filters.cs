@@ -145,8 +145,8 @@ namespace Saro.Entities
                 Array.Resize(ref m_DelayedOps, m_DelayedOpsCount << 1);
             }
             ref var op = ref m_DelayedOps[m_DelayedOpsCount++];
-            op.added = added;
             op.entity = entity;
+            op.added = added;
             return true;
         }
 

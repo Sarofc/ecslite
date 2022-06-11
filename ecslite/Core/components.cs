@@ -114,32 +114,17 @@ namespace Saro.Entities
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public EcsWorld GetWorld()
-        {
-            return m_World;
-        }
+        public EcsWorld GetWorld() => m_World;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetId()
-        {
-            return m_Id;
-        }
+        public int GetId() => m_Id;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Type GetComponentType()
-        {
-            return m_Type;
-        }
+        public Type GetComponentType() => m_Type;
 
-        void IEcsPool.Resize(int capacity)
-        {
-            Array.Resize(ref m_SparseItems, capacity);
-        }
+        void IEcsPool.Resize(int capacity) => Array.Resize(ref m_SparseItems, capacity);
 
-        object IEcsPool.GetRaw(int entity)
-        {
-            return Get(entity);
-        }
+        object IEcsPool.GetRaw(int entity) => Get(entity);
 
         void IEcsPool.SetRaw(int entity, object dataRaw)
         {
@@ -159,30 +144,15 @@ namespace Saro.Entities
             data = (T)dataRaw;
         }
 
-        public T[] GetRawDenseItems()
-        {
-            return m_DenseItems;
-        }
+        public T[] GetRawDenseItems() => m_DenseItems;
 
-        public ref int GetRawDenseItemsCount()
-        {
-            return ref m_DenseItemsCount;
-        }
+        public int GetRawDenseItemsCount() => m_DenseItemsCount;
 
-        public int[] GetRawSparseItems()
-        {
-            return m_SparseItems;
-        }
+        public int[] GetRawSparseItems() => m_SparseItems;
 
-        public int[] GetRawRecycledItems()
-        {
-            return m_RecycledItems;
-        }
+        public int[] GetRawRecycledItems() => m_RecycledItems;
 
-        public ref int GetRawRecycledItemsCount()
-        {
-            return ref m_RecycledItemsCount;
-        }
+        public int GetRawRecycledItemsCount() => m_RecycledItemsCount;
 
         public ref T Add(int entity)
         {
@@ -213,7 +183,7 @@ namespace Saro.Entities
                 m_AutoReset?.Invoke(ref m_DenseItems[idx]);
             }
             m_SparseItems[entity] = idx;
-            m_World.OnEntityChange_Internal(entity, m_Id, true);
+            m_World.OnEntityChange_Add_Internal(entity, m_Id);
             m_World.entities[entity].componentsCount++;
 #if DEBUG || LEOECSLITE_WORLD_EVENTS
             m_World.RaiseEntityChangeEvent(entity);
@@ -240,22 +210,6 @@ namespace Saro.Entities
             return m_SparseItems[entity] > 0;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [System.Obsolete("use Has and Get instead. out/ref 出去的组件 都是copy！废弃掉这个 api ！", true)]
-        public bool TryGet(int entity, out T component)
-        {
-            if (Has(entity))
-            {
-                component = Get(entity);
-
-                return true;
-            }
-
-            component = default;
-
-            return false;
-        }
-
         public void Del(int entity)
         {
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
@@ -264,7 +218,7 @@ namespace Saro.Entities
             ref var sparseData = ref m_SparseItems[entity];
             if (sparseData > 0)
             {
-                m_World.OnEntityChange_Internal(entity, m_Id, false);
+                m_World.OnEntityChange_Remove_Internal(entity, m_Id);
                 if (m_RecycledItemsCount == m_RecycledItems.Length)
                 {
                     Array.Resize(ref m_RecycledItems, m_RecycledItemsCount << 1);

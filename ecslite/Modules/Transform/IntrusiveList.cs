@@ -60,23 +60,6 @@ namespace Saro.Entities.Collections
         [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 #endif
 
-#if DEBUG
-        internal List<EcsEntity> DataArrayForDebug
-        {
-            get
-            {
-                var list = new List<EcsEntity>();
-
-                foreach (var item in this)
-                {
-                    list.Add(item);
-                }
-
-                return list;
-            }
-        }
-#endif
-
         public struct Enumerator : IEnumerator<EcsEntity>
         {
             private readonly EcsEntity m_Root;
@@ -672,5 +655,23 @@ namespace Saro.Entities.Collections
         }
 
         #endregion
+
+#if DEBUG
+        private List<EcsEntity> DebugListForIDE
+        {
+            get
+            {
+                var list = new List<EcsEntity>();
+
+                foreach (var item in this)
+                {
+                    list.Add(item);
+                }
+
+                return list;
+            }
+        }
+#endif
+
     }
 }

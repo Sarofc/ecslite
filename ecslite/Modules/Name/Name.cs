@@ -31,6 +31,11 @@ namespace Saro.Entities
             return entity.ToString(entityNameFormat);
         }
 
+        public static string GetEntityInfo(int entity, EcsWorld world)
+        {
+            return $"{Name.GetEntityName(entity, world)}\t{world.worldID}:{entity}.{world.GetEntityGen(entity)}";
+        }
+
         public bool Equals(Name other) => name == other.name;
 
         public override bool Equals(object obj) => obj is Name other && Equals(other);

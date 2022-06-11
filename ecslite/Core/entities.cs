@@ -5,6 +5,7 @@
 
 using System;
 using System.Runtime.CompilerServices;
+using System.Text;
 
 #if ENABLE_IL2CPP
 using Unity.IL2CPP.CompilerServices;
@@ -44,15 +45,19 @@ namespace Saro.Entities
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsAlive()
-        {
-            if (World == null || !World.IsAlive() ||
-                !World.IsEntityAlive_Internal(id) ||
-                World.GetEntityGen(id) != gen)
-            {
-                return false;
-            }
-            return true;
-        }
+            => World != null && World.IsAlive() && World.IsEntityAlive_Internal(id) && World.GetEntityGen(id) == gen;
+
+        public bool Equals(EcsEntity other)
+            => id == other.id && gen == other.gen && Equals(World, other.World);
+
+        public override bool Equals(object obj) => obj is EcsEntity other && Equals(other);
+
+        public override int GetHashCode() => id; // TODO 先这么处理吧, 原则上, 同一个world的entity,才能放到一个map里
+
+        public static bool operator !=(in EcsEntity x, in EcsEntity y) => !(x == y);
+
+        public static bool operator ==(in EcsEntity x, in EcsEntity y)
+            => x.id == y.id && x.gen == y.gen && x.World == y.World;
 
 
 #if DEBUG
@@ -95,12 +100,12 @@ namespace Saro.Entities
             {
                 return "Entity-NonAlive";
             }
-            System.Type[] types = null;
+            Type[] types = null;
             var count = World.GetComponentTypes(id, ref types);
-            System.Text.StringBuilder sb = null;
+            StringBuilder sb = null;
             if (count > 0)
             {
-                sb = new System.Text.StringBuilder(512);
+                sb = new StringBuilder(512);
                 for (var i = 0; i < count; i++)
                 {
                     if (sb.Length > 0)
@@ -111,20 +116,9 @@ namespace Saro.Entities
                 }
             }
 
-            return $"\'{Name.GetEntityName(id, World)}\' {world}:{id}.{gen} [{sb}]";
+            return $"{Name.GetEntityInfo(id, World)} [{sb}]";
         }
 #endif
-        public bool Equals(EcsEntity other)
-            => id == other.id && gen == other.gen && Equals(World, other.World);
-
-        public override bool Equals(object obj)
-            => obj is EcsEntity other && Equals(other);
-
-        public override int GetHashCode() => id; // TODO 先这么处理吧, 原则上, 同一个world的entity,才能放到一个map里
-
-        public static bool operator !=(in EcsEntity x, in EcsEntity y) => !(x == y);
-
-        public static bool operator ==(in EcsEntity x, in EcsEntity y) => x.id == y.id && x.gen == y.gen && x.World == y.World;
     }
 
 #if ENABLE_IL2CPP

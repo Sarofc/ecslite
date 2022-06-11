@@ -68,15 +68,6 @@ namespace Saro.Entities
             return ref pool.Get(self);
         }
 
-        [System.Obsolete("use Has and Get instead", true)]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryGet<T>(this int self, EcsWorld world, out T component) where T : struct, IEcsComponent
-        {
-            var pool = world.GetPool<T>();
-
-            return pool.TryGet(self, out component);
-        }
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Del<T>(in this EcsEntity self) where T : struct, IEcsComponent
         {

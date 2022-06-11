@@ -38,8 +38,6 @@ namespace Saro.Entities
         private int m_FreeMasksCount;
         private bool m_Destroyed;
 
-        internal readonly string worldName;
-
 #if DEBUG || LEOECSLITE_WORLD_EVENTS
         internal readonly List<EcsSystems> ecsSystemsList = new();
 #endif
@@ -77,6 +75,7 @@ namespace Saro.Entities
             }
         }
 #endif
+
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
         private readonly List<int> m_LeakedEntities = new List<int>(512);
 
@@ -100,8 +99,9 @@ namespace Saro.Entities
         }
 #endif
 
+        internal readonly short worldID;
+        internal readonly string worldName;
         internal static EcsWorld[] s_Worlds = new EcsWorld[4];
-        public readonly short worldID;
         private readonly static IntDispenser k_WorldIdDispenser = new(0);
         private readonly static object k_LockObject = new();
 
@@ -147,7 +147,7 @@ namespace Saro.Entities
 
             lock (k_LockObject)
             {
-                if (s_Worlds.Length < worldID)
+                if (s_Worlds.Length <= worldID)
                 {
                     var newLength = s_Worlds.Length << 1 > short.MaxValue ?
                         short.MaxValue :
@@ -557,81 +557,83 @@ namespace Saro.Entities
             return (filter, true);
         }
 
-        internal void OnEntityChange_Internal(int entity, int componentType, bool added)
+        internal void OnEntityChange_Add_Internal(int entity, int componentType)
         {
             var includeList = m_FiltersByIncludedComponents[componentType];
             var excludeList = m_FiltersByExcludedComponents[componentType];
-            if (added)
-            {
-                // add component.
-                if (includeList != null)
-                {
-                    foreach (var filter in includeList)
-                    {
-                        if (IsMaskCompatible(filter.GetMask(), entity))
-                        {
-#if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
-                            if (filter.sparseEntities[entity] > 0)
-                            {
-                                throw new EcsException("Entity already in filter.");
-                            }
-#endif
-                            filter.AddEntity(entity);
-                        }
-                    }
-                }
 
-                if (excludeList != null)
+            // add component.
+            if (includeList != null)
+            {
+                foreach (var filter in includeList)
                 {
-                    foreach (var filter in excludeList)
+                    if (IsMaskCompatible(filter.GetMask(), entity))
                     {
-                        if (IsMaskCompatibleWithout(filter.GetMask(), entity, componentType))
-                        {
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
-                            if (filter.sparseEntities[entity] == 0)
-                            {
-                                throw new EcsException("Entity not in filter.");
-                            }
-#endif
-                            filter.RemoveEntity(entity);
+                        if (filter.sparseEntities[entity] > 0)
+                        {
+                            throw new EcsException("Entity already in filter.");
                         }
+#endif
+                        filter.AddEntity(entity);
                     }
                 }
             }
-            else
+
+            if (excludeList != null)
             {
-                // remove component.
-                if (includeList != null)
+                foreach (var filter in excludeList)
                 {
-                    foreach (var filter in includeList)
+                    if (IsMaskCompatibleWithout(filter.GetMask(), entity, componentType))
                     {
-                        if (IsMaskCompatible(filter.GetMask(), entity))
-                        {
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
-                            if (filter.sparseEntities[entity] == 0)
-                            {
-                                throw new EcsException("Entity not in filter.");
-                            }
-#endif
-                            filter.RemoveEntity(entity);
+                        if (filter.sparseEntities[entity] == 0)
+                        {
+                            throw new EcsException("Entity not in filter.");
                         }
+#endif
+                        filter.RemoveEntity(entity);
                     }
                 }
+            }
+        }
 
-                if (excludeList != null)
+        internal void OnEntityChange_Remove_Internal(int entity, int componentType)
+        {
+            var includeList = m_FiltersByIncludedComponents[componentType];
+            var excludeList = m_FiltersByExcludedComponents[componentType];
+
+            // remove component.
+            if (includeList != null)
+            {
+                foreach (var filter in includeList)
                 {
-                    foreach (var filter in excludeList)
+                    if (IsMaskCompatible(filter.GetMask(), entity))
                     {
-                        if (IsMaskCompatibleWithout(filter.GetMask(), entity, componentType))
-                        {
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
-                            if (filter.sparseEntities[entity] > 0)
-                            {
-                                throw new EcsException("Entity already in filter.");
-                            }
-#endif
-                            filter.AddEntity(entity);
+                        if (filter.sparseEntities[entity] == 0)
+                        {
+                            throw new EcsException("Entity not in filter.");
                         }
+#endif
+                        filter.RemoveEntity(entity);
+                    }
+                }
+            }
+
+            if (excludeList != null)
+            {
+                foreach (var filter in excludeList)
+                {
+                    if (IsMaskCompatibleWithout(filter.GetMask(), entity, componentType))
+                    {
+#if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
+                        if (filter.sparseEntities[entity] > 0)
+                        {
+                            throw new EcsException("Entity already in filter.");
+                        }
+#endif
+                        filter.AddEntity(entity);
                     }
                 }
             }

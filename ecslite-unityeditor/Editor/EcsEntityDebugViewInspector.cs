@@ -26,9 +26,22 @@ namespace Saro.Entities.UnityEditor
             var observer = (EcsEntityDebugView)target;
             if (observer.world != null)
             {
+                var rect = EditorGUILayout.GetControlRect();
+
+                const float buttonWidth = 24f;
+
+                var entityInfoRect = rect;
+                entityInfoRect.width -= buttonWidth;
+
+                var buttonRect = rect;
+                buttonRect.x += entityInfoRect.width;
+                buttonRect.width = buttonWidth;
+
+                EditorGUI.LabelField(entityInfoRect, Name.GetEntityInfo(observer.entity, observer.world));
+
                 bool guiEnable = GUI.enabled;
                 GUI.enabled = observer.world.IsEntityAlive_Internal(observer.entity);
-                if (GUILayout.Button("Destroy"))
+                if (GUI.Button(buttonRect, "-"))
                 {
                     observer.world.DelEntity(observer.entity);
                 }

@@ -89,26 +89,6 @@ namespace Saro.Entities.Transforms
             return root;
         }
 
-        [System.Obsolete("use HasParent and GetParent instead", true)]
-#if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-#endif
-        public static bool TryGetParent(this int child, EcsWorld world, out EcsEntity parent)
-        {
-            var r = world.ParentPool.TryGet(child, out var c);
-            parent = c.entity;
-            return r;
-        }
-
-        [System.Obsolete("use HasParent and GetParent instead", true)]
-#if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-#endif
-        public static bool TryGetParent(this in EcsEntity entity, out EcsEntity parent)
-        {
-            return TryGetParent(entity.id, entity.World, out parent);
-        }
-
 #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 #endif
