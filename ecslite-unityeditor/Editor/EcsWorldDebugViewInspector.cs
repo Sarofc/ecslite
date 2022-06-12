@@ -3,6 +3,7 @@
 // Copyright (c) 2012-2022 Leopotam <leopotam@yandex.ru>
 // ----------------------------------------------------------------------------
 
+using System;
 using UnityEditor;
 using UnityEngine;
 
@@ -59,6 +60,7 @@ namespace Saro.Entities.UnityEditor
                 EditorGUILayout.Space();
 
                 var filterCount = world.GetAllFilters(ref m_Filters);
+                Array.Sort(m_Filters, (x, y) => x.GetMask().hash - y.GetMask().hash);
                 m_FilterFoldout = EditorGUILayout.Foldout(m_FilterFoldout, "FilterCount: " + filterCount, true);
                 if (m_FilterFoldout)
                 {

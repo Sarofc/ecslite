@@ -6,10 +6,6 @@
 using System;
 using System.Runtime.CompilerServices;
 
-#if ENABLE_IL2CPP
-using Unity.IL2CPP.CompilerServices;
-#endif
-
 namespace Saro.Entities
 {
 #if LEOECSLITE_FILTER_EVENTS
@@ -21,8 +17,9 @@ namespace Saro.Entities
 #endif
 
 #if ENABLE_IL2CPP
-    [Il2CppSetOption (Option.NullChecks, false)]
-    [Il2CppSetOption (Option.ArrayBoundsChecks, false)]
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOption(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOption(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOption(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 #endif
     public sealed partial class EcsFilter
     {
@@ -52,10 +49,8 @@ namespace Saro.Entities
             m_LockCount = 0;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public EcsWorld GetWorld() => m_World;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int GetEntitiesCount() => m_EntitiesCount;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -6,10 +6,6 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-#if ENABLE_IL2CPP
-using Unity.IL2CPP.CompilerServices;
-#endif
-
 namespace Saro.Entities
 {
     public interface IEcsSystem { }
@@ -42,8 +38,9 @@ namespace Saro.Entities
     }
 
 #if ENABLE_IL2CPP
-    [Il2CppSetOption (Option.NullChecks, false)]
-    [Il2CppSetOption (Option.ArrayBoundsChecks, false)]
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOption(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOption(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOption(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 #endif
     public class EcsSystems
     {
@@ -232,12 +229,12 @@ namespace Saro.Entities
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
         public string CheckForLeakedEntities()
         {
-            if (m_DefaultWorld.CheckForLeakedEntities()) { return "default"; }
+            if (m_DefaultWorld.CheckForLeakedEntities()) return m_DefaultWorld.worldID.ToString();
             foreach (var pair in m_Worlds)
             {
                 if (pair.Value.CheckForLeakedEntities())
                 {
-                    return pair.Key;
+                    return pair.Value.worldID.ToString();
                 }
             }
             return null;

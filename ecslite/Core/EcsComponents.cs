@@ -5,12 +5,6 @@
 
 using System;
 using System.Runtime.CompilerServices;
-using System.Text;
-using UnityEngine;
-
-#if ENABLE_IL2CPP
-using Unity.IL2CPP.CompilerServices;
-#endif
 
 namespace Saro.Entities
 {
@@ -32,8 +26,9 @@ namespace Saro.Entities
     }
 
 #if ENABLE_IL2CPP
-    [Il2CppSetOption (Option.NullChecks, false)]
-    [Il2CppSetOption (Option.ArrayBoundsChecks, false)]
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOption(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOption(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOption(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 #endif
     public sealed class EcsPool<T> : IEcsPool where T : struct, IEcsComponent
     {
@@ -157,7 +152,7 @@ namespace Saro.Entities
         public ref T Add(int entity)
         {
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
-            if (!m_World.IsEntityAlive_Internal(entity)) { throw new EcsException($"{typeof(T).Name}::Add. Cant touch destroyed entity: {entity} world: {m_World.worldID} world: {m_World.worldID}"); }
+            if (!m_World.IsEntityAlive(entity)) { throw new EcsException($"{typeof(T).Name}::Add. Cant touch destroyed entity: {entity} world: {m_World.worldID} world: {m_World.worldID}"); }
             //if (_sparseItems[entity] > 0) { throw new EcsException ($"Component \"{typeof (T).Name}\" already attached to entity."); }
 #endif
             // API 调整
@@ -196,7 +191,7 @@ namespace Saro.Entities
         public ref T Get(int entity)
         {
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
-            if (!m_World.IsEntityAlive_Internal(entity)) { throw new EcsException($"{typeof(T).Name}::Get. Cant touch destroyed entity: {entity} world: {m_World.worldID}"); }
+            if (!m_World.IsEntityAlive(entity)) { throw new EcsException($"{typeof(T).Name}::Get. Cant touch destroyed entity: {entity} world: {m_World.worldID}"); }
             if (m_SparseItems[entity] == 0) { throw new EcsException($"Cant get \"{typeof(T).Name}\" component - not attached."); }
 #endif
             return ref m_DenseItems[m_SparseItems[entity]];
@@ -206,7 +201,7 @@ namespace Saro.Entities
         public bool Has(int entity)
         {
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
-            if (!m_World.IsEntityAlive_Internal(entity)) { throw new EcsException($"{typeof(T).Name}::Has. Cant touch destroyed entity: {entity} world: {m_World.worldID}"); }
+            if (!m_World.IsEntityAlive(entity)) { throw new EcsException($"{typeof(T).Name}::Has. Cant touch destroyed entity: {entity} world: {m_World.worldID}"); }
 #endif
             return m_SparseItems[entity] > 0;
         }
@@ -214,7 +209,7 @@ namespace Saro.Entities
         public void Del(int entity)
         {
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
-            if (!m_World.IsEntityAlive_Internal(entity)) { throw new EcsException($"{typeof(T).Name}::Cant touch destroyed entity: {entity} world: {m_World.worldID}"); }
+            if (!m_World.IsEntityAlive(entity)) { throw new EcsException($"{typeof(T).Name}::Cant touch destroyed entity: {entity} world: {m_World.worldID}"); }
 #endif
             ref var sparseData = ref m_SparseItems[entity];
             if (sparseData > 0)
@@ -241,7 +236,8 @@ namespace Saro.Entities
 #endif
                 if (entityData.componentsCount == 0)
                 {
-                    m_World.DelEntity(entity);
+                    // TODO component 数量为 0 了，此entity没有任何意义了，直接删！
+                    m_World.DelEntity_Internal(entity); 
                 }
             }
         }

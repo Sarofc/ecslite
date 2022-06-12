@@ -40,7 +40,7 @@ namespace Saro.Entities.UnityEditor
                 EditorGUI.LabelField(entityInfoRect, Name.GetEntityInfo(observer.entity, observer.world));
 
                 bool guiEnable = GUI.enabled;
-                GUI.enabled = observer.world.IsEntityAlive_Internal(observer.entity);
+                GUI.enabled = observer.world.IsEntityAlive(observer.entity);
                 if (GUI.Button(buttonRect, "-"))
                 {
                     observer.world.DelEntity(observer.entity);

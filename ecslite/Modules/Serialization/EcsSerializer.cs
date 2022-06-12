@@ -17,7 +17,7 @@ namespace Saro.Entities.Serialization
      */
     public static class EcsSerializer
     {
-        public static void Initialize(int entity, IList<object> components, EcsWorld world, bool postInit = true)
+        public static void Initialize<T>(int entity, IList<T> components, EcsWorld world, bool postInit = true)
         {
             if (components != null && components.Count > 0)
             {
@@ -31,6 +31,13 @@ namespace Saro.Entities.Serialization
                         Log.ERROR($"null component to add. index: {i}. entity: {entity}.");
                         continue;
                     }
+
+                    if (component is not IEcsComponent)
+                    {
+                        Log.ERROR($"component MUST impl IEcsComponent. index: {i}. entity: {entity}.");
+                        continue;
+                    }
+
                     var pool = world.GetPoolByType(component.GetType());
                     if (pool != null)
                     {
@@ -68,6 +75,5 @@ namespace Saro.Entities.Serialization
                 }
             }
         }
-
     }
 }

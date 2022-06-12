@@ -9,15 +9,13 @@ namespace Saro.Entities
 {
     /*
         大量数组时 性能太低
-
-        var pool = ent.World.GetPool<T>(); 大数组时，非常耗时
-
-        改为 ComponentPool.TPool.直接引用 EcsPool
+        var pool = world.GetPool<T>(); 大数组时，非常耗时
     */
 
 #if ENABLE_IL2CPP
-    [Il2CppSetOption (Option.NullChecks, false)]
-    [Il2CppSetOption (Option.ArrayBoundsChecks, false)]
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOption(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOption(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOption(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 #endif
     public static class EcsEntityExtensions
     {
@@ -91,11 +89,5 @@ namespace Saro.Entities
             var pool = world.GetPool<T>();
             pool.Del(self);
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsAlive(this int self, EcsWorld world) => world.IsEntityAlive_Internal(self);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Destroy(in this EcsEntity self) => self.World.DelEntity(self.id);
     }
 }

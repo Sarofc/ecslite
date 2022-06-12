@@ -46,7 +46,10 @@ namespace Saro.Entities
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsAlive()
-            => id != -1 && World != null && World.IsAlive() && World.IsEntityAlive_Internal(id) && World.GetEntityGen(id) == gen;
+            => id != -1 && World != null && World.IsAlive() && World.IsEntityAlive(id) && World.GetEntityGen(id) == gen;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Destroy() => World.DelEntity(id);
 
         public bool Equals(EcsEntity other)
             => id == other.id && gen == other.gen && world == other.world;
@@ -64,7 +67,7 @@ namespace Saro.Entities
         {
             get
             {
-                if (World != null && World.IsAlive() && World.IsEntityAlive_Internal(id) &&
+                if (World != null && World.IsAlive() && World.IsEntityAlive(id) &&
                     World.GetEntityGen(id) == gen)
                 {
                     object[] array = new object[DebugComponentsCountForIDE];
@@ -79,7 +82,7 @@ namespace Saro.Entities
         {
             get
             {
-                if (World != null && World.IsAlive() && World.IsEntityAlive_Internal(id) &&
+                if (World != null && World.IsAlive() && World.IsEntityAlive(id) &&
                     World.GetEntityGen(id) == gen)
                 {
                     return World.GetComponentsCount(id);

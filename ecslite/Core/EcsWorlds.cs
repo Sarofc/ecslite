@@ -3,21 +3,17 @@
 // Copyright (c) 2012-2022 Leopotam <leopotam@yandex.ru>
 // ----------------------------------------------------------------------------
 
-using Saro.Diagnostics;
 using Saro.Utility;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-#if ENABLE_IL2CPP
-using Unity.IL2CPP.CompilerServices;
-#endif
-
 namespace Saro.Entities
 {
 #if ENABLE_IL2CPP
-    [Il2CppSetOption(Option.NullChecks, false)]
-    [Il2CppSetOption(Option.ArrayBoundsChecks, false)]
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOption(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOption(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOption(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 #endif
     public partial class EcsWorld
     {
@@ -258,7 +254,12 @@ namespace Saro.Entities
             return entity;
         }
 
-        private void DelEntity_Internal(int entity)
+        /// <summary>
+        /// 真正销毁entity的地方
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <exception cref="EcsException"></exception>
+        internal void DelEntity_Internal(int entity)
         {
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
             if (entity < 0 || entity >= m_EntitiesCount)
@@ -496,8 +497,13 @@ namespace Saro.Entities
             return itemsCount;
         }
 
+        /// <summary>
+        /// entity是否存活
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal bool IsEntityAlive_Internal(int entity)
+        public bool IsEntityAlive(int entity)
         {
             return entity >= 0 && entity < m_EntitiesCount && entities[entity].gen > 0;
         }
@@ -574,7 +580,7 @@ namespace Saro.Entities
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
                         if (filter.sparseEntities[entity] > 0)
                         {
-                            throw new EcsException("Entity already in filter.");
+                            throw new EcsException($"Entity already in filter. worldID: {worldID} hash: {filter.GetMask().hash} entity: {entity} componentType: {GetPoolById(componentType).GetComponentType().Name}");
                         }
 #endif
                         filter.AddEntity(entity);
@@ -707,8 +713,9 @@ namespace Saro.Entities
         }
 
 #if ENABLE_IL2CPP
-        [Il2CppSetOption(Option.NullChecks, false)]
-        [Il2CppSetOption(Option.ArrayBoundsChecks, false)]
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOption(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOption(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOption(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 #endif
         public sealed partial class Mask
         {
@@ -874,29 +881,3 @@ namespace Saro.Entities
     }
 #endif
 }
-
-#if ENABLE_IL2CPP
-// Unity IL2CPP performance optimization attribute.
-namespace Unity.IL2CPP.CompilerServices
-{
-    enum Option
-    {
-        NullChecks = 1,
-        ArrayBoundsChecks = 2
-    }
-
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Property, Inherited =
-        false, AllowMultiple = true)]
-    class Il2CppSetOptionAttribute : Attribute
-    {
-        public Option Option { get; private set; }
-        public object Value { get; private set; }
-
-        public Il2CppSetOptionAttribute(Option option, object value)
-        {
-            Option = option;
-            Value = value;
-        }
-    }
-}
-#endif

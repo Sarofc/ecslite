@@ -25,7 +25,7 @@ namespace Saro.Entities
                 return "Entity-Null";
             }
 
-            if (!world.IsAlive() || !world.IsEntityAlive_Internal(entity))
+            if (!world.IsAlive() || !world.IsEntityAlive(entity))
             {
                 return "Entity-NonAlive";
             }
@@ -47,7 +47,7 @@ namespace Saro.Entities
         public static string GetEntityDetial(int entity, EcsWorld world, string entityNameFormat = k_EntityNameFormat)
         {
             StringBuilder sb = null;
-            if (world.IsAlive() && world.IsEntityAlive_Internal(entity))
+            if (world.IsAlive() && world.IsEntityAlive(entity))
             {
                 Type[] types = null;
                 var count = world.GetComponentTypes(entity, ref types);

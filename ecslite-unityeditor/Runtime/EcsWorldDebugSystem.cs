@@ -167,7 +167,7 @@ namespace Saro.Entities.UnityEditor
             if (entityView != null)
             {
                 var entityTransform = entityView.gameObject.transform;
-                if (m_World.IsEntityAlive_Internal(entity) && m_World.ParentPool.Has(entity))
+                if (m_World.IsEntityAlive(entity) && m_World.ParentPool.Has(entity))
                 {
                     var eParent = m_World.ParentPool.Get(entity).entity;
                     if (eParent.IsAlive())
