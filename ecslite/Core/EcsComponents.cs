@@ -237,7 +237,7 @@ namespace Saro.Entities
                 if (entityData.componentsCount == 0)
                 {
                     // TODO component 数量为 0 了，此entity没有任何意义了，直接删！
-                    m_World.DelEntity_Internal(entity); 
+                    m_World.DelEntity_Internal(entity);
                 }
             }
         }

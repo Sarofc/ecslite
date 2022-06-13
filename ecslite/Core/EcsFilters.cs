@@ -103,13 +103,14 @@ namespace Saro.Entities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void AddEntity(int entity)
         {
-            if (AddDelayedOp(true, entity)) { return; }
+            if (AddDelayedOp(true, entity)) return;
             if (m_EntitiesCount == m_DenseEntities.Length)
             {
                 Array.Resize(ref m_DenseEntities, m_EntitiesCount << 1);
             }
             m_DenseEntities[m_EntitiesCount++] = entity;
             sparseEntities[entity] = m_EntitiesCount;
+
 #if LEOECSLITE_FILTER_EVENTS
             ProcessEventListeners_Add(entity);
 #endif
@@ -118,7 +119,7 @@ namespace Saro.Entities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void RemoveEntity(int entity)
         {
-            if (AddDelayedOp(false, entity)) { return; }
+            if (AddDelayedOp(false, entity)) return;
             var idx = sparseEntities[entity] - 1;
             sparseEntities[entity] = 0;
             m_EntitiesCount--;
@@ -127,6 +128,7 @@ namespace Saro.Entities
                 m_DenseEntities[idx] = m_DenseEntities[m_EntitiesCount];
                 sparseEntities[m_DenseEntities[idx]] = idx + 1;
             }
+
 #if LEOECSLITE_FILTER_EVENTS
             ProcessEventListeners_Removed(entity);
 #endif

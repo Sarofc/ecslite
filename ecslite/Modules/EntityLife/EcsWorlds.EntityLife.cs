@@ -11,6 +11,8 @@ namespace Saro.Entities
             get => m_DestroyPool ??= GetPool<Destroy>();
         }
 
+        private EcsPool<Destroy> m_DestroyPool;
+
         /// <summary>
         /// entity 是否将被销毁
         /// </summary>
@@ -20,8 +22,6 @@ namespace Saro.Entities
         {
             return !DestroyPool.Has(entity);
         }
-
-        private EcsPool<Destroy> m_DestroyPool;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DelEntity(int entity)
