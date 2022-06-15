@@ -28,9 +28,7 @@ public ref T GetSingleton<T>() where T : struct, IEcsComponent
 -----------------
 ## 数据蓝图，可编辑entity资源，通过代码一键生成想要的实体
 
-<details><summary>图片</summary>
 <img src="https://github.com/Sarofc/ecslite/blob/main/doc/pic2.jpg" width=50%>
-</details>
 
 -----------------
 ## transfrom层级系统
@@ -55,7 +53,5 @@ child4.SetParent(child3);
 -----------------
 ## UnityEditor增强
 
-<details><summary>图片</summary>
 <img src="https://github.com/Sarofc/ecslite/blob/main/doc/pic0.jpg" width=50%>
 <img src="https://github.com/Sarofc/ecslite/blob/main/doc/pic1.jpg" width=40%>
-</details>
