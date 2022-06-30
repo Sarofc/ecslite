@@ -8,6 +8,8 @@ using System.Runtime.CompilerServices;
 
 namespace Saro.Entities
 {
+    // TODO 数据不可变的资源，避免struct copy，类似unity blobasset
+
     public interface IEcsPool
     {
         void Resize(int capacity);

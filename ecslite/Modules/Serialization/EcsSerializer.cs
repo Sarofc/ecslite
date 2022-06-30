@@ -71,6 +71,11 @@ namespace Saro.Entities.Serialization
                         initializable.PostInitialize(world, entity);
                     }
 
+                    foreach (var initializable in postInitializeList)
+                    {
+                        initializable.AfterPostInit(world, entity);
+                    }
+
                     ListPool<IEcsComponentPostInit>.Return(postInitializeList);
                 }
             }

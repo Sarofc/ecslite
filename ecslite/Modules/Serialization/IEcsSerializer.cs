@@ -12,7 +12,12 @@ namespace Saro.Entities.Serialization
     /// </summary>
     public interface IEcsComponentPostInit
     {
-        void PostInitialize(EcsWorld world, int entity);
+        void PostInitialize(EcsWorld world, int entity) { }
+
+        /// <summary>
+        /// 在postinit后，调用
+        /// </summary>
+        void AfterPostInit(EcsWorld world, int entity) { }
     }
 
     public interface IEcsSerializer<T>
