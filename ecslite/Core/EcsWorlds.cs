@@ -154,6 +154,8 @@ namespace Saro.Entities
                 s_Worlds[worldID] = this;
             }
 
+            InitSingletonEntity(); // create singleton entity
+
             m_Destroyed = false;
         }
 
@@ -338,9 +340,9 @@ namespace Saro.Entities
         public int GetFreeMaskCount() => m_FreeMasksCount;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public EcsPool<T> GetPool<T>() where T : struct, IEcsComponent => GetPool<T>(m_PoolDenseSize, m_PoolRecycledSize);
+        public EcsPool<T> GetPool<T>() where T : struct, IEcsComponent => GetPool<T>(m_PoolDenseSize, entities.Length, m_PoolRecycledSize);
 
-        public EcsPool<T> GetPool<T>(int denseCapacity, int recycledCapacity) where T : struct, IEcsComponent
+        internal EcsPool<T> GetPool<T>(int denseCapacity, int sparseCapacity, int recycledCapacity) where T : struct, IEcsComponent
         {
             var poolType = typeof(T);
             if (m_PoolHashes.TryGetValue(poolType, out var rawPool))
@@ -348,7 +350,7 @@ namespace Saro.Entities
                 return (EcsPool<T>)rawPool;
             }
 
-            var pool = new EcsPool<T>(this, m_PoolsCount, denseCapacity, entities.Length, recycledCapacity);
+            var pool = new EcsPool<T>(this, m_PoolsCount, denseCapacity, sparseCapacity, recycledCapacity);
             m_PoolHashes[poolType] = pool;
             if (m_PoolsCount == m_Pools.Length)
             {
@@ -488,9 +490,11 @@ namespace Saro.Entities
 
             for (int i = 0, j = 0, iMax = m_PoolsCount; i < iMax; i++)
             {
-                if (m_Pools[i].Has(entity))
+                var pool = m_Pools[i];
+
+                if (pool.Has(entity))
                 {
-                    array[j++] = m_Pools[i].GetComponentType();
+                    array[j++] = pool.GetComponentType();
                 }
             }
 

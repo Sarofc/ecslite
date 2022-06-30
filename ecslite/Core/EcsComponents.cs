@@ -12,6 +12,7 @@ namespace Saro.Entities
 
     public interface IEcsPool
     {
+        bool Singleton { get; }
         void Resize(int capacity);
         bool Has(int entity);
         void Del(int entity);
@@ -49,6 +50,8 @@ namespace Saro.Entities
         T m_AutoresetFakeInstance;
 #endif
 
+        public bool Singleton { get; private set; }
+
         public override string ToString()
         {
             return $"type: {m_Type.Name} id: {m_ID} denseItem: {m_DenseItems.Length} recycledItems: {m_RecycledItems.Length} sparseItems: {m_SparseItems.Length}";
@@ -64,6 +67,8 @@ namespace Saro.Entities
                 throw new EcsException($"{m_Type} is not impl {nameof(IEcsComponent)}");
             }
 #endif
+
+            Singleton = typeof(IEcsComponentSingleton).IsAssignableFrom(m_Type);
 
             m_World = world;
             m_ID = id;
@@ -119,7 +124,11 @@ namespace Saro.Entities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Type GetComponentType() => m_Type;
 
-        void IEcsPool.Resize(int capacity) => Array.Resize(ref m_SparseItems, capacity);
+        void IEcsPool.Resize(int capacity)
+        {
+            if (Singleton) return;
+            Array.Resize(ref m_SparseItems, capacity);
+        }
 
         object IEcsPool.GetRaw(int entity) => Get(entity);
 
@@ -205,6 +214,9 @@ namespace Saro.Entities
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
             if (!m_World.IsEntityAlive(entity)) { throw new EcsException($"{typeof(T).Name}::Has. Cant touch destroyed entity: {entity} world: {m_World.worldID}"); }
 #endif
+
+            if (m_SparseItems.Length <= entity) return false; // 兼容singleton改动，singleton组件只会分配1个
+
             return m_SparseItems[entity] > 0;
         }
 
