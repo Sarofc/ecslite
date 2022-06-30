@@ -5,24 +5,12 @@
 ## 单例组件
 
 ```csharp
-private int m_SingletonEntityId = -1;
-
-[MethodImpl(MethodImplOptions.AggressiveInlining)]
-public int GetSingletonEntity()
+struct YourSingletonComponent : IEcsComponentSingleton
 {
-    if (m_SingletonEntityId < 0)
-        m_SingletonEntityId = NewEntity();
-
-    return m_SingletonEntityId;
+    public int someValue;
 }
 
-[MethodImpl(MethodImplOptions.AggressiveInlining)]
-public ref T GetSingleton<T>() where T : struct, IEcsComponent
-{
-    var singletonID = GetSingletonEntity();
-
-    return ref GetPool<T>(0, 1).Add(singletonID);
-}
+ref var singletonComp = ref world.GetSingleton<YourSingletonComponent>();
 ```
 
 -----------------
@@ -31,7 +19,7 @@ public ref T GetSingleton<T>() where T : struct, IEcsComponent
 <img src="https://github.com/Sarofc/ecslite/blob/main/doc/pic2.jpg" width=50%>
 
 -----------------
-## transfrom层级系统
+## transform层级系统
 
 ```csharp
 EcsEntity root = CreateNode(world, "root");
