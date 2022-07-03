@@ -1,5 +1,5 @@
 ﻿#if UNITY_EDITOR
-#define ODIN_ENHANCE
+#define EDITOR_ENHANCE
 #endif
 
 using System.Collections.Generic;
@@ -12,7 +12,7 @@ namespace Saro.Entities.Authoring
     [CreateAssetMenu(menuName = "ECS/" + nameof(GenericEntityAuthoring))]
     public sealed class GenericEntityAuthoring : ScriptableObject, IEcsConvertToEntity
     {
-#if ODIN_INSPECTOR && ODIN_ENHANCE
+#if ODIN_INSPECTOR && EDITOR_ENHANCE
         [Sirenix.OdinInspector.Searchable]
         [Sirenix.OdinInspector.ListDrawerSettings(NumberOfItemsPerPage = 18, OnBeginListElementGUI = nameof(OnBegin), OnEndListElementGUI = nameof(OnEnd))]
 #endif
@@ -28,7 +28,7 @@ namespace Saro.Entities.Authoring
             return ent;
         }
 
-#if ODIN_INSPECTOR && ODIN_ENHANCE
+#if ODIN_INSPECTOR && EDITOR_ENHANCE
         private void OnBegin(int index)
         {
             Sirenix.Utilities.Editor.SirenixEditorGUI.BeginBox();

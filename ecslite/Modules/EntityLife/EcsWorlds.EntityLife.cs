@@ -42,5 +42,8 @@ namespace Saro.Entities
             DestroyPool.Add(entity);
             //DelEntity_Internal(entity);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void DelEntity(in EcsEntity entity) => DelEntity(entity.id);
     }
 }

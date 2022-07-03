@@ -97,7 +97,7 @@ namespace Saro.Entities
 
         internal readonly short worldID;
         internal readonly string worldName;
-        internal static EcsWorld[] s_Worlds = new EcsWorld[4];
+        private static EcsWorld[] s_Worlds = new EcsWorld[4];
         private readonly static IntDispenser k_WorldIdDispenser = new(-1);
         private readonly static object k_LockObject = new();
 
@@ -157,6 +157,15 @@ namespace Saro.Entities
             InitSingletonEntity(); // create singleton entity
 
             m_Destroyed = false;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static EcsWorld GetWorld(int world)
+        {
+            if (world >= 0 && world < s_Worlds.Length)
+                return s_Worlds[world];
+
+            return null;
         }
 
         public void Destroy()

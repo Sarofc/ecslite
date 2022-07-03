@@ -29,7 +29,7 @@ namespace Saro.Entities
         public EcsWorld World
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => EcsWorld.s_Worlds[world];
+            get => EcsWorld.GetWorld(world);
         }
 
         // 外部不要调用，使用 world.Pack

@@ -16,7 +16,7 @@ namespace Saro.Entities.UnityEditor
     using Extension;
 
     [CustomEditor(typeof(EcsEntityDebugView))]
-    internal sealed class EcsEntityDebugViewInspector : Editor
+    public sealed class EcsEntityDebugViewInspector : Editor
     {
         private const int k_MaxFieldToStringLength = 128;
         private static object[] s_ComponentsCache = new object[32];
@@ -52,7 +52,7 @@ namespace Saro.Entities.UnityEditor
             }
         }
 
-        private void DrawComponents(EcsEntityDebugView debugView)
+        private static void DrawComponents(EcsEntityDebugView debugView)
         {
             if (debugView.gameObject.activeSelf)
             {
@@ -61,44 +61,51 @@ namespace Saro.Entities.UnityEditor
                 {
                     var component = s_ComponentsCache[i];
                     s_ComponentsCache[i] = null;
-                    var type = component.GetType();
-                    GUILayout.BeginVertical("helpbox");
-                    var typeName = EditorExtensions.GetCleanGenericTypeName(type);
-                    var pool = debugView.world.GetPoolByType(type);
-                    var (rendered, changed, newValue) = EcsComponentInspectors.Render(typeName, type, component, debugView);
-                    if (!rendered)
-                    {
-                        EditorGUILayout.BeginHorizontal();
-                        EditorGUILayout.LabelField(typeName, EditorStyles.boldLabel);
-                        if (GUILayout.Button("-", GUILayout.Width(24)))
-                        {
-                            pool.Del(debugView.entity);
-                        }
-                        EditorGUILayout.EndHorizontal();
-                        var indent = EditorGUI.indentLevel;
-                        EditorGUI.indentLevel++;
-                        foreach (var field in type.GetFields(BindingFlags.Instance | BindingFlags.Public))
-                        {
-                            DrawTypeField(component, pool, field, debugView);
-                        }
-                        EditorGUI.indentLevel = indent;
-                    }
-                    else
-                    {
-                        if (changed)
-                        {
-                            // update value.
-                            pool.SetRaw(debugView.entity, newValue);
-                        }
-                    }
 
-                    GUILayout.EndVertical();
+                    DrawComponent(component, debugView);
+
                     EditorGUILayout.Space();
                 }
             }
         }
 
-        private void DrawTypeField(object component, IEcsPool pool, FieldInfo field, EcsEntityDebugView debugView)
+        private static void DrawComponent(object component, EcsEntityDebugView debugView)
+        {
+            var type = component.GetType();
+            GUILayout.BeginVertical("helpbox");
+            var typeName = EditorExtensions.GetCleanGenericTypeName(type);
+            var pool = debugView.world.GetPoolByType(type);
+            var (rendered, changed, newValue) = EcsComponentInspectors.Render(typeName, type, component, debugView);
+            if (!rendered)
+            {
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.LabelField(typeName, EditorStyles.boldLabel);
+                if (GUILayout.Button("-", GUILayout.Width(24)))
+                {
+                    pool.Del(debugView.entity);
+                }
+                EditorGUILayout.EndHorizontal();
+                var indent = EditorGUI.indentLevel;
+                EditorGUI.indentLevel++;
+                foreach (var field in type.GetFields(BindingFlags.Instance | BindingFlags.Public))
+                {
+                    DrawTypeField(component, pool, field, debugView);
+                }
+                EditorGUI.indentLevel = indent;
+            }
+            else
+            {
+                if (changed)
+                {
+                    // update value.
+                    pool.SetRaw(debugView.entity, newValue);
+                }
+            }
+
+            GUILayout.EndVertical();
+        }
+
+        private static void DrawTypeField(object component, IEcsPool pool, FieldInfo field, EcsEntityDebugView debugView)
         {
             var fieldValue = field.GetValue(component);
             var fieldType = field.FieldType;
@@ -156,7 +163,7 @@ namespace Saro.Entities.UnityEditor
 
     internal static class EcsComponentInspectors
     {
-        private static readonly Dictionary<Type, IEcsComponentInspector> Inspectors = new Dictionary<Type, IEcsComponentInspector>();
+        private static readonly Dictionary<Type, IEcsComponentInspector> k_Inspectors = new Dictionary<Type, IEcsComponentInspector>();
 
         static EcsComponentInspectors()
         {
@@ -169,10 +176,10 @@ namespace Saro.Entities.UnityEditor
                         if (Activator.CreateInstance(type) is IEcsComponentInspector inspector)
                         {
                             var componentType = inspector.GetFieldType();
-                            if (!Inspectors.TryGetValue(componentType, out var prevInspector)
+                            if (!k_Inspectors.TryGetValue(componentType, out var prevInspector)
                                 || inspector.GetPriority() > prevInspector.GetPriority())
                             {
-                                Inspectors[componentType] = inspector;
+                                k_Inspectors[componentType] = inspector;
                             }
                         }
                     }
@@ -182,7 +189,7 @@ namespace Saro.Entities.UnityEditor
 
         public static (bool, bool, object) Render(string label, Type type, object value, EcsEntityDebugView debugView)
         {
-            if (Inspectors.TryGetValue(type, out var inspector))
+            if (k_Inspectors.TryGetValue(type, out var inspector))
             {
                 var (changed, newValue) = inspector.OnGui(label, value, debugView);
                 return (true, changed, newValue);
