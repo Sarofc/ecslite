@@ -12,12 +12,6 @@ using Unity.IL2CPP.CompilerServices;
 
 namespace Saro.Entities
 {
-    /*
-     * TODO 潜在危险
-     * 
-     * 可能存在外部系统(ecs之外) 引用entity, world被销毁, 又new了一个新的同id的world, 获取entity数据会出错
-     * 
-     */
     public readonly struct EcsEntity : IEquatable<EcsEntity>
     {
         public static readonly EcsEntity k_Null = new(-1, 0, 0);

@@ -190,7 +190,7 @@ namespace Saro.Entities
             }
             m_SparseItems[entity] = idx;
             m_World.OnEntityChange_Add_Internal(entity, m_ID);
-            m_World.entities[entity].componentsCount++;
+            m_World.entities[entity].compsCount++;
 
 #if DEBUG || LEOECSLITE_WORLD_EVENTS
             m_World.RaiseEntityChangeEvent(entity);
@@ -244,11 +244,11 @@ namespace Saro.Entities
                 }
                 sparseData = 0;
                 ref var entityData = ref m_World.entities[entity];
-                entityData.componentsCount--;
+                entityData.compsCount--;
 #if DEBUG || LEOECSLITE_WORLD_EVENTS
                 m_World.RaiseEntityChangeEvent(entity);
 #endif
-                if (entityData.componentsCount == 0)
+                if (entityData.compsCount == 0)
                 {
                     // TODO component 数量为 0 了，此entity没有任何意义了，直接删！
                     m_World.DelEntity_Internal(entity);

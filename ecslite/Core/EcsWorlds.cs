@@ -73,7 +73,7 @@ namespace Saro.Entities
 #endif
 
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
-        private readonly List<int> m_LeakedEntities = new List<int>(512);
+        private readonly List<int> m_LeakedEntities = new(512);
 
         internal bool CheckForLeakedEntities()
         {
@@ -82,7 +82,7 @@ namespace Saro.Entities
                 for (int i = 0, iMax = m_LeakedEntities.Count; i < iMax; i++)
                 {
                     ref var entityData = ref entities[m_LeakedEntities[i]];
-                    if (entityData.gen > 0 && entityData.componentsCount == 0)
+                    if (entityData.gen > 0 && entityData.compsCount == 0)
                     {
                         return true;
                     }
@@ -184,7 +184,7 @@ namespace Saro.Entities
             for (var i = m_EntitiesCount - 1; i >= 0; i--)
             {
                 ref var entityData = ref entities[i];
-                if (entityData.componentsCount > 0)
+                if (entityData.compsCount > 0)
                 {
                     DelEntity_Internal(i); // 这里没必要管 层级变化,一股脑全销毁就完事了
                 }
@@ -285,10 +285,10 @@ namespace Saro.Entities
             }
 
             // kill components.
-            if (entityData.componentsCount > 0)
+            if (entityData.compsCount > 0)
             {
                 var idx = 0;
-                while (entityData.componentsCount > 0 && idx < m_PoolsCount)
+                while (entityData.compsCount > 0 && idx < m_PoolsCount)
                 {
                     for (; idx < m_PoolsCount; idx++)
                     {
@@ -300,10 +300,10 @@ namespace Saro.Entities
                     }
                 }
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
-                if (entityData.componentsCount != 0)
+                if (entityData.compsCount != 0)
                 {
                     throw new EcsException(
-                        $"Invalid components count on entity {entity} => {entityData.componentsCount}.");
+                        $"Invalid components count on entity {entity} => {entityData.compsCount}.");
                 }
 #endif
                 return;
@@ -325,7 +325,7 @@ namespace Saro.Entities
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetComponentsCount(int entity) => entities[entity].componentsCount;
+        public int GetComponentsCount(int entity) => entities[entity].compsCount;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public short GetEntityGen(int entity) => entities[entity].gen;
@@ -390,7 +390,7 @@ namespace Saro.Entities
             {
                 ref var entityData = ref this.entities[i];
                 // should we skip empty entities here?
-                if (entityData.gen > 0 && entityData.componentsCount >= 0)
+                if (entityData.gen > 0 && entityData.compsCount >= 0)
                     entities[id++] = i;
             }
 
@@ -435,7 +435,7 @@ namespace Saro.Entities
 
         public int GetComponents(int entity, ref object[] array)
         {
-            var itemsCount = entities[entity].componentsCount;
+            var itemsCount = entities[entity].compsCount;
             if (itemsCount == 0)
             {
                 return 0;
@@ -459,7 +459,7 @@ namespace Saro.Entities
 
         public void GetComponents(int entity, ref List<object> list)
         {
-            var itemsCount = entities[entity].componentsCount;
+            var itemsCount = entities[entity].compsCount;
             if (itemsCount == 0)
             {
                 return;
@@ -486,7 +486,7 @@ namespace Saro.Entities
 
         public int GetComponentTypes(int entity, ref Type[] array)
         {
-            var itemsCount = entities[entity].componentsCount;
+            var itemsCount = entities[entity].compsCount;
             if (itemsCount == 0)
             {
                 return 0;
@@ -564,7 +564,7 @@ namespace Saro.Entities
             for (int i = 0, iMax = m_EntitiesCount; i < iMax; i++)
             {
                 ref var entityData = ref entities[i];
-                if (entityData.componentsCount > 0 && IsMaskCompatible(mask, i))
+                if (entityData.compsCount > 0 && IsMaskCompatible(mask, i))
                 {
                     filter.AddEntity(i);
                 }
@@ -878,7 +878,7 @@ namespace Saro.Entities
         public struct EntityData
         {
             public short gen;
-            public short componentsCount;
+            public short compsCount;
         }
     }
 
