@@ -42,8 +42,7 @@ namespace Saro.Entities.Collections
 
         IEnumerator<EcsEntity> GetRange(int from, int to);
 
-        // BufferArray<EcsPackedEntityWithWorld> ToArray();
-        IntrusiveList.Enumerator GetEnumerator();
+        EcsEntity[] ToArray();
     }
 
 #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -54,64 +53,6 @@ namespace Saro.Entities.Collections
     [System.Serializable]
     public struct IntrusiveList : IIntrusiveList
     {
-#if ECS_COMPILE_IL2CPP_OPTIONS
-        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
-        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
-        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
-#endif
-
-        public struct Enumerator : IEnumerator<EcsEntity>
-        {
-            private readonly EcsEntity m_Root;
-            private EcsEntity m_Head;
-            private int m_Id;
-
-            EcsEntity IEnumerator<EcsEntity>.Current
-                => m_Root.World.NodePool.Get(m_Id).data;
-
-            public ref readonly EcsEntity Current
-                => ref m_Root.World.NodePool.Get(m_Id).data;
-
-#if INLINE_METHODS
-            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-#endif
-            public Enumerator(IntrusiveList list)
-            {
-                m_Root = list.m_Root;
-                m_Head = list.m_Root;
-                m_Id = -1;
-            }
-
-#if INLINE_METHODS
-            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-#endif
-            public bool MoveNext()
-            {
-                if (m_Head.IsAlive() == false) return false;
-
-                m_Id = m_Head.id;
-
-                m_Head = m_Head.World.NodePool.Get(m_Head.id).next;
-
-                return true;
-            }
-
-#if INLINE_METHODS
-            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-#endif
-            public void Reset()
-            {
-                m_Head = m_Root;
-                m_Id = -1;
-            }
-
-            object IEnumerator.Current => throw new NotSupportedException("use Generic version");
-
-            public void Dispose()
-            {
-            }
-        }
-
         // [ME.ECS.Serializer.SerializeFieldAttribute]
         private EcsEntity m_Root;
 
@@ -132,23 +73,20 @@ namespace Saro.Entities.Collections
         }
 
         /// <summary>
-        /// Put EcsPackedEntityWithWorld data into array.
+        /// Put EcsEntity data into array.
         /// </summary>
         /// <returns>Buffer array from pool</returns>
-        // #if INLINE_METHODS
-        //         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        // #endif
-        //         public BufferArray<EcsPackedEntityWithWorld> ToArray()
-        //         {
-        //             var arr = PoolArray<EcsPackedEntityWithWorld>.Spawn(count);
-        //             var i = 0;
-        //             foreach (var EcsPackedEntityWithWorld in this)
-        //             {
-        //                 arr.arr[i++] = EcsPackedEntityWithWorld;
-        //             }
-        //
-        //             return arr;
-        //         }
+        public EcsEntity[] ToArray()
+        {
+            var arr = new EcsEntity[m_Count];
+            var i = 0;
+            foreach (ref readonly var EcsEntity in this)
+            {
+                arr[i++] = EcsEntity;
+            }
+
+            return arr;
+        }
 
         /// <summary>
         /// Find an element.
@@ -222,7 +160,7 @@ namespace Saro.Entities.Collections
         /// Remove node at index.
         /// </summary>
         /// <param name="index"></param>
-        /// <param name="destroyData">Destroy also EcsPackedEntityWithWorld data</param>
+        /// <param name="destroyData">Destroy also EcsEntity data</param>
         /// <returns>Returns TRUE if data was found</returns>
 #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
@@ -246,7 +184,7 @@ namespace Saro.Entities.Collections
         /// </summary>
         /// <param name="from">Must be exists in list, could not be out of list range</param>
         /// <param name="to">May be out of list range, but greater than from</param>
-        /// <param name="destroyData">Destroy also EcsPackedEntityWithWorld data</param>
+        /// <param name="destroyData">Destroy also EcsEntity data</param>
         /// <returns>Returns count of removed elements</returns>
 #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
@@ -284,7 +222,7 @@ namespace Saro.Entities.Collections
         /// Get value by index.
         /// </summary>
         /// <param name="index"></param>
-        /// <returns>EcsPackedEntityWithWorld data. EcsPackedEntityWithWorld.k_Null if not found.</returns>
+        /// <returns>EcsEntity data. EcsEntity.k_Null if not found.</returns>
 #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
 #endif
@@ -585,13 +523,10 @@ namespace Saro.Entities.Collections
             var node = m_Root;
             do
             {
-                var retNode = node;
-                ref readonly var nodeLink = ref node.World.NodePool.Get(node.id);
-                //ref readonly var nodeLink = ref node.Get<IntrusiveListNode>();
-                node = nodeLink.next;
+                node = node.World.NodePool.Get(node.id).next;
                 if (idx == index)
                 {
-                    return retNode;
+                    return node;
                 }
 
                 ++idx;
@@ -673,5 +608,38 @@ namespace Saro.Entities.Collections
         }
 #endif
 
+
+#if ECS_COMPILE_IL2CPP_OPTIONS
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+#endif
+        public struct Enumerator
+        {
+            private readonly EcsEntity m_Root;
+            private EcsEntity m_Head;
+            private int m_Id;
+
+            public ref readonly EcsEntity Current
+                => ref m_Root.World.NodePool.Get(m_Id).data;
+
+            public Enumerator(IntrusiveList list)
+            {
+                m_Root = list.m_Root;
+                m_Head = list.m_Root;
+                m_Id = -1;
+            }
+
+            public bool MoveNext()
+            {
+                if (m_Head.IsAlive() == false) return false;
+
+                m_Id = m_Head.id;
+
+                m_Head = m_Head.World.NodePool.Get(m_Head.id).next;
+
+                return true;
+            }
+        }
     }
 }

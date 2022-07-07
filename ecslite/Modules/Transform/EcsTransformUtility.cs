@@ -135,7 +135,14 @@ namespace Saro.Entities.Transforms
 
         private static bool FindInHierarchy(int child, EcsWorld world, in EcsEntity root)
         {
-            // ref readonly var childNode = xxx 貌似会导致防御性拷贝？
+            /*
+             ref readonly var childNodes = ref world.ChildrenPool.Add(child);
+
+             反编译后，多一个 var items = childNodes.items; 操作
+             
+             childNodes.items 出现防御性拷贝? 貌似不太对
+
+            */
             ref var childNodes = ref world.ChildrenPool.Add(child);
             if (childNodes.items.Contains(root))
             {
