@@ -164,7 +164,7 @@ namespace Saro.Entities.Transforms
         }
 
         // TODO new version?
-        //         public static void OnEntityVersionChanged(in EcsPackedEntityWithWorld entity)
+        //         public static void OnEntityVersionChanged(in EcsEntityWithWorld entity)
         //         {
         //             if (entity.TryGet<Nodes>(out var nodes) == true)
         //             {
@@ -178,7 +178,7 @@ namespace Saro.Entities.Transforms
         //             }
         //         }
         //
-        //         public static uint GetVersionInHierarchy(this in EcsPackedEntityWithWorld entity)
+        //         public static uint GetVersionInHierarchy(this in EcsEntityWithWorld entity)
         //         {
         //             var v = entity.GetVersion();
         //             var ent = entity;

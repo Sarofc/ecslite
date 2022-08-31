@@ -1,19 +1,13 @@
 {
-    "name": "com.leopotam.ecslite",
-    "author": "Leopotam",
-    "displayName": "LeoECS Lite",
-    "description": "LeoECS Lite - легковесный ECS-фреймворк, основанный на структурах. Производительность, нулевые или минимальные аллокации, минимизация использования памяти, отсутствие зависимостей от любого игрового движка - это основные цели данного фреймворка.",
-    "unity": "2020.3",
-    "version": "2022.3.22",
+    "name": "com.saro.entities",
+    "author": "Leopotam, saro",
+    "displayName": "EcsLite",
+    "description": "",
+    "unity": "2021.3",
+    "version": "0.0.2",
     "keywords": [
-        "leoecslite",
-        "leoecs",
+        "entities",
         "ecs",
         "performance"
-    ],
-    "dependencies": {},
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/Leopotam/ecslite.git"
-    }
+    ]
 }

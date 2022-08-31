@@ -1,4 +1,4 @@
-﻿using Leopotam.EcsLite;
+﻿using Saro.Entities;
 
 namespace #NS# {
     sealed class #SCRIPTNAME# : IEcsInitSystem {
