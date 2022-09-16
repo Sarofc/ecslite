@@ -1,4 +1,4 @@
-using System.Runtime.CompilerServices;
+ï»¿using System.Runtime.CompilerServices;
 
 namespace Saro.Entities.Transforms
 {
@@ -13,7 +13,6 @@ namespace Saro.Entities.Transforms
         {
             if (toDestroy.World.ParentPool.Has(toDestroy.id))
             {
-                // ´ËentityÕâ¸öµ÷ÓÃÍê±Ïºó£¬¾ÍÒª±»Ïú»Ù£¬¿ÉÒÔ²»ÓÃ´¦Àí×ø±êÏµÎÊÌâ
                 SetParent_Internal(toDestroy, EcsEntity.k_Null);
             }
 
@@ -137,11 +136,8 @@ namespace Saro.Entities.Transforms
         {
             /*
              ref readonly var childNodes = ref world.ChildrenPool.Add(child);
-
-             ·´±àÒëºó£¬¶àÒ»¸ö var items = childNodes.items; ²Ù×÷
-             
-             childNodes.items ³öÏÖ·ÀÓùĞÔ¿½±´? Ã²ËÆ²»Ì«¶Ô
-
+             var items = childNodes.items;
+             childNodes.items é˜²å¾¡æ€§æ‹·è´
             */
             ref var childNodes = ref world.ChildrenPool.Add(child);
             if (childNodes.items.Contains(root))

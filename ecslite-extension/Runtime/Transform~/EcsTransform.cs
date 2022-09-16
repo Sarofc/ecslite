@@ -1,4 +1,4 @@
-#if FIXED_POINT_MATH
+﻿#if FIXED_POINT_MATH
 using FLOAT = ME.ECS.fp;
 using FLOAT2 = ME.ECS.fp2;
 using FLOAT3 = ME.ECS.fp3;

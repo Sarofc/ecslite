@@ -1,4 +1,4 @@
-// ----------------------------------------------------------------------------
+ï»¿// ----------------------------------------------------------------------------
 // The Proprietary or MIT-Red License
 // Copyright (c) 2012-2022 Leopotam <leopotam@yandex.ru>
 // ----------------------------------------------------------------------------
@@ -26,7 +26,7 @@ namespace Saro.Entities
             get => EcsWorld.GetWorld(world);
         }
 
-        // Íâ²¿²»Òªµ÷ÓÃ£¬Ê¹ÓÃ world.Pack
+        // å¤–éƒ¨ä½¿ç”¨ world.Pack
         internal EcsEntity(int id, short gen = 0, short worldID = 0)
         {
             this.id = id;
@@ -49,7 +49,7 @@ namespace Saro.Entities
 
         public override bool Equals(object obj) => obj is EcsEntity other && Equals(other);
 
-        public override int GetHashCode() => id; // TODO ÏÈÕâÃ´´¦Àí°É, Ô­ÔòÉÏ, Í¬Ò»¸öworldµÄentity,²ÅÄÜ·Åµ½Ò»¸ömapÀï
+        public override int GetHashCode() => id; // ä¸»è¦æ˜¯å‡å°‘ç¢°æ’žï¼Œä¼˜åŒ–mapçš„æ•ˆçŽ‡ï¼ŒåŒä¸€ä¸ªworldçš„entity idè‚¯å®šæ˜¯å”¯ä¸€çš„
 
         public static bool operator !=(in EcsEntity x, in EcsEntity y) => !(x == y);
 

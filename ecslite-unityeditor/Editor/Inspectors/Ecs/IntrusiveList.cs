@@ -1,4 +1,4 @@
-using UnityEditor;
+﻿using UnityEditor;
 
 namespace Saro.Entities.UnityEditor.Inspectors
 {

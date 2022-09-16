@@ -1,4 +1,4 @@
-using System;
+锘縰sing System;
 using Saro.Entities.Authoring;
 using Saro.Entities.Serialization;
 
@@ -21,7 +21,7 @@ namespace Saro.Entities.Transforms
 
         void IEcsComponentPostInit.PostInitialize(EcsWorld world, int entity)
         {
-            // TODO 检测循环引用
+            // TODO 鎬庝箞鏂逛究浣跨敤
 
             if (children == null || children.Length == 0) return;
 

@@ -1,4 +1,4 @@
-#if ENABLE_IL2CPP
+ï»¿#if ENABLE_IL2CPP
 #define INLINE_METHODS
 #endif
 
@@ -163,7 +163,6 @@ namespace Saro.Entities
 
             var parent = child.Add<Parent>(world);
 
-            // TODO inspector destroy£¬±¨entityÒÑ±»Ïú»Ù
             while (parent.entity.IsNull() == false)
             //while (parent.entity.IsAlive() == true)
             {

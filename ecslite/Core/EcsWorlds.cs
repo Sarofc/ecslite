@@ -1,4 +1,4 @@
-// ----------------------------------------------------------------------------
+ï»¿// ----------------------------------------------------------------------------
 // The Proprietary or MIT-Red License
 // Copyright (c) 2012-2022 Leopotam <leopotam@yandex.ru>
 // ----------------------------------------------------------------------------
@@ -186,7 +186,7 @@ namespace Saro.Entities
                 ref var entityData = ref entities[i];
                 if (entityData.compsCount > 0)
                 {
-                    DelEntity_Internal(i); // ÕâÀïÃ»±ØÒª¹Ü ²ã¼¶±ä»¯,Ò»¹ÉÄÔÈ«Ïú»Ù¾ÍÍêÊÂÁË
+                    DelEntity_Internal(i); // worldè¢«é”€æ¯äº†ï¼Œå°±ä¸ç”¨ç®¡å±‚çº§å…³ç³»äº†ï¼Œç›´æ¥å¹²æ‰
                 }
             }
 
@@ -266,7 +266,7 @@ namespace Saro.Entities
         }
 
         /// <summary>
-        /// ÕæÕıÏú»ÙentityµÄµØ·½
+        /// å®é™…é”€æ¯entityï¼Œå¤–éƒ¨ä¸è¦ç”¨
         /// </summary>
         /// <param name="entity"></param>
         /// <exception cref="EcsException"></exception>
@@ -511,7 +511,7 @@ namespace Saro.Entities
         }
 
         /// <summary>
-        /// entityÊÇ·ñ´æ»î
+        /// entityæ˜¯å¦å­˜æ´»
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
@@ -834,9 +834,10 @@ namespace Saro.Entities
 
                 m_Built = true;
 #endif
-                // TODO hash ÊÇ·ñÎ¨Ò»£¿
+                // TODO hash å†²çªæ€ä¹ˆåŠï¼Ÿ
 
                 // sort include and exclude
+                // monoçš„åº“ï¼Œsortæœ‰gcï¼Œæ¢æˆè‡ªå·±çš„
                 ArrayUtility.Sort(include, 0, includeCount);
                 ArrayUtility.Sort(exclude, 0, excludeCount);
 

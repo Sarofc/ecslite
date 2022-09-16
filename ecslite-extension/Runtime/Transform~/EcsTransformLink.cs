@@ -1,4 +1,4 @@
-namespace Saro.Entities.Transforms
+﻿namespace Saro.Entities.Transforms
 {
     public struct Parent : IEcsComponent
     {

@@ -1,4 +1,4 @@
-using System.Runtime.CompilerServices;
+ï»¿using System.Runtime.CompilerServices;
 using Saro.Entities.Transforms;
 
 namespace Saro.Entities
@@ -14,7 +14,7 @@ namespace Saro.Entities
         private EcsPool<Destroy> m_DestroyPool;
 
         /// <summary>
-        /// entity ÊÇ·ñ½«±»Ïú»Ù
+        /// entity æ ‡è®°é”€æ¯
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
@@ -26,19 +26,16 @@ namespace Saro.Entities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DelEntity(int entity)
         {
-            // TODO ²âÊÔ
-            //  1. DelEntity ½ÚµãÊ±£¬ÊÇ·ñÕıÈ·É¾³ı
-            // 2. world.OnDestroy Ê±£¬ÊÇ·ñÕıÈ·É¾³ı
-            // 3. ËùÓĞ DelEntity µÄµØ·½¶¼Òª×¢Òâ£¡
-            // 4. ²ã¼¶»¯entity£¬±ØĞëÔÚÓµÓĞChildren×é¼şµÄÊ±ºò£¬µ÷ÓÃDelEntity£¬·ñÔòÎŞ·¨µİ¹éÉ¾³ı×Ó½Úµã
+            // TODO æµ‹è¯•
+            // DelEntity å®é™…è¿˜æ²¡é”€æ¯ entityï¼Œè€Œæ˜¯åŠ ä¸€ä¸ªç»„ä»¶æ ‡è®°
 
-            // ÓĞchildren×é¼şµÄentity£¬ĞèÒªµİ¹éµ÷ÓÃ£¬±£Ö¤²ã¼¶ÕıÈ·
+            // è§£é™¤å±‚çº§ç»“æ„
             if (ChildrenPool.Has(entity))
             {
                 EcsTransformUtility.OnEntityDestroy(this.Pack(entity));
             }
 
-            // Ö»±ê¼Ç£¬ÕæÕıÉ¾³ıÊÇÔÚ system Àï
+            // æ·»åŠ æ ‡è®°ç»„ä»¶
             DestroyPool.Add(entity);
             //DelEntity_Internal(entity);
         }

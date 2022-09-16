@@ -1,4 +1,4 @@
-// ----------------------------------------------------------------------------
+ï»¿// ----------------------------------------------------------------------------
 // The Proprietary or MIT-Red License
 // Copyright (c) 2012-2022 Leopotam <leopotam@yandex.ru>
 // ----------------------------------------------------------------------------
@@ -81,8 +81,6 @@ namespace Saro.Entities.UnityEditor
         {
             if (system is IEcsRunSystem runSystem)
             {
-                // EditorGUI.indentLevel ²»ÄÜºÍ EditorGUILayout.GetControlRect() ÅäºÏ¹¤×÷
-                // ÅÅ°æÊÇ¶ÔµÄ£¬µ«ÊÇ µã»÷²»ÁËtoggle
                 var rect = EditorGUILayout.GetControlRect();
                 rect.xMin += indentLevel * 15f;
                 var toggeRect = rect;
