@@ -41,7 +41,7 @@ namespace Saro.Entities
             }
         }
 
-        public void PreInit(EcsSystems systems)
+        void IEcsPreInitSystem.PreInit(EcsSystems systems)
         {
             for (int i = 0; i < m_Systems.Count; i++)
             {
@@ -51,9 +51,11 @@ namespace Saro.Entities
                     _system.PreInit(systems);
                 }
             }
+            DoPreInit();
         }
 
-        public void Init(EcsSystems systems)
+
+        void IEcsInitSystem.Init(EcsSystems systems)
         {
             for (int i = 0; i < m_Systems.Count; i++)
             {
@@ -63,21 +65,25 @@ namespace Saro.Entities
                     _system.Init(systems);
                 }
             }
+
+            DoInit();
         }
 
-        public void Run(EcsSystems systems)
+        void IEcsRunSystem.Run(EcsSystems systems)
         {
-            if (Enable)
+            if (((IEcsRunSystem)this).Enable)
             {
                 for (int i = 0; i < m_RunSystems.Count; i++)
                 {
                     var system = m_RunSystems[i];
                     system.Run(systems);
                 }
+
+                DoRun();
             }
         }
 
-        public void Destroy(EcsSystems systems)
+        void IEcsDestroySystem.Destroy(EcsSystems systems)
         {
             for (int i = 0; i < m_Systems.Count; i++)
             {
@@ -87,9 +93,11 @@ namespace Saro.Entities
                     _system.Destroy(systems);
                 }
             }
+
+            DoDestroy();
         }
 
-        public void PostDestroy(EcsSystems systems)
+        void IEcsPostDestroySystem.PostDestroy(EcsSystems systems)
         {
             for (int i = 0; i < m_Systems.Count; i++)
             {
@@ -99,6 +107,14 @@ namespace Saro.Entities
                     _system.PostDestroy(systems);
                 }
             }
+
+            DoPostDestroy();
         }
+
+        protected virtual void DoPreInit() { }
+        protected virtual void DoInit() { }
+        protected virtual void DoRun() { }
+        protected virtual void DoDestroy() { }
+        protected virtual void DoPostDestroy() { }
     }
 }
