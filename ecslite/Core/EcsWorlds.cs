@@ -34,9 +34,7 @@ namespace Saro.Entities
         private int m_FreeMasksCount;
         private bool m_Destroyed;
 
-#if DEBUG || LEOECSLITE_WORLD_EVENTS
         internal readonly List<EcsSystems> ecsSystemsList = new();
-#endif
 
 #if DEBUG || LEOECSLITE_WORLD_EVENTS
         private readonly List<IEcsWorldEventListener> m_EventListeners;
@@ -173,6 +171,12 @@ namespace Saro.Entities
             if (m_Destroyed)
             {
                 return;
+            }
+
+            // 先销毁系统，再销毁entity
+            foreach (var systems in ecsSystemsList)
+            {
+                systems.Destroy();
             }
 
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
@@ -519,6 +523,18 @@ namespace Saro.Entities
         public bool IsEntityAlive(int entity)
         {
             return entity >= 0 && entity < m_EntitiesCount && entities[entity].gen > 0;
+        }
+
+        public T GetSystem<T>() where T : class, IEcsSystem
+        {
+            var type = typeof(T);
+            for (int i = 0; i < ecsSystemsList.Count; i++)
+            {
+                var systems = ecsSystemsList[i];
+                var ret = systems.GetSystem<T>();
+                if (ret != null) return ret;
+            }
+            return null;
         }
 
         private (EcsFilter, bool) GetFilter_Internal(Mask mask, int capacity = 512)

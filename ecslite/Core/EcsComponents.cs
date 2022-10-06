@@ -23,6 +23,10 @@ namespace Saro.Entities
         Type GetComponentType();
     }
 
+    /// <summary>
+    /// 重置数据，取代 struct = default 操作
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public interface IEcsAutoReset<T> where T : struct
     {
         void AutoReset(ref T c);
@@ -250,7 +254,7 @@ namespace Saro.Entities
 #endif
                 if (entityData.compsCount == 0)
                 {
-                    // TODO component 数量为 0 了，此entity没有任何意义了，直接删！
+                    // component 数量为 0 了，此entity没有任何意义了，直接删！
                     m_World.DelEntity_Internal(entity);
                 }
             }

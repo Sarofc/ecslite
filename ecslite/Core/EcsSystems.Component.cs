@@ -27,6 +27,13 @@ namespace Saro.Entities
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static EcsEntity NewEcsEntity(this EcsWorld world, string name)
+        {
+            var entity = world.NewEntity(name);
+            return world.Pack(entity);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static EcsEntity Pack(this EcsWorld world, int entity)
         {
             return new(entity, world.GetEntityGen(entity), world.worldID);

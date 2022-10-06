@@ -60,11 +60,7 @@ namespace Saro.Entities
         public int[] GetSparseIndex() => sparseEntities;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Enumerator GetEnumerator()
-        {
-            m_LockCount++;
-            return new(this);
-        }
+        public Enumerator GetEnumerator() => new(this);
 
 #if LEOECSLITE_FILTER_EVENTS
         public void AddEventListener(IEcsFilterEventListener eventListener)
@@ -147,6 +143,9 @@ namespace Saro.Entities
             op.added = added;
             return true;
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void Lock() => m_LockCount++;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void Unlock()
@@ -236,6 +235,7 @@ namespace Saro.Entities
             public Enumerator(EcsFilter filter)
             {
                 m_Filter = filter;
+                filter.Lock();
                 m_Entities = filter.m_DenseEntities;
                 m_Count = filter.m_EntitiesCount;
                 m_Idx = -1;

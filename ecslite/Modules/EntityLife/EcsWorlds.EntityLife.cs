@@ -18,10 +18,7 @@ namespace Saro.Entities
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public bool IsEntityMarkDestroy(int entity)
-        {
-            return !DestroyPool.Has(entity);
-        }
+        public bool IsEntityMarkDestroy(int entity) => !DestroyPool.Has(entity);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DelEntity(int entity)

@@ -42,6 +42,9 @@ namespace Saro.Entities
     [Unity.IL2CPP.CompilerServices.Il2CppSetOption(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
     [Unity.IL2CPP.CompilerServices.Il2CppSetOption(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 #endif
+    /// <summary>
+    /// 每个 EcsSystems 之间不要有依赖关系
+    /// </summary>
     public class EcsSystems
     {
         public string SystemsName { get; private set; }
@@ -60,9 +63,7 @@ namespace Saro.Entities
             m_Worlds = new Dictionary<string, EcsWorld>(32);
             m_AllSystems = new List<IEcsSystem>(128);
 
-#if DEBUG || LEOECSLITE_WORLD_EVENTS
             defaultWorld.ecsSystemsList.Add(this);
-#endif
         }
 
         public EcsSystems(EcsWorld defaultWorld, object shared = null) : this(null, defaultWorld, shared)
@@ -132,7 +133,7 @@ namespace Saro.Entities
             return world;
         }
 
-        public void Destroy()
+        internal void Destroy()
         {
             for (var i = m_AllSystems.Count - 1; i >= 0; i--)
             {

@@ -15,7 +15,7 @@ namespace Saro.Entities
                 m_SingletonEntityId = NewEntity();
 
             if (m_SingletonEntityId != 0)
-                throw new EcsException($"{m_SingletonEntityId} must be 0");
+                throw new EcsException($"SingletonEntityId: {m_SingletonEntityId} must be 0");
 
             return m_SingletonEntityId;
         }
