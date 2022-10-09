@@ -73,7 +73,12 @@ namespace Saro.Entities
 
         public T GetSystem<T>() where T : class, IEcsSystem
         {
-            var itemsCount = m_AllSystems.Count;
+            return GetSystemInternal<T>(m_AllSystems);
+        }
+
+        private T GetSystemInternal<T>(IReadOnlyList<IEcsSystem> systems) where T : class, IEcsSystem
+        {
+            var itemsCount = systems.Count;
             if (itemsCount == 0)
                 return null;
 
@@ -81,7 +86,13 @@ namespace Saro.Entities
 
             for (int i = 0, iMax = itemsCount; i < iMax; i++)
             {
-                var system = m_AllSystems[i];
+                var system = systems[i];
+
+                if (system is EcsSystemFeature _feature)
+                {
+                    var ret = GetSystemInternal<T>(_feature.Systems);
+                    if (ret != null) return ret;
+                }
 
                 if (type.IsAssignableFrom(system.GetType()))
                     return system as T;

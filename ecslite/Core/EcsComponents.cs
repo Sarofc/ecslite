@@ -207,7 +207,7 @@ namespace Saro.Entities
         {
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
             if (!m_World.IsEntityAlive(entity)) { throw new EcsException($"{typeof(T).Name}::Get. Cant touch destroyed entity: {entity} world: {m_World.worldID}"); }
-            if (m_SparseItems[entity] == 0) { throw new EcsException($"Cant get \"{typeof(T).Name}\" component - not attached."); }
+            if (m_SparseItems[entity] == 0) { throw new EcsException($"Cant get \"{typeof(T).Name}\" component - not attached. entity: {entity}"); }
 #endif
             return ref m_DenseItems[m_SparseItems[entity]];
         }

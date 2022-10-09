@@ -19,12 +19,4 @@ namespace Saro.Entities
             return ent;
         }
     }
-
-    public static class EntityNameExtension
-    {
-        public static string GetName(in this EcsEntity entity)
-        {
-            return entity.World.NamePool.Get(entity.id).name;
-        }
-    }
 }

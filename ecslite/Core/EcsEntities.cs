@@ -14,6 +14,7 @@ namespace Saro.Entities
 {
     public readonly struct EcsEntity : IEquatable<EcsEntity>
     {
+        // TODO 问题比较严重，最好 null = default
         public static readonly EcsEntity k_Null = new(-1, 0, 0);
 
         public readonly int id;
@@ -85,7 +86,7 @@ namespace Saro.Entities
         }
 
         // For using in IDE debugger.
-        public override string ToString() => Name.GetEntityDetial(id, World);
+        public override string ToString() => Name.GetEntityInfo(id, World);
 #endif
     }
 }

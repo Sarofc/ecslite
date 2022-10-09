@@ -15,7 +15,7 @@ namespace Saro.Entities.Authoring
         public static void GenAuthoringComponents()
         {
             var sb = new StringBuilder(1024);
-            var authoringComponentTypes = ReflectionUtility.GetSubClassTypesAllAssemblies(typeof(IEcsComponentAuthoring));
+            var authoringComponentTypes = TypeUtility.GetSubClassTypesAllAssemblies(typeof(IEcsComponentAuthoring));
 
             sb.AppendLine("// auto gen. don't modify.");
             sb.AppendLine("namespace Saro.Entities");

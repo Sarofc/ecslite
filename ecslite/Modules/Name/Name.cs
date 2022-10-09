@@ -18,6 +18,11 @@ namespace Saro.Entities
 
         public const string k_EntityNameFormat = "X8";
 
+        public static string GetEntityName(in EcsEntity entity, string entityNameFormat = k_EntityNameFormat)
+        {
+            return GetEntityName(entity.id, entity.World, entityNameFormat);
+        }
+
         public static string GetEntityName(int entity, EcsWorld world, string entityNameFormat = k_EntityNameFormat)
         {
             if (entity <= EcsEntity.k_Null.id)
@@ -41,7 +46,7 @@ namespace Saro.Entities
 
         public static string GetEntityInfo(int entity, EcsWorld world, string entityNameFormat = k_EntityNameFormat)
         {
-            return $"{Name.GetEntityName(entity, world, entityNameFormat)}\t{world.worldID}:{entity}.{world.GetEntityGen(entity)}";
+            return $"{world.worldID}:{entity}.{world.GetEntityGen(entity)}({Name.GetEntityName(entity, world, entityNameFormat)})";
         }
 
         public static string GetEntityDetial(int entity, EcsWorld world, string entityNameFormat = k_EntityNameFormat)
