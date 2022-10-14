@@ -270,7 +270,7 @@ namespace Saro.Entities
         }
 
         /// <summary>
-        /// 实际销毁entity，外部不要用
+        /// 实际销毁entity，不会管层级关系，外部不要用
         /// </summary>
         /// <param name="entity"></param>
         /// <exception cref="EcsException"></exception>

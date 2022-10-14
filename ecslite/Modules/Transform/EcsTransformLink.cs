@@ -17,9 +17,9 @@ namespace Saro.Entities.Transforms
     [Serializable]
     public struct ChildrenForAuthoring : IEcsComponentAuthoring, IEcsComponentPostInit, IEcsComponentNotAdd
     {
-        public GenericEntityAuthoring[] children;
+        public EcsBlueprint[] children;
 
-        void IEcsComponentPostInit.PostInitialize(EcsWorld world, int entity)
+        readonly void IEcsComponentPostInit.PostInitialize(EcsWorld world, int entity)
         {
             // TODO 怎么方便使用
 
@@ -28,10 +28,8 @@ namespace Saro.Entities.Transforms
             for (int i = 0; i < children.Length; i++)
             {
                 var child = children[i];
-
-                var eChild = ((IEcsConvertToEntity)child).ConvertToEntity(world);
-
-                EcsTransformUtility.SetParent(eChild, entity, world);
+                var eChild = EcsBlueprint.Instantiate(child, world);
+                EcsTransformUtility.SetParent(eChild.id, entity, world);
             }
         }
     }

@@ -7,7 +7,7 @@ using UnityEditor;
 
 namespace Saro.Entities.Authoring
 {
-    public static class EcsAuthoringGenerator
+    public static class EcsBlueprintGenerator
     {
         public static string AuthoringScriptPath { get; set; } = "Assets/Scripts/Gen/EcsAuthoringExtensions.gen.cs";
 

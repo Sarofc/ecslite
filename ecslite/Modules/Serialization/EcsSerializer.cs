@@ -57,7 +57,7 @@ namespace Saro.Entities.Serialization
                     else
                     {
 #if UNITY_EDITOR
-                        Log.ERROR($"please ensure pooltype: call EcsWorld::GetPool<{component.GetType()}>(). or Use {nameof(EcsAuthoringGenerator)} to gen script.");
+                        Log.ERROR($"please ensure pooltype: call EcsWorld::GetPool<{component.GetType()}>(). or Use {nameof(EcsBlueprintGenerator)} to gen script.");
 #else
                         Log.ERROR($"please ensure pooltype: call EcsWorld::GetPool<{component.GetType()}>().");
 #endif

@@ -1,4 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
+using Saro.Entities.Collections;
+using Saro.Pool;
+using static PlasticGui.LaunchDiffParameters;
 
 namespace Saro.Entities.Transforms
 {
@@ -9,7 +12,48 @@ namespace Saro.Entities.Transforms
 #endif
     public static class EcsTransformUtility
     {
-        public static void OnEntityDestroy(in EcsEntity toDestroy)
+        internal static void OnEntityDestroy(in EcsEntity toDestroy)
+        {
+            if (toDestroy.World.ParentPool.Has(toDestroy.id))
+            {
+                SetParent_Internal(toDestroy, EcsEntity.k_Null);
+            }
+
+            using (StackPool<EcsEntity>.Rent(out var stack))
+            {
+                using (HashSetPool<EcsEntity>.Rent(out var visited))
+                {
+                    stack.Push(toDestroy);
+                    while (stack.Count != 0)
+                    {
+                        var current = stack.Peek();
+                        {
+                            while (!visited.Contains(current) && current.World.ChildrenPool.Has(current.id))
+                            {
+                                ref var nodes = ref current.World.ChildrenPool.Get(current.id);
+                                if (nodes.items.Count == 0) break;
+                                foreach (ref readonly var child in nodes.items)
+                                {
+                                    stack.Push(child);
+                                }
+                                visited.Add(current);
+                                current = stack.Peek();
+                            }
+                        }
+
+                        {
+                            var top = stack.Pop();
+                            Log.Assert(top.IsAlive() == true, "Assert Failed. entity MUST be alive");
+                            ref var nodes = ref top.World.ChildrenPool.Get(top.id);
+                            nodes.items.Clear(false); // 只要删除节点自己就行了
+                            top.World.DelEntity_Internal(top.id); // 节点的数据这里删
+                        }
+                    }
+                }
+            }
+        }
+
+        static void __OnEntityDestroy(in EcsEntity toDestroy)
         {
             if (toDestroy.World.ParentPool.Has(toDestroy.id))
             {

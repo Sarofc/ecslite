@@ -150,8 +150,13 @@ namespace Saro.Entities
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
             if (dataRaw == null || dataRaw.GetType() != m_Type) { throw new EcsException("Invalid component data, valid \"{typeof (T).Name}\" instance required."); }
 #endif
+
+            // add方法里m_AutoReset已被调用过了，但又被重新赋值了，改成没有就再调用一次
+            bool has = Has(entity);
             ref var data = ref Add(entity);
             data = (T)dataRaw;
+            if (!has)
+                m_AutoReset?.Invoke(ref data);
         }
 
         public T[] GetRawDenseItems() => m_DenseItems;
@@ -167,7 +172,7 @@ namespace Saro.Entities
         public ref T Add(int entity)
         {
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
-            if (!m_World.IsEntityAlive(entity)) { throw new EcsException($"{typeof(T).Name}::Add. Cant touch destroyed entity: {entity} world: {m_World.worldID} world: {m_World.worldID}"); }
+            if (!m_World.IsEntityAlive(entity)) { throw new EcsException($"{typeof(T).Name}::{nameof(Add)}. Cant touch destroyed entity: {entity} world: {m_World.worldID} world: {m_World.worldID}"); }
             //if (_sparseItems[entity] > 0) { throw new EcsException ($"Component \"{typeof (T).Name}\" already attached to entity."); }
 #endif
             // API 调整
@@ -206,7 +211,7 @@ namespace Saro.Entities
         public ref T Get(int entity)
         {
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
-            if (!m_World.IsEntityAlive(entity)) { throw new EcsException($"{typeof(T).Name}::Get. Cant touch destroyed entity: {entity} world: {m_World.worldID}"); }
+            if (!m_World.IsEntityAlive(entity)) { throw new EcsException($"{typeof(T).Name}::{nameof(Get)}. Cant touch destroyed entity: {entity} world: {m_World.worldID}"); }
             if (m_SparseItems[entity] == 0) { throw new EcsException($"Cant get \"{typeof(T).Name}\" component - not attached. entity: {entity}"); }
 #endif
             return ref m_DenseItems[m_SparseItems[entity]];
@@ -216,7 +221,7 @@ namespace Saro.Entities
         public bool Has(int entity)
         {
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
-            if (!m_World.IsEntityAlive(entity)) { throw new EcsException($"{typeof(T).Name}::Has. Cant touch destroyed entity: {entity} world: {m_World.worldID}"); }
+            if (!m_World.IsEntityAlive(entity)) { throw new EcsException($"{typeof(T).Name}::{nameof(Has)}. Cant touch destroyed entity: {entity} world: {m_World.worldID}"); }
 #endif
 
             if (m_SparseItems.Length <= entity) return false; // 兼容singleton改动，singleton组件只会分配1个
@@ -227,7 +232,7 @@ namespace Saro.Entities
         public void Del(int entity)
         {
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
-            if (!m_World.IsEntityAlive(entity)) { throw new EcsException($"{typeof(T).Name}::Cant touch destroyed entity: {entity} world: {m_World.worldID}"); }
+            if (!m_World.IsEntityAlive(entity)) { throw new EcsException($"{typeof(T).Name}::{nameof(Del)}. Cant touch destroyed entity: {entity} world: {m_World.worldID}"); }
 #endif
             ref var sparseData = ref m_SparseItems[entity];
             if (sparseData > 0)

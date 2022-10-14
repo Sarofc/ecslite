@@ -13,16 +13,8 @@ namespace Saro.Entities.Authoring
     */
 
     /// <summary>
-    /// component 实现这个接口，才能被 <see cref="IEcsConvertToEntity"/> 所使用
+    /// component 实现这个接口，才能被 <see cref="GenericEntityAuthoring"/> 所使用
     /// </summary>
     public interface IEcsComponentAuthoring : IEcsComponent
     { }
-
-    /// <summary>
-    /// Ecs转换接口
-    /// </summary>
-    public interface IEcsConvertToEntity
-    {
-        int ConvertToEntity(EcsWorld world);
-    }
 }

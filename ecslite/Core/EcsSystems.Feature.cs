@@ -23,13 +23,14 @@ namespace Saro.Entities
             m_RunSystems = new List<IEcsRunSystem>();
         }
 
-        public void AddSystem(IEcsSystem system)
+        public IEcsSystem AddSystem(IEcsSystem system)
         {
             m_Systems.Add(system);
             if (system is IEcsRunSystem _system)
             {
                 m_RunSystems.Add(_system);
             }
+            return this;
         }
 
         public void RemoveSystem(IEcsSystem system)
@@ -41,7 +42,7 @@ namespace Saro.Entities
             }
         }
 
-        void IEcsPreInitSystem.PreInit(EcsSystems systems)
+        public virtual void PreInit(EcsSystems systems)
         {
             for (int i = 0; i < m_Systems.Count; i++)
             {
@@ -51,11 +52,9 @@ namespace Saro.Entities
                     _system.PreInit(systems);
                 }
             }
-            DoPreInit();
         }
 
-
-        void IEcsInitSystem.Init(EcsSystems systems)
+        public virtual void Init(EcsSystems systems)
         {
             for (int i = 0; i < m_Systems.Count; i++)
             {
@@ -65,11 +64,9 @@ namespace Saro.Entities
                     _system.Init(systems);
                 }
             }
-
-            DoInit();
         }
 
-        void IEcsRunSystem.Run(EcsSystems systems)
+        public virtual void Run(EcsSystems systems)
         {
             if (((IEcsRunSystem)this).Enable)
             {
@@ -78,12 +75,10 @@ namespace Saro.Entities
                     var system = m_RunSystems[i];
                     system.Run(systems);
                 }
-
-                DoRun();
             }
         }
 
-        void IEcsDestroySystem.Destroy(EcsSystems systems)
+        public virtual void Destroy(EcsSystems systems)
         {
             for (int i = 0; i < m_Systems.Count; i++)
             {
@@ -93,11 +88,9 @@ namespace Saro.Entities
                     _system.Destroy(systems);
                 }
             }
-
-            DoDestroy();
         }
 
-        void IEcsPostDestroySystem.PostDestroy(EcsSystems systems)
+        public virtual void PostDestroy(EcsSystems systems)
         {
             for (int i = 0; i < m_Systems.Count; i++)
             {
@@ -107,14 +100,6 @@ namespace Saro.Entities
                     _system.PostDestroy(systems);
                 }
             }
-
-            DoPostDestroy();
         }
-
-        protected virtual void DoPreInit() { }
-        protected virtual void DoInit() { }
-        protected virtual void DoRun() { }
-        protected virtual void DoDestroy() { }
-        protected virtual void DoPostDestroy() { }
     }
 }

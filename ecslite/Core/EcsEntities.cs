@@ -14,7 +14,7 @@ namespace Saro.Entities
 {
     public readonly struct EcsEntity : IEquatable<EcsEntity>
     {
-        // TODO 问题比较严重，最好 null = default
+        // TODO 问题比较严重，外部使用容易漏初始化，最好 null = default
         public static readonly EcsEntity k_Null = new(-1, 0, 0);
 
         public readonly int id;
@@ -56,7 +56,7 @@ namespace Saro.Entities
 
         public static bool operator ==(in EcsEntity x, in EcsEntity y) => x.Equals(y);
 
-#if DEBUG
+#if DEBUG // For using in IDE debugger.
         private object[] DebugComponentsViewForIDE
         {
             get
@@ -85,7 +85,6 @@ namespace Saro.Entities
             }
         }
 
-        // For using in IDE debugger.
         public override string ToString() => Name.GetEntityInfo(id, World);
 #endif
     }
