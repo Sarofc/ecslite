@@ -14,8 +14,7 @@ namespace Saro.Entities
 {
     public readonly struct EcsEntity : IEquatable<EcsEntity>
     {
-        // TODO 问题比较严重，外部使用容易漏初始化，最好 null = default
-        public static readonly EcsEntity k_Null = new(-1, 0, 0);
+        public static readonly EcsEntity k_Null = default;
 
         public readonly int id;
         internal readonly short gen;
@@ -40,7 +39,7 @@ namespace Saro.Entities
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsAlive()
-            => id != -1 && World != null && World.IsAlive() && World.IsEntityAlive(id) && World.GetEntityGen(id) == gen;
+            => World != null && World.IsAlive() && World.IsEntityAlive(id) && World.GetEntityGen(id) == gen;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Destroy() => World.DelEntity(id);

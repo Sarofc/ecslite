@@ -152,7 +152,8 @@ namespace Saro.Entities
                 s_Worlds[worldID] = this;
             }
 
-            InitSingletonEntity(); // create singleton entity
+            InitDummyEntity();
+            InitSingletonEntity();
 
             m_Destroyed = false;
         }
@@ -185,7 +186,7 @@ namespace Saro.Entities
                 throw new EcsException($"Empty entity detected before EcsWorld.Destroy().");
             }
 #endif
-            for (var i = m_EntitiesCount - 1; i >= 0; i--)
+            for (var i = m_EntitiesCount - 1; i > 0; i--)
             {
                 ref var entityData = ref entities[i];
                 if (entityData.compsCount > 0)
@@ -277,7 +278,7 @@ namespace Saro.Entities
         internal void DelEntity_Internal(int entity)
         {
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
-            if (entity < 0 || entity >= m_EntitiesCount)
+            if (entity <= 0 || entity >= m_EntitiesCount)
             {
                 throw new EcsException("Cant touch destroyed entity.");
             }
@@ -335,7 +336,7 @@ namespace Saro.Entities
         public short GetEntityGen(int entity) => entities[entity].gen;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetAllocatedEntitiesCount() => m_EntitiesCount;
+        public int GetAllocatedEntitiesCount() => m_EntitiesCount - 1;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int GetWorldSize() => entities.Length;
@@ -344,7 +345,7 @@ namespace Saro.Entities
         public int GetPoolsCount() => m_PoolsCount;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetEntitiesCount() => m_EntitiesCount - m_RecycledEntitiesCount;
+        public int GetEntitiesCount() => m_EntitiesCount - m_RecycledEntitiesCount - 1;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public EntityData[] GetRawEntities() => entities;
@@ -385,12 +386,12 @@ namespace Saro.Entities
 
         public int GetAllEntities(ref int[] entities)
         {
-            var count = m_EntitiesCount - m_RecycledEntitiesCount;
+            var count = GetEntitiesCount();
             if (entities == null || entities.Length < count)
                 entities = new int[count];
 
             var id = 0;
-            for (int i = 0, iMax = m_EntitiesCount; i < iMax; i++)
+            for (int i = 1, iMax = m_EntitiesCount; i < iMax; i++)
             {
                 ref var entityData = ref this.entities[i];
                 // should we skip empty entities here?
@@ -522,7 +523,7 @@ namespace Saro.Entities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsEntityAlive(int entity)
         {
-            return entity >= 0 && entity < m_EntitiesCount && entities[entity].gen > 0;
+            return entity > 0 && entity < m_EntitiesCount && entities[entity].gen > 0;
         }
 
         public T GetSystem<T>() where T : class, IEcsSystem
@@ -577,7 +578,7 @@ namespace Saro.Entities
             }
 
             // scan exist entities for compatibility with new filter.
-            for (int i = 0, iMax = m_EntitiesCount; i < iMax; i++)
+            for (int i = 1, iMax = m_EntitiesCount; i < iMax; i++)
             {
                 ref var entityData = ref entities[i];
                 if (entityData.compsCount > 0 && IsMaskCompatible(mask, i))

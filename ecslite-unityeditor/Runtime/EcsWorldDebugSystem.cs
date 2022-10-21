@@ -77,6 +77,28 @@ namespace Saro.Entities.UnityEditor
         {
             GProfiler.BeginSample("[Ecs] EcsWorldDebugSystem");
 
+            // debug transform 
+            for (int i = 0; i < m_Entities.Length; i++)
+            {
+                var entityView = m_Entities[i];
+                if (entityView == null) continue;
+
+                var entity = m_Entities[i].entity;
+                if (!m_World.IsEntityAlive(entity)) continue;
+
+                if (m_World.PositionPool.Has(entity))
+                {
+                    ref var cPosition = ref m_World.PositionPool.Get(entity);
+                    m_Entities[entity].transform.localPosition = cPosition.value;
+                }
+
+                if (m_World.RotationPool.Has(entity))
+                {
+                    ref var cRotation = ref m_World.RotationPool.Get(entity);
+                    m_Entities[entity].transform.localRotation = cRotation.value;
+                }
+            }
+
             foreach (var pair in m_DirtyEntities)
             {
                 var entity = pair.Key;
