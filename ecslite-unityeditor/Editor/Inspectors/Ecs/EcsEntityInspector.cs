@@ -35,7 +35,7 @@ namespace Saro.Entities.Inspectors
                         for (int i = 0; i < debugViews.Length; i++)
                         {
                             if (debugViews[i].entity == value)
-                                EditorGUIUtility.PingObject(null);
+                                EditorGUIUtility.PingObject(debugViews[i].gameObject);
                         }
                     }
                 }

@@ -130,10 +130,12 @@ namespace Saro.Entities.UnityEditor
             {
                 var go = new GameObject();
                 go.transform.SetParent(m_EntitiesRoot, false);
-                var entityObserver = go.AddComponent<EcsEntityDebugView>();
-                entityObserver.entity = m_World.Pack(entity);
-                entityObserver.debugSystem = this;
-                m_Entities[entity] = entityObserver;
+                var debugView = go.AddComponent<EcsEntityDebugView>();
+                //debugView.entity = m_World.Pack(entity);
+                debugView.entityId = entity;
+                debugView.worldId = m_World.worldId;
+                debugView.debugSystem = this;
+                m_Entities[entity] = debugView;
                 if (m_BakeComponentsInName)
                 {
                     m_DirtyEntities[entity] = 1;

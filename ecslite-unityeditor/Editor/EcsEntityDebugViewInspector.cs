@@ -3,31 +3,23 @@
 // Copyright (c) 2012-2022 Leopotam <leopotam@yandex.ru>
 // ----------------------------------------------------------------------------
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using UnityEditor;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace Saro.Entities.UnityEditor
 {
-    using System.ComponentModel;
-    using Extension;
     using Saro.SEditor;
-    using static UnityEngine.GridBrushBase;
 
     [CustomEditor(typeof(EcsEntityDebugView))]
     public sealed class EcsEntityDebugViewInspector : Editor
     {
-        private const int k_MaxFieldToStringLength = 128;
         private static object[] s_ComponentsCache = new object[32];
 
         public override void OnInspectorGUI()
         {
-            var observer = (EcsEntityDebugView)target;
-            if (observer.entity.World != null)
+            serializedObject.Update();
+            var debugView = (EcsEntityDebugView)target;
+            if (debugView.entity.World != null)
             {
                 var rect = EditorGUILayout.GetControlRect();
 
@@ -40,18 +32,18 @@ namespace Saro.Entities.UnityEditor
                 buttonRect.x += entityInfoRect.width;
                 buttonRect.width = buttonWidth;
 
-                EditorGUI.LabelField(entityInfoRect, Name.GetEntityInfo(observer.entity));
+                EditorGUI.LabelField(entityInfoRect, Name.GetEntityInfo(debugView.entity));
 
                 bool guiEnable = GUI.enabled;
-                GUI.enabled = observer.entity.IsAlive();
+                GUI.enabled = debugView.entity.IsAlive();
                 if (GUI.Button(buttonRect, "-"))
                 {
-                    observer.entity.Destroy();
+                    debugView.entity.Destroy();
                 }
                 GUI.enabled = guiEnable;
 
-                DrawComponents(observer);
-                EditorUtility.SetDirty(target);
+                DrawComponents(debugView);
+                //EditorUtility.SetDirty(target);
             }
         }
 
@@ -62,10 +54,7 @@ namespace Saro.Entities.UnityEditor
                 var count = debugView.entity.GetComponents(ref s_ComponentsCache);
                 for (var i = 0; i < count; i++)
                 {
-                    var component = s_ComponentsCache[i];
-                    s_ComponentsCache[i] = null;
-
-                    DrawComponent(component, debugView);
+                    DrawComponent(s_ComponentsCache[i], debugView);
 
                     EditorGUILayout.Space();
                 }
