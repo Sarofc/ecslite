@@ -219,7 +219,7 @@ namespace Saro.Entities
                 }
                 sb.Append(">");
             }
-            sb.Append("  worldID: " + m_World.worldID);
+            sb.Append("  worldID: " + m_World.worldId);
             sb.Append("  hash: " + m_Mask.hash);
 
             return StringBuilderCache.GetStringAndRelease(sb);

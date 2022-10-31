@@ -2,10 +2,11 @@
     "name": "Saro.Entities.UnityIntegration.Editor",
     "rootNamespace": "Saro.Entities.UnityIntegration",
     "references": [
-        "GUID:e59bf9fc7d5a44b18a819a92edd46163",
-        "GUID:a22362b82293644e1bbe51356c008d63",
-        "GUID:c2c64ac720dc15a4995edc5ccba2f281",
-        "GUID:514da3c3979b4c4408edbb92b0ec622a"
+        "Saro.Entities",
+        "Saro.Entities.UnityIntegration",
+        "Saro.MGF",
+        "Saro.Entities.Extension",
+        "Saro.MGF.Editor"
     ],
     "includePlatforms": [
         "Editor"

@@ -32,10 +32,7 @@ namespace Saro.Entities.UnityEditor
     public sealed class EcsEntityDebugView : MonoBehaviour
     {
         [NonSerialized]
-        public EcsWorld world;
-
-        [NonSerialized]
-        public int entity;
+        public EcsEntity entity;
 
         [NonSerialized]
         public EcsWorldDebugSystem debugSystem;

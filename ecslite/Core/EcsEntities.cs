@@ -35,14 +35,23 @@ namespace Saro.Entities
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool IsNull() => this == k_Null;
+        public readonly bool IsNull() => this == k_Null;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool IsAlive()
+        public readonly bool IsAlive()
             => World != null && World.IsAlive() && World.IsEntityAlive(id) && World.GetEntityGen(id) == gen;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Destroy() => World.DelEntity(id);
+        public readonly void Destroy() => World.DelEntity(id);
+
+        public readonly int GetComponents(ref object[] array)
+        {
+            if (IsAlive())
+            {
+                return World.GetComponents(id, ref array);
+            }
+            return 0;
+        }
 
         public bool Equals(EcsEntity other)
             => id == other.id && gen == other.gen && world == other.world;
@@ -56,7 +65,7 @@ namespace Saro.Entities
         public static bool operator ==(EcsEntity x, EcsEntity y) => x.Equals(y);
 
 #if DEBUG // For using in IDE debugger.
-        private object[] DebugComponentsViewForIDE
+        private readonly object[] DebugComponentsViewForIDE
         {
             get
             {
@@ -71,7 +80,7 @@ namespace Saro.Entities
             }
         }
 
-        private int DebugComponentsCountForIDE
+        private readonly int DebugComponentsCountForIDE
         {
             get
             {

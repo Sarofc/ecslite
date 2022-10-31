@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using Codice.CM.Client.Differences;
 
 namespace Saro.Entities
 {
@@ -43,9 +44,15 @@ namespace Saro.Entities
             return entity.ToString(entityNameFormat);
         }
 
+
+        public static string GetEntityInfo(EcsEntity entity, string entityNameFormat = k_EntityNameFormat)
+        {
+            return GetEntityInfo(entity.id, entity.World, entityNameFormat);
+        }
+
         public static string GetEntityInfo(int entity, EcsWorld world, string entityNameFormat = k_EntityNameFormat)
         {
-            return $"{world.worldID}:{entity}.{world.GetEntityGen(entity)}({Name.GetEntityName(entity, world, entityNameFormat)})";
+            return $"{world.worldId}:{entity}.{world.GetEntityGen(entity)}({Name.GetEntityName(entity, world, entityNameFormat)})";
         }
 
         public static string GetEntityDetial(int entity, EcsWorld world, string entityNameFormat = k_EntityNameFormat)

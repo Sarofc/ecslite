@@ -241,12 +241,12 @@ namespace Saro.Entities
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
         public string CheckForLeakedEntities()
         {
-            if (m_DefaultWorld.CheckForLeakedEntities()) return m_DefaultWorld.worldID.ToString();
+            if (m_DefaultWorld.CheckForLeakedEntities()) return m_DefaultWorld.worldId.ToString();
             foreach (var pair in m_Worlds)
             {
                 if (pair.Value.CheckForLeakedEntities())
                 {
-                    return pair.Value.worldID.ToString();
+                    return pair.Value.worldId.ToString();
                 }
             }
             return null;

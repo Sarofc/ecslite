@@ -93,7 +93,7 @@ namespace Saro.Entities
         }
 #endif
 
-        internal readonly short worldID;
+        internal readonly short worldId;
         internal readonly string worldName;
         private static EcsWorld[] s_Worlds = new EcsWorld[4];
         private readonly static IntDispenser k_WorldIdDispenser = new(-1);
@@ -137,11 +137,11 @@ namespace Saro.Entities
                 throw new EcsException($"only support {short.MaxValue} worlds");
             }
 
-            worldID = (short)newID;
+            worldId = (short)newID;
 
             lock (k_LockObject)
             {
-                if (s_Worlds.Length <= worldID)
+                if (s_Worlds.Length <= worldId)
                 {
                     var newLength = s_Worlds.Length << 1 > short.MaxValue ?
                         short.MaxValue :
@@ -149,7 +149,7 @@ namespace Saro.Entities
                     Array.Resize(ref s_Worlds, newLength);
                 }
 
-                s_Worlds[worldID] = this;
+                s_Worlds[worldId] = this;
             }
 
             InitDummyEntity();
@@ -210,10 +210,10 @@ namespace Saro.Entities
 
             lock (k_LockObject)
             {
-                s_Worlds[worldID] = null;
+                s_Worlds[worldId] = null;
             }
 
-            k_WorldIdDispenser.Return(worldID);
+            k_WorldIdDispenser.Return(worldId);
 
             m_Destroyed = true;
         }
@@ -610,7 +610,7 @@ namespace Saro.Entities
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
                         if (filter.sparseEntities[entity] > 0)
                         {
-                            throw new EcsException($"Entity already in filter. worldID: {worldID} hash: {filter.GetMask().hash} entity: {entity} componentType: {GetPoolById(componentType).GetComponentType().Name}");
+                            throw new EcsException($"Entity already in filter. worldID: {worldId} hash: {filter.GetMask().hash} entity: {entity} componentType: {GetPoolById(componentType).GetComponentType().Name}");
                         }
 #endif
                         filter.AddEntity(entity);
@@ -723,7 +723,7 @@ namespace Saro.Entities
             return true;
         }
 
-        public override string ToString() => $"WorldID: {worldID}  WorldName: {worldName}";
+        public override string ToString() => $"WorldID: {worldId}  WorldName: {worldName}";
 
         public struct Config
         {

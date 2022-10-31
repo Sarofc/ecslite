@@ -24,7 +24,7 @@ namespace Saro.Entities.UnityEditor
         private readonly EcsWorld m_World;
         private EcsEntityDebugView[] m_Entities;
         private Dictionary<int, byte> m_DirtyEntities;
-        private Type[] m_TypesCache;
+        private Type[] m_TypeCaches;
 
         public EcsWorldDebugSystem(EcsWorld world, bool bakeComponentsInName = true, string entityNameFormat = Name.k_EntityNameFormat)
         {
@@ -84,18 +84,18 @@ namespace Saro.Entities.UnityEditor
                 if (entityView == null) continue;
 
                 var entity = m_Entities[i].entity;
-                if (!m_World.IsEntityAlive(entity)) continue;
+                if (!m_World.IsEntityAlive(entity.id)) continue;
 
-                if (m_World.PositionPool.Has(entity))
+                if (m_World.PositionPool.Has(entity.id))
                 {
-                    ref var cPosition = ref m_World.PositionPool.Get(entity);
-                    m_Entities[entity].transform.localPosition = cPosition.value;
+                    ref var cPosition = ref m_World.PositionPool.Get(entity.id);
+                    m_Entities[entity.id].transform.localPosition = cPosition.value;
                 }
 
-                if (m_World.RotationPool.Has(entity))
+                if (m_World.RotationPool.Has(entity.id))
                 {
-                    ref var cRotation = ref m_World.RotationPool.Get(entity);
-                    m_Entities[entity].transform.localRotation = cRotation.value;
+                    ref var cRotation = ref m_World.RotationPool.Get(entity.id);
+                    m_Entities[entity.id].transform.localRotation = cRotation.value;
                 }
             }
 
@@ -110,10 +110,10 @@ namespace Saro.Entities.UnityEditor
 
                 if (m_World.GetEntityGen(entity) > 0)
                 {
-                    var count = m_World.GetComponentTypes(entity, ref m_TypesCache);
+                    var count = m_World.GetComponentTypes(entity, ref m_TypeCaches);
                     for (var i = 0; i < count; i++)
                     {
-                        entityName = $"{entityName}:{EditorExtensions.GetCleanGenericTypeName(m_TypesCache[i])}";
+                        entityName = $"{entityName}:{EditorExtensions.GetCleanGenericTypeName(m_TypeCaches[i])}";
                     }
                     entityName += ":";
                 }
@@ -131,8 +131,7 @@ namespace Saro.Entities.UnityEditor
                 var go = new GameObject();
                 go.transform.SetParent(m_EntitiesRoot, false);
                 var entityObserver = go.AddComponent<EcsEntityDebugView>();
-                entityObserver.entity = entity;
-                entityObserver.world = m_World;
+                entityObserver.entity = m_World.Pack(entity);
                 entityObserver.debugSystem = this;
                 m_Entities[entity] = entityObserver;
                 if (m_BakeComponentsInName)

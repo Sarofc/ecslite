@@ -13,7 +13,10 @@ using Object = UnityEngine.Object;
 
 namespace Saro.Entities.UnityEditor
 {
+    using System.ComponentModel;
     using Extension;
+    using Saro.SEditor;
+    using static UnityEngine.GridBrushBase;
 
     [CustomEditor(typeof(EcsEntityDebugView))]
     public sealed class EcsEntityDebugViewInspector : Editor
@@ -24,7 +27,7 @@ namespace Saro.Entities.UnityEditor
         public override void OnInspectorGUI()
         {
             var observer = (EcsEntityDebugView)target;
-            if (observer.world != null)
+            if (observer.entity.World != null)
             {
                 var rect = EditorGUILayout.GetControlRect();
 
@@ -37,13 +40,13 @@ namespace Saro.Entities.UnityEditor
                 buttonRect.x += entityInfoRect.width;
                 buttonRect.width = buttonWidth;
 
-                EditorGUI.LabelField(entityInfoRect, Name.GetEntityInfo(observer.entity, observer.world));
+                EditorGUI.LabelField(entityInfoRect, Name.GetEntityInfo(observer.entity));
 
                 bool guiEnable = GUI.enabled;
-                GUI.enabled = observer.world.IsEntityAlive(observer.entity);
+                GUI.enabled = observer.entity.IsAlive();
                 if (GUI.Button(buttonRect, "-"))
                 {
-                    observer.world.DelEntity(observer.entity);
+                    observer.entity.Destroy();
                 }
                 GUI.enabled = guiEnable;
 
@@ -56,7 +59,7 @@ namespace Saro.Entities.UnityEditor
         {
             if (debugView.gameObject.activeSelf)
             {
-                var count = debugView.world.GetComponents(debugView.entity, ref s_ComponentsCache);
+                var count = debugView.entity.GetComponents(ref s_ComponentsCache);
                 for (var i = 0; i < count; i++)
                 {
                     var component = s_ComponentsCache[i];
@@ -71,189 +74,39 @@ namespace Saro.Entities.UnityEditor
 
         private static void DrawComponent(object component, EcsEntityDebugView debugView)
         {
-            var type = component.GetType();
+            var compType = component.GetType();
             GUILayout.BeginVertical("helpbox");
-            var typeName = EditorExtensions.GetCleanGenericTypeName(type);
-            var pool = debugView.world.GetPoolByType(type);
-            var (rendered, changed, newValue) = EcsComponentInspectors.Render(typeName, type, component, debugView);
-            if (!rendered)
+            var typeName = EditorExtensions.GetCleanGenericTypeName(compType);
+            var pool = debugView.entity.World.GetPoolByType(compType);
+
+            var headerRect = EditorGUILayout.GetControlRect();
+            headerRect.xMin += EditorGUIUtility.singleLineHeight;
+
+            var buttonRect = headerRect;
+            buttonRect.xMin += headerRect.width - 24;
+
+            var foldout = SEditorUtility.GetEditorFoldout(compType.FullName);
+            //var newFoldout = EditorGUI.Foldout(headerRect, foldout, typeName, true, EditorStyles.foldoutHeader);
+            var newFoldout = EditorGUI.BeginFoldoutHeaderGroup(headerRect, foldout, typeName);
+            if (newFoldout != foldout)
             {
-                EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.LabelField(typeName, EditorStyles.boldLabel);
-                if (GUILayout.Button("-", GUILayout.Width(24)))
-                {
-                    pool.Del(debugView.entity);
-                }
-                EditorGUILayout.EndHorizontal();
-                var indent = EditorGUI.indentLevel;
+                foldout = newFoldout;
+                SEditorUtility.SetEditorFoldout(compType.FullName, foldout);
+            }
+            if (GUI.Button(buttonRect, "-"))
+            {
+                pool.Del(debugView.entity.id);
+            }
+
+            if (foldout)
+            {
                 EditorGUI.indentLevel++;
-                foreach (var field in type.GetFields(BindingFlags.Instance | BindingFlags.Public))
-                {
-                    DrawTypeField(component, pool, field, debugView);
-                }
-                EditorGUI.indentLevel = indent;
+                SEditorUtility.ShowAutoEditorGUI(component);
+                EditorGUI.indentLevel--;
             }
-            else
-            {
-                if (changed)
-                {
-                    // update value.
-                    pool.SetRaw(debugView.entity, newValue);
-                }
-            }
+            EditorGUI.EndFoldoutHeaderGroup();
 
             GUILayout.EndVertical();
         }
-
-        private static void DrawTypeField(object component, IEcsPool pool, FieldInfo field, EcsEntityDebugView debugView)
-        {
-            var fieldValue = field.GetValue(component);
-            var fieldType = field.FieldType;
-            var (rendered, changed, newValue) = EcsComponentInspectors.Render(field.Name, fieldType, fieldValue, debugView);
-            if (!rendered)
-            {
-                if (fieldType == typeof(Object) || fieldType.IsSubclassOf(typeof(Object)))
-                {
-                    GUILayout.BeginHorizontal();
-                    EditorGUILayout.LabelField(field.Name, GUILayout.MaxWidth(EditorGUIUtility.labelWidth - 16));
-                    var newObjValue = EditorGUILayout.ObjectField(fieldValue as Object, fieldType, true);
-                    if (newObjValue != (Object)fieldValue)
-                    {
-                        field.SetValue(component, newObjValue);
-                        pool.SetRaw(debugView.entity, component);
-                    }
-
-                    GUILayout.EndHorizontal();
-                }
-                else if (fieldType.IsEnum)
-                {
-                    var isFlags = Attribute.IsDefined(fieldType, typeof(FlagsAttribute));
-                    var (enumChanged, enumNewValue) = EcsComponentInspectors.RenderEnum(field.Name, fieldValue, isFlags);
-                    if (enumChanged)
-                    {
-                        field.SetValue(component, enumNewValue);
-                        pool.SetRaw(debugView.entity, component);
-                    }
-                }
-                else
-                {
-                    var strVal = fieldValue != null ? string.Format(System.Globalization.CultureInfo.InvariantCulture, "{0}", fieldValue) : "null";
-                    if (strVal.Length > k_MaxFieldToStringLength)
-                    {
-                        strVal = strVal.Substring(0, k_MaxFieldToStringLength);
-                    }
-
-                    GUILayout.BeginHorizontal();
-                    EditorGUILayout.PrefixLabel(field.Name);
-                    EditorGUILayout.SelectableLabel(strVal, GUILayout.MaxHeight(EditorGUIUtility.singleLineHeight));
-                    GUILayout.EndHorizontal();
-                }
-            }
-            else
-            {
-                if (changed)
-                {
-                    // update value.
-                    field.SetValue(component, newValue);
-                    pool.SetRaw(debugView.entity, component);
-                }
-            }
-        }
-    }
-
-    internal static class EcsComponentInspectors
-    {
-        private static readonly Dictionary<Type, IEcsComponentInspector> k_Inspectors = new Dictionary<Type, IEcsComponentInspector>();
-
-        static EcsComponentInspectors()
-        {
-            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                foreach (var type in assembly.GetTypes())
-                {
-                    if (typeof(IEcsComponentInspector).IsAssignableFrom(type) && !type.IsInterface && !type.IsAbstract)
-                    {
-                        if (Activator.CreateInstance(type) is IEcsComponentInspector inspector)
-                        {
-                            var componentType = inspector.GetFieldType();
-                            if (!k_Inspectors.TryGetValue(componentType, out var prevInspector)
-                                || inspector.GetPriority() > prevInspector.GetPriority())
-                            {
-                                k_Inspectors[componentType] = inspector;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        public static (bool, bool, object) Render(string label, Type type, object value, EcsEntityDebugView debugView)
-        {
-            if (k_Inspectors.TryGetValue(type, out var inspector))
-            {
-                var (changed, newValue) = inspector.OnGui(label, value, debugView);
-                return (true, changed, newValue);
-            }
-
-            return (false, false, null);
-        }
-
-        public static (bool, object) RenderEnum(string label, object value, bool isFlags)
-        {
-            var enumValue = (Enum)value;
-            Enum newValue;
-            if (isFlags)
-            {
-                newValue = EditorGUILayout.EnumFlagsField(label, enumValue);
-            }
-            else
-            {
-                newValue = EditorGUILayout.EnumPopup(label, enumValue);
-            }
-
-            if (Equals(newValue, value))
-            {
-                return (default, default);
-            }
-
-            return (true, newValue);
-        }
-    }
-
-    public interface IEcsComponentInspector
-    {
-        Type GetFieldType();
-        int GetPriority();
-        (bool, object) OnGui(string label, object value, EcsEntityDebugView entityView);
-    }
-
-    public abstract class EcsComponentInspectorTyped<T> : IEcsComponentInspector
-    {
-        public Type GetFieldType() => typeof(T);
-        protected virtual bool IsNullAllowed() => false;
-        public virtual int GetPriority() => 0;
-
-        (bool, object) IEcsComponentInspector.OnGui(string label, object value, EcsEntityDebugView entityView)
-        {
-            if (value == null && !IsNullAllowed())
-            {
-                GUILayout.BeginHorizontal();
-                EditorGUILayout.PrefixLabel(label);
-                EditorGUILayout.SelectableLabel("null", GUILayout.MaxHeight(EditorGUIUtility.singleLineHeight));
-                GUILayout.EndHorizontal();
-                return (default, default);
-            }
-
-            var typedValue = (T)value;
-            var changed = OnGuiTyped(label, ref typedValue, entityView);
-            if (changed)
-            {
-                return (true, typedValue);
-            }
-
-            return (default, default);
-        }
-
-        protected abstract bool OnGuiTyped(string label, ref T value, EcsEntityDebugView entityView);
     }
 }

@@ -35,7 +35,7 @@ namespace Saro.Entities.UnityEditor
                 var world = debugView.ecsWorld;
 
                 EditorGUILayout.LabelField("WorldName: " + world.worldName);
-                EditorGUILayout.LabelField("WorldID: " + world.worldID);
+                EditorGUILayout.LabelField("WorldID: " + world.worldId);
                 EditorGUILayout.LabelField("WorldSize: " + world.GetWorldSize());
                 EditorGUILayout.LabelField("EntitiesCount: " + world.GetEntitiesCount());
                 EditorGUILayout.LabelField("AllocatedEntitiesCount: " + world.GetAllocatedEntitiesCount());

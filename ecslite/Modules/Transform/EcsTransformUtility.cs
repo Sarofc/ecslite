@@ -86,8 +86,7 @@ namespace Saro.Entities.Transforms
             child.SetParent(root, worldPositionStays: true);
         }
 
-        public static void SetParent(this EcsEntity child, EcsEntity root,
-            bool worldPositionStays)
+        public static void SetParent(this EcsEntity child, EcsEntity root, bool worldPositionStays)
         {
             if (worldPositionStays)
             {

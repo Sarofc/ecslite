@@ -173,7 +173,7 @@ namespace Saro.Entities
         {
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
             // 不检验0号entity，让dummy通过
-            if (entity != 0 && !m_World.IsEntityAlive(entity)) { throw new EcsException($"{typeof(T).Name}::{nameof(Add)}. Cant touch destroyed entity: {entity} world: {m_World.worldID} world: {m_World.worldID}"); }
+            if (entity != 0 && !m_World.IsEntityAlive(entity)) { throw new EcsException($"{typeof(T).Name}::{nameof(Add)}. Cant touch destroyed entity: {entity} world: {m_World.worldId} world: {m_World.worldId}"); }
 #endif
             // API 调整
             // 已拥有，就直接返回组件
@@ -211,7 +211,7 @@ namespace Saro.Entities
         public ref T Get(int entity)
         {
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
-            if (!m_World.IsEntityAlive(entity)) { throw new EcsException($"{typeof(T).Name}::{nameof(Get)}. Cant touch destroyed entity: {entity} world: {m_World.worldID}"); }
+            if (!m_World.IsEntityAlive(entity)) { throw new EcsException($"{typeof(T).Name}::{nameof(Get)}. Cant touch destroyed entity: {entity} world: {m_World.worldId}"); }
             if (m_SparseItems[entity] == 0) { throw new EcsException($"Cant get \"{typeof(T).Name}\" component - not attached. entity: {entity}"); }
 #endif
             return ref m_DenseItems[m_SparseItems[entity]];
@@ -221,7 +221,7 @@ namespace Saro.Entities
         public bool Has(int entity)
         {
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
-            if (!m_World.IsEntityAlive(entity)) { throw new EcsException($"{typeof(T).Name}::{nameof(Has)}. Cant touch destroyed entity: {entity} world: {m_World.worldID}"); }
+            if (!m_World.IsEntityAlive(entity)) { throw new EcsException($"{typeof(T).Name}::{nameof(Has)}. Cant touch destroyed entity: {entity} world: {m_World.worldId}"); }
 #endif
 
             if (m_SparseItems.Length <= entity) return false; // 兼容singleton改动，singleton组件只会分配1个
@@ -232,7 +232,7 @@ namespace Saro.Entities
         public void Del(int entity)
         {
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
-            if (!m_World.IsEntityAlive(entity)) { throw new EcsException($"{typeof(T).Name}::{nameof(Del)}. Cant touch destroyed entity: {entity} world: {m_World.worldID}"); }
+            if (!m_World.IsEntityAlive(entity)) { throw new EcsException($"{typeof(T).Name}::{nameof(Del)}. Cant touch destroyed entity: {entity} world: {m_World.worldId}"); }
 #endif
             ref var sparseData = ref m_SparseItems[entity];
             if (sparseData > 0)

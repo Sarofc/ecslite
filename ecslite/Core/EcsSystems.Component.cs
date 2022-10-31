@@ -36,7 +36,7 @@ namespace Saro.Entities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static EcsEntity Pack(this EcsWorld world, int entity)
         {
-            return new(entity, world.GetEntityGen(entity), world.worldID);
+            return new(entity, world.GetEntityGen(entity), world.worldId);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
