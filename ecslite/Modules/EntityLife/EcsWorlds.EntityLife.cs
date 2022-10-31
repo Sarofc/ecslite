@@ -20,6 +20,6 @@ namespace Saro.Entities
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void DelEntity(in EcsEntity entity) => DelEntity(entity.id);
+        public void DelEntity(EcsEntity entity) => DelEntity(entity.id);
     }
 }

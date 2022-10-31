@@ -5,19 +5,13 @@
 namespace Saro.Entities.Authoring
 {
     using System;
+    using System.Collections;
     using Saro.Entities.Serialization;
+    using Unity.VisualScripting.YamlDotNet.Core;
     using UnityEngine;
 
-    [CreateAssetMenu(menuName = "ECS/" + nameof(EcsBlueprintSO))]
-    public sealed class EcsBlueprintSO : ScriptableObject
-    {
-        public EcsBlueprint blueprint;
-
-        public static implicit operator EcsBlueprint(EcsBlueprintSO so) => so.blueprint;
-    }
-
     [Serializable]
-    public class EcsBlueprint
+    public class EcsBlueprint : MonoBehaviour
     {
 #if ODIN_INSPECTOR && EDITOR_ENHANCE
         [Sirenix.OdinInspector.Searchable]
@@ -26,7 +20,7 @@ namespace Saro.Entities.Authoring
         [SerializeReference]
         public IEcsComponentAuthoring[] components = new IEcsComponentAuthoring[0];
 
-        public static EcsEntity Instantiate(EcsBlueprint blueprint, EcsWorld world)
+        public static EcsEntity Spawn(EcsBlueprint blueprint, EcsWorld world)
         {
             var ent = world.NewEcsEntity();
             EcsSerializer.Initialize(ent.id, blueprint.components, world);

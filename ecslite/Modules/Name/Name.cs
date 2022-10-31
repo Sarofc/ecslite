@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Text;
-using Saro.Entities.Authoring;
 
 namespace Saro.Entities
 {
     /// <summary>
     /// Name component for entity
     /// </summary>
-    public struct Name : IEcsComponentAuthoring, IEquatable<Name>
+    public struct Name : IEcsComponent, IEquatable<Name>
     {
         public string name; // TODO FixedString?
 
@@ -18,7 +17,7 @@ namespace Saro.Entities
 
         public const string k_EntityNameFormat = "X8";
 
-        public static string GetEntityName(in EcsEntity entity, string entityNameFormat = k_EntityNameFormat)
+        public static string GetEntityName(EcsEntity entity, string entityNameFormat = k_EntityNameFormat)
         {
             return GetEntityName(entity.id, entity.World, entityNameFormat);
         }

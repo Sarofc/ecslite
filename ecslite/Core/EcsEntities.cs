@@ -51,9 +51,9 @@ namespace Saro.Entities
 
         public override int GetHashCode() => id; // 主要是减少碰撞，优化map的效率，同一个world的entity id肯定是唯一的
 
-        public static bool operator !=(in EcsEntity x, in EcsEntity y) => !(x == y);
+        public static bool operator !=(EcsEntity x, EcsEntity y) => !(x == y);
 
-        public static bool operator ==(in EcsEntity x, in EcsEntity y) => x.Equals(y);
+        public static bool operator ==(EcsEntity x, EcsEntity y) => x.Equals(y);
 
 #if DEBUG // For using in IDE debugger.
         private object[] DebugComponentsViewForIDE

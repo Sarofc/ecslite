@@ -4,6 +4,6 @@
     {
         ref EcsEntity Entity { get; }
         bool IsAlive { get; }
-        void Link(in EcsEntity ent);
+        void Link(EcsEntity ent);
     }
 }

@@ -40,7 +40,7 @@ namespace Saro.Entities
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ref T Add<T>(in this EcsEntity self) where T : struct, IEcsComponent
+        public static ref T Add<T>(this EcsEntity self) where T : struct, IEcsComponent
         {
             var pool = self.World.GetPool<T>();
             return ref pool.Add(self.id);

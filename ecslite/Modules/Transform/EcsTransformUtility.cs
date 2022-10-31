@@ -12,7 +12,7 @@ namespace Saro.Entities.Transforms
 #endif
     public static class EcsTransformUtility
     {
-        internal static void OnEntityDestroy(in EcsEntity toDestroy)
+        internal static void OnEntityDestroy(EcsEntity toDestroy)
         {
             if (toDestroy.World.ParentPool.Has(toDestroy.id))
             {
@@ -53,7 +53,7 @@ namespace Saro.Entities.Transforms
             }
         }
 
-        static void __OnEntityDestroy(in EcsEntity toDestroy)
+        static void __OnEntityDestroy(EcsEntity toDestroy)
         {
             if (toDestroy.World.ParentPool.Has(toDestroy.id))
             {
@@ -81,12 +81,12 @@ namespace Saro.Entities.Transforms
         }
 
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        public static void SetParent(this in EcsEntity child, in EcsEntity root)
+        public static void SetParent(this EcsEntity child, EcsEntity root)
         {
             child.SetParent(root, worldPositionStays: true);
         }
 
-        public static void SetParent(this in EcsEntity child, in EcsEntity root,
+        public static void SetParent(this EcsEntity child, EcsEntity root,
             bool worldPositionStays)
         {
             if (worldPositionStays)
@@ -103,7 +103,7 @@ namespace Saro.Entities.Transforms
             }
         }
 
-        public static EcsEntity GetRoot(this in EcsEntity child)
+        public static EcsEntity GetRoot(this EcsEntity child)
         {
             EcsEntity root;
             var parent = child;
@@ -124,7 +124,7 @@ namespace Saro.Entities.Transforms
         }
 
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        public static bool HasParent(this in EcsEntity entity)
+        public static bool HasParent(this EcsEntity entity)
         {
             return HasParent(entity.id, entity.World);
         }
@@ -136,12 +136,12 @@ namespace Saro.Entities.Transforms
         }
 
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        public static EcsEntity GetParent(this in EcsEntity entity)
+        public static EcsEntity GetParent(this EcsEntity entity)
         {
             return GetParent(entity.id, entity.World);
         }
 
-        private static void SetParent_Internal(in EcsEntity entity, in EcsEntity root)
+        private static void SetParent_Internal(EcsEntity entity, EcsEntity root)
         {
             if (entity == root) return;
 
@@ -163,7 +163,7 @@ namespace Saro.Entities.Transforms
                     return;
                 }
 
-                if (FindInHierarchy(in entity, in root)) return;
+                if (FindInHierarchy(entity, root)) return;
 
                 if (parent.IsAlive())
                 {
@@ -176,7 +176,7 @@ namespace Saro.Entities.Transforms
             }
         }
 
-        private static bool FindInHierarchy(int child, EcsWorld world, in EcsEntity root)
+        private static bool FindInHierarchy(int child, EcsWorld world, EcsEntity root)
         {
             /*
              ref readonly var childNodes = ref world.ChildrenPool.Add(child);
@@ -198,13 +198,13 @@ namespace Saro.Entities.Transforms
         }
 
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        private static bool FindInHierarchy(in EcsEntity entity, in EcsEntity root)
+        private static bool FindInHierarchy(EcsEntity entity, EcsEntity root)
         {
             return FindInHierarchy(entity.id, entity.World, root);
         }
 
         // TODO new version?
-        //         public static void OnEntityVersionChanged(in EcsEntityWithWorld entity)
+        //         public static void OnEntityVersionChanged(EcsEntityWithWorld entity)
         //         {
         //             if (entity.TryGet<Nodes>(out var nodes) == true)
         //             {
@@ -218,7 +218,7 @@ namespace Saro.Entities.Transforms
         //             }
         //         }
         //
-        //         public static uint GetVersionInHierarchy(this in EcsEntityWithWorld entity)
+        //         public static uint GetVersionInHierarchy(this EcsEntityWithWorld entity)
         //         {
         //             var v = entity.GetVersion();
         //             var ent = entity;

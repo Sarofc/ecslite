@@ -10,6 +10,6 @@ namespace Saro.Entities.Extension
 
         private EcsEntity m_Entity;
 
-        public void Link(in EcsEntity ent) => m_Entity = ent;
+        public void Link(EcsEntity ent) => m_Entity = ent;
     }
 }

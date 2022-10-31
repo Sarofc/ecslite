@@ -24,17 +24,17 @@ namespace Saro.Entities.Collections
     {
         int Count { get; }
 
-        void Add(in EcsEntity entity);
-        void AddFirst(in EcsEntity entity);
-        bool Remove(in EcsEntity entity);
-        int RemoveAll(in EcsEntity entity);
-        bool Replace(in EcsEntity entity, int index);
-        bool Insert(in EcsEntity entity, int onIndex);
+        void Add(EcsEntity entity);
+        void AddFirst(EcsEntity entity);
+        bool Remove(EcsEntity entity);
+        int RemoveAll(EcsEntity entity);
+        bool Replace(EcsEntity entity, int index);
+        bool Insert(EcsEntity entity, int onIndex);
         void Clear(bool destroyData = false);
         bool RemoveAt(int index, bool destroyData = false);
         int RemoveRange(int from, int to, bool destroyData = false);
         EcsEntity GetValue(int index);
-        bool Contains(in EcsEntity entity);
+        bool Contains(EcsEntity entity);
         EcsEntity GetFirst();
         EcsEntity GetLast();
         bool RemoveLast(bool destroyData = false);
@@ -96,11 +96,11 @@ namespace Saro.Entities.Collections
 #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
 #endif
-        public bool Contains(in EcsEntity entity)
+        public bool Contains(EcsEntity entity)
         {
             if (m_Count == 0) return false;
 
-            var node = FindNode(in entity);
+            var node = FindNode(entity);
             if (node.IsAlive() == true)
             {
                 return true;
@@ -172,7 +172,7 @@ namespace Saro.Entities.Collections
             var node = FindNode(index);
             if (node.IsAlive() == true)
             {
-                RemoveNode(in node, destroyData);
+                RemoveNode(node, destroyData);
                 return true;
             }
 
@@ -203,7 +203,7 @@ namespace Saro.Entities.Collections
                     {
                         var next = node.World.NodePool.Get(node.id).next;
                         //var next = node.Get<IntrusiveListNode>().next;
-                        RemoveNode(in node, destroyData);
+                        RemoveNode(node, destroyData);
                         node = next;
                         ++count;
                         ++from;
@@ -249,11 +249,11 @@ namespace Saro.Entities.Collections
 #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
 #endif
-        public bool Insert(in EcsEntity entity, int index)
+        public bool Insert(EcsEntity entity, int index)
         {
             if (m_Count == 0)
             {
-                Add(in entity);
+                Add(entity);
                 return true;
             }
 
@@ -261,14 +261,14 @@ namespace Saro.Entities.Collections
 
             if (index == m_Count)
             {
-                Add(in entity);
+                Add(entity);
                 return true;
             }
 
             var node = FindNode(index);
             if (node.IsAlive() == true)
             {
-                var newNode = CreateNode(in entity);
+                var newNode = CreateNode(entity);
                 ref var newNodeLink = ref newNode.World.NodePool.Get(newNode.id);
                 //ref var newNodeLink = ref newNode.Get<IntrusiveListNode>();
 
@@ -305,7 +305,7 @@ namespace Saro.Entities.Collections
 #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
 #endif
-        public bool Replace(in EcsEntity entity, int index)
+        public bool Replace(EcsEntity entity, int index)
         {
             if (m_Count == 0) return false;
 
@@ -329,7 +329,7 @@ namespace Saro.Entities.Collections
 #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
 #endif
-        public bool Remove(in EcsEntity entity)
+        public bool Remove(EcsEntity entity)
         {
             if (m_Count == 0) return false;
 
@@ -351,7 +351,7 @@ namespace Saro.Entities.Collections
 #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
 #endif
-        public int RemoveAll(in EcsEntity entity)
+        public int RemoveAll(EcsEntity entity)
         {
             if (m_Count == 0) return 0;
 
@@ -381,9 +381,9 @@ namespace Saro.Entities.Collections
 #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
 #endif
-        public void Add(in EcsEntity entity)
+        public void Add(EcsEntity entity)
         {
-            var node = IntrusiveList.CreateNode(in entity);
+            var node = IntrusiveList.CreateNode(entity);
             if (m_Count == 0)
             {
                 m_Root = node;
@@ -405,7 +405,7 @@ namespace Saro.Entities.Collections
 #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
 #endif
-        public void Add(in EcsEntity entity, out EcsEntity node)
+        public void Add(EcsEntity entity, out EcsEntity node)
         {
             node = IntrusiveList.CreateNode(entity);
             if (m_Count == 0)
@@ -433,7 +433,7 @@ namespace Saro.Entities.Collections
 #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
 #endif
-        public void AddFirst(in EcsEntity entity)
+        public void AddFirst(EcsEntity entity)
         {
             Insert(entity, 0);
         }
@@ -470,7 +470,7 @@ namespace Saro.Entities.Collections
         {
             if (m_Head.IsAlive() == false) return false;
 
-            RemoveNode(in m_Head, destroyData);
+            RemoveNode(m_Head, destroyData);
             return true;
         }
 
@@ -482,7 +482,7 @@ namespace Saro.Entities.Collections
         {
             if (m_Head.IsAlive() == false) return false;
 
-            RemoveNode(in m_Root, destroyData);
+            RemoveNode(m_Root, destroyData);
             return true;
         }
 
@@ -491,7 +491,7 @@ namespace Saro.Entities.Collections
 #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
 #endif
-        private EcsEntity FindNode(in EcsEntity entity)
+        private EcsEntity FindNode(EcsEntity entity)
         {
             if (m_Count == 0) return EcsEntity.k_Null;
 
@@ -539,7 +539,7 @@ namespace Saro.Entities.Collections
 #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
 #endif
-        private void RemoveNode(in EcsEntity node, bool destroyData)
+        private void RemoveNode(EcsEntity node, bool destroyData)
         {
             var link = node.World.NodePool.Get(node.id);
             if (link.prev.IsAlive() == true)
@@ -570,7 +570,7 @@ namespace Saro.Entities.Collections
 #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
 #endif
-        private static EcsEntity CreateNode(in EcsEntity data)
+        private static EcsEntity CreateNode(EcsEntity data)
         {
             var node = data.World.Pack(data.World.NewEntity());
             node.World.NodePool.Add(node.id).data = data;
@@ -580,7 +580,7 @@ namespace Saro.Entities.Collections
 #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
 #endif
-        private static void DestroyData(in EcsEntity node)
+        private static void DestroyData(EcsEntity node)
         {
             var ret = node.World.NodePool.Has(node.id);
             if (!ret) return;

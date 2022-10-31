@@ -2,12 +2,11 @@
 using QUATERNION = UnityEngine.Quaternion;
 
 using System;
-using Saro.Entities.Authoring;
 
 namespace Saro.Entities.Transforms
 {
     [Serializable]
-    public struct Position : IEcsComponentAuthoring
+    public struct Position : IEcsComponent
     {
         public FLOAT3 value;
 
@@ -18,7 +17,7 @@ namespace Saro.Entities.Transforms
     }
 
     [Serializable]
-    public struct Rotation : IEcsComponentAuthoring
+    public struct Rotation : IEcsComponent
     {
         public QUATERNION value;
 
@@ -29,7 +28,7 @@ namespace Saro.Entities.Transforms
     }
 
     [Serializable]
-    public struct Scale : IEcsComponentAuthoring
+    public struct Scale : IEcsComponent
     {
         public FLOAT3 value;
 
