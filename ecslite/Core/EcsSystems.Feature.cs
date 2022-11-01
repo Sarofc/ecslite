@@ -66,14 +66,14 @@ namespace Saro.Entities
             }
         }
 
-        public virtual void Run(EcsSystems systems)
+        public virtual void Run(EcsSystems systems, float deltaTime)
         {
             if (((IEcsRunSystem)this).Enable)
             {
                 for (int i = 0; i < m_RunSystems.Count; i++)
                 {
                     var system = m_RunSystems[i];
-                    system.Run(systems);
+                    system.Run(systems, deltaTime);
                 }
             }
         }

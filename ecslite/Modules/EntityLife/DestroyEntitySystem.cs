@@ -24,7 +24,7 @@
 //            m_Destroyeds = m_World.Filter().Inc<Destroy>().End();
 //        }
 
-//        void IEcsRunSystem.Run(EcsSystems systems)
+//        void IEcsRunSystem.Run(EcsSystems systems, float deltaTime)
 //        {
 //            foreach (var entity in m_Destroyeds)
 //            {

@@ -73,7 +73,7 @@ namespace Saro.Entities.UnityEditor
             }
         }
 
-        void IEcsRunSystem.Run(EcsSystems _)
+        void IEcsRunSystem.Run(EcsSystems _, float deltaTime)
         {
             GProfiler.BeginSample("[Ecs] EcsWorldDebugSystem");
 

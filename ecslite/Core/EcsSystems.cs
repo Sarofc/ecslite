@@ -24,7 +24,7 @@ namespace Saro.Entities
     {
         bool Enable { get; set; }
 
-        void Run(EcsSystems systems);
+        void Run(EcsSystems systems, float deltaTime);
     }
 
     public interface IEcsDestroySystem : IEcsSystem
@@ -226,11 +226,11 @@ namespace Saro.Entities
             }
         }
 
-        public void Run()
+        public void Run(float deltaTime)
         {
             for (int i = 0, iMax = m_RunSystemsCount; i < iMax; i++)
             {
-                m_RunSystems[i].Run(this);
+                m_RunSystems[i].Run(this, deltaTime);
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
                 var worldName = CheckForLeakedEntities();
                 if (worldName != null) { throw new System.Exception($"Empty entity detected in world \"{worldName}\" after {m_RunSystems[i].GetType().Name}.Run()."); }
