@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Text;
-using Codice.CM.Client.Differences;
 
 namespace Saro.Entities
 {
