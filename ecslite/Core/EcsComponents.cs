@@ -151,12 +151,7 @@ namespace Saro.Entities
             if (dataRaw == null || dataRaw.GetType() != m_Type) { throw new EcsException("Invalid component data, valid \"{typeof (T).Name}\" instance required."); }
 #endif
 
-            // add方法里m_AutoReset已被调用过了，但又被重新赋值了，改成没有就再调用一次
-            bool has = Has(entity);
             ref var data = ref Add(entity);
-            data = (T)dataRaw;
-            if (!has)
-                m_AutoReset?.Invoke(ref data);
         }
 
         public T[] GetRawDenseItems() => m_DenseItems;
