@@ -77,28 +77,6 @@ namespace Saro.Entities.UnityEditor
         {
             GProfiler.BeginSample("[Ecs] EcsWorldDebugSystem");
 
-            // debug transform 
-            for (int i = 0; i < m_Entities.Length; i++)
-            {
-                var entityView = m_Entities[i];
-                if (entityView == null) continue;
-
-                var entity = m_Entities[i].entity;
-                if (!m_World.IsEntityAlive(entity.id)) continue;
-
-                if (m_World.PositionPool.Has(entity.id))
-                {
-                    ref var cPosition = ref m_World.PositionPool.Get(entity.id);
-                    m_Entities[entity.id].transform.localPosition = cPosition.value;
-                }
-
-                if (m_World.RotationPool.Has(entity.id))
-                {
-                    ref var cRotation = ref m_World.RotationPool.Get(entity.id);
-                    m_Entities[entity.id].transform.localRotation = cRotation.value;
-                }
-            }
-
             foreach (var pair in m_DirtyEntities)
             {
                 var entity = pair.Key;
@@ -120,6 +98,26 @@ namespace Saro.Entities.UnityEditor
                 m_Entities[entity].name = entityName;
             }
             m_DirtyEntities.Clear();
+
+            // debug transform 
+            for (int i = 0; i < m_Entities.Length; i++)
+            {
+                var entityView = m_Entities[i];
+                if (entityView == null) continue;
+
+                var entity = m_Entities[i].entity;
+                if (!m_World.IsEntityAlive(entity.id)) continue;
+
+                if (m_World.PositionPool.Has(entity.id))
+                    m_Entities[entity.id].transform.localPosition = m_World.PositionPool.Get(entity.id).value;
+                else
+                    m_Entities[entity.id].transform.localPosition = Vector3.zero;
+
+                if (m_World.RotationPool.Has(entity.id))
+                    m_Entities[entity.id].transform.localRotation = m_World.RotationPool.Get(entity.id).value;
+                else
+                    m_Entities[entity.id].transform.localRotation = Quaternion.identity;
+            }
 
             GProfiler.EndSample();
         }

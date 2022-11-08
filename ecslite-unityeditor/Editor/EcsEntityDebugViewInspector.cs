@@ -9,6 +9,7 @@ using UnityEngine;
 namespace Saro.Entities.UnityEditor
 {
     using Saro.SEditor;
+    using Sirenix.Utilities;
 
     [CustomEditor(typeof(EcsEntityDebugView))]
     public sealed class EcsEntityDebugViewInspector : Editor
@@ -34,13 +35,13 @@ namespace Saro.Entities.UnityEditor
 
                 EditorGUI.LabelField(entityInfoRect, Name.GetEntityInfo(debugView.entity));
 
-                bool guiEnable = GUI.enabled;
-                GUI.enabled = debugView.entity.IsAlive();
-                if (GUI.Button(buttonRect, "-"))
+                bool guiEnable = UnityEngine.GUI.enabled;
+                UnityEngine.GUI.enabled = debugView.entity.IsAlive();
+                if (UnityEngine.GUI.Button(buttonRect, "-"))
                 {
                     debugView.entity.Destroy();
                 }
-                GUI.enabled = guiEnable;
+                UnityEngine.GUI.enabled = guiEnable;
 
                 DrawComponents(debugView);
                 //EditorUtility.SetDirty(target);
@@ -68,11 +69,12 @@ namespace Saro.Entities.UnityEditor
             var typeName = EditorExtensions.GetCleanGenericTypeName(compType);
             var pool = debugView.entity.World.GetPoolByType(compType);
 
-            var headerRect = EditorGUILayout.GetControlRect();
+            var rect = EditorGUILayout.GetControlRect();
+            var headerRect = rect;
             headerRect.xMin += EditorGUIUtility.singleLineHeight;
+            headerRect.width -= 18f;
 
-            var buttonRect = headerRect;
-            buttonRect.xMin += headerRect.width - 24;
+            var buttonRect = rect.AlignRight(18f);
 
             var foldout = SEditorUtility.GetEditorFoldout(compType.FullName);
             //var newFoldout = EditorGUI.Foldout(headerRect, foldout, typeName, true, EditorStyles.foldoutHeader);
@@ -82,15 +84,21 @@ namespace Saro.Entities.UnityEditor
                 foldout = newFoldout;
                 SEditorUtility.SetEditorFoldout(compType.FullName, foldout);
             }
-            if (GUI.Button(buttonRect, "-"))
+            if (UnityEngine.GUI.Button(buttonRect, "-"))
             {
                 pool.Del(debugView.entity.id);
+                //GUIUtility.ExitGUI();
             }
 
             if (foldout)
             {
                 EditorGUI.indentLevel++;
+                EditorGUI.BeginChangeCheck();
                 SEditorUtility.ShowAutoEditorGUI(component);
+                if (EditorGUI.EndChangeCheck())
+                {
+                    pool.SetRaw(debugView.entity.id, component);
+                }
                 EditorGUI.indentLevel--;
             }
             EditorGUI.EndFoldoutHeaderGroup();
