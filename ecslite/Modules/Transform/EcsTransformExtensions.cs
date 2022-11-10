@@ -6,22 +6,48 @@ using FLOAT3 = UnityEngine.Vector3;
 using QUATERNION = UnityEngine.Quaternion;
 
 using System.Runtime.CompilerServices;
+using UnityEngine;
 
 namespace Saro.Entities.Transforms
 {
     public static class EcsTransformExtensions
     {
         public static FLOAT3 GetForward(this int entity, EcsWorld world)
-            => world.RotationPool.Get(entity).value * FLOAT3.forward;
+            => entity.GetRotation(world) * FLOAT3.forward;
 
-        public static FLOAT3 GetForward(in this EcsEntity entity)
+        public static FLOAT3 GetForward(this EcsEntity entity)
             => entity.id.GetForward(entity.World);
 
         public static void SetForward(this int entity, FLOAT3 forward, EcsWorld world)
-            => world.RotationPool.Get(entity).value = QUATERNION.LookRotation(forward);
+            => entity.SetRotation(world, QUATERNION.LookRotation(forward));
 
-        public static void SetForward(in this EcsEntity entity, FLOAT3 forward)
+        public static void SetForward(this EcsEntity entity, FLOAT3 forward)
             => entity.id.SetForward(forward, entity.World);
+
+        public static void GetRight(this EcsEntity entity)
+            => entity.id.GetRight(entity.World);
+
+        public static FLOAT3 GetRight(this int entity, EcsWorld world)
+            => entity.GetRotation(world) * FLOAT3.right;
+
+        public static void SetRight(this EcsEntity entity, FLOAT3 right)
+            => entity.id.SetRight(right, entity.World);
+
+        public static void SetRight(this int entity, FLOAT3 right, EcsWorld world)
+            => entity.SetRotation(world, QUATERNION.FromToRotation(FLOAT3.right, right));
+
+        public static void GetUp(this EcsEntity entity)
+            => entity.id.GetUp(entity.World);
+
+        public static FLOAT3 GetUp(this int entity, EcsWorld world)
+            => entity.GetRotation(world) * FLOAT3.up;
+
+        public static void SetUp(this EcsEntity entity, FLOAT3 up)
+            => entity.id.SetUp(up, entity.World);
+
+        public static void SetUp(this int entity, FLOAT3 up, EcsWorld world)
+            => entity.SetRotation(world, QUATERNION.FromToRotation(FLOAT3.up, up));
+
 
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         public static void SetLocalPosition(this int entity, EcsWorld world, in FLOAT3 position)
