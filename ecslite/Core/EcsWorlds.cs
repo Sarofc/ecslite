@@ -526,9 +526,8 @@ namespace Saro.Entities
             return entity > 0 && entity < m_EntitiesCount && entities[entity].gen > 0;
         }
 
-        public T GetSystem<T>() where T : class, IEcsSystem
+        public T GetSystem<T>() where T : class
         {
-            var type = typeof(T);
             for (int i = 0; i < ecsSystemsList.Count; i++)
             {
                 var systems = ecsSystemsList[i];

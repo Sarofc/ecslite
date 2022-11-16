@@ -15,7 +15,7 @@ namespace Saro.Entities
         public int NewEntity(string name)
         {
             var ent = NewEntity();
-            NamePool.Add(ent).name = name;
+            NamePool.GetOrAdd(ent).name = name;
             return ent;
         }
     }

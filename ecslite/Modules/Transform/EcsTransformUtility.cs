@@ -108,7 +108,7 @@ namespace Saro.Entities.Transforms
             do
             {
                 root = parent;
-                parent = parent.World.ParentPool.Add(parent.id).entity;
+                parent = parent.World.ParentPool.GetOrAdd(parent.id).entity;
             }
             while (parent.IsAlive());
 
@@ -130,7 +130,7 @@ namespace Saro.Entities.Transforms
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         public static EcsEntity GetParent(this int entity, EcsWorld world)
         {
-            return world.ParentPool.Add(entity).entity;
+            return world.ParentPool.GetOrAdd(entity).entity;
         }
 
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
@@ -145,17 +145,17 @@ namespace Saro.Entities.Transforms
 
             if (root == EcsEntity.k_Null)
             {
-                ref readonly var parent = ref entity.World.ParentPool.Add(entity.id).entity;
+                ref readonly var parent = ref entity.World.ParentPool.GetOrAdd(entity.id).entity;
                 if (!parent.IsAlive()) return;
 
-                ref var nodes = ref parent.World.ChildrenPool.Add(parent.id);
+                ref var nodes = ref parent.World.ChildrenPool.GetOrAdd(parent.id);
                 entity.World.ParentPool.Del(entity.id);
                 nodes.items.Remove(entity);
                 return;
             }
 
             {
-                ref var parent = ref entity.World.ParentPool.Add(entity.id).entity;
+                ref var parent = ref entity.World.ParentPool.GetOrAdd(entity.id).entity;
                 if (parent == root || !root.IsAlive())
                 {
                     return;
@@ -169,7 +169,7 @@ namespace Saro.Entities.Transforms
                 }
 
                 parent = root;
-                ref var rootNodes = ref root.World.ChildrenPool.Add(root.id);
+                ref var rootNodes = ref root.World.ChildrenPool.GetOrAdd(root.id);
                 rootNodes.items.Add(entity);
             }
         }
@@ -181,7 +181,7 @@ namespace Saro.Entities.Transforms
              var items = childNodes.items;
              childNodes.items 防御性拷贝
             */
-            ref var childNodes = ref world.ChildrenPool.Add(child);
+            ref var childNodes = ref world.ChildrenPool.GetOrAdd(child);
             if (childNodes.items.Contains(root))
             {
                 return true;

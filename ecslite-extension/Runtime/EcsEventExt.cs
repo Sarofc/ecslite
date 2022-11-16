@@ -11,7 +11,7 @@ namespace Saro.Entities.Extension
             var ent = self.NewEntity();
 
             {
-                ref var msg = ref ent.Add<T>(self);
+                ref var msg = ref ent.GetOrAdd<T>(self);
                 msg = e;
             }
 
@@ -25,12 +25,12 @@ namespace Saro.Entities.Extension
             var ent = self.NewEntity();
 
             {
-                ref var msg = ref ent.Add<T1>(self);
+                ref var msg = ref ent.GetOrAdd<T1>(self);
                 msg = e1;
             }
 
             {
-                ref var msg = ref ent.Add<T2>(self);
+                ref var msg = ref ent.GetOrAdd<T2>(self);
                 msg = e2;
             }
 

@@ -573,7 +573,7 @@ namespace Saro.Entities.Collections
         private static EcsEntity CreateNode(EcsEntity data)
         {
             var node = data.World.Pack(data.World.NewEntity());
-            node.World.NodePool.Add(node.id).data = data;
+            node.World.NodePool.GetOrAdd(node.id).data = data;
             return node;
         }
 

@@ -71,12 +71,12 @@ namespace Saro.Entities
 
         public Dictionary<string, EcsWorld> GetAllNamedWorlds() => m_Worlds;
 
-        public T GetSystem<T>() where T : class, IEcsSystem
+        public T GetSystem<T>() where T : class
         {
             return GetSystemInternal<T>(m_AllSystems);
         }
 
-        private T GetSystemInternal<T>(IReadOnlyList<IEcsSystem> systems) where T : class, IEcsSystem
+        private T GetSystemInternal<T>(IReadOnlyList<IEcsSystem> systems) where T : class
         {
             var itemsCount = systems.Count;
             if (itemsCount == 0)

@@ -151,7 +151,7 @@ namespace Saro.Entities
             if (dataRaw == null || dataRaw.GetType() != m_Type) { throw new EcsException("Invalid component data, valid \"{typeof (T).Name}\" instance required."); }
 #endif
 
-            ref var data = ref Add(entity);
+            ref var data = ref GetOrAdd(entity);
         }
 
         public T[] GetRawDenseItems() => m_DenseItems;
@@ -164,11 +164,17 @@ namespace Saro.Entities
 
         public int GetRawRecycledItemsCount() => m_RecycledItemsCount;
 
+        [System.Obsolete("use 'GetOrAdd' instead")]
         public ref T Add(int entity)
+        {
+            return ref GetOrAdd(entity);
+        }
+
+        public ref T GetOrAdd(int entity)
         {
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
             // 不检验0号entity，让dummy通过
-            if (entity != 0 && !m_World.IsEntityAlive(entity)) { throw new EcsException($"{typeof(T).Name}::{nameof(Add)}. Cant touch destroyed entity: {entity} world: {m_World.worldId} world: {m_World.worldId}"); }
+            if (entity != 0 && !m_World.IsEntityAlive(entity)) { throw new EcsException($"{typeof(T).Name}::{nameof(GetOrAdd)}. Cant touch destroyed entity: {entity} world: {m_World.worldId} world: {m_World.worldId}"); }
 #endif
             // API 调整
             // 已拥有，就直接返回组件

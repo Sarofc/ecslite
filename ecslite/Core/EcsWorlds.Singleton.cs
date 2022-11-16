@@ -25,7 +25,7 @@ namespace Saro.Entities
         {
             var singletonID = GetSingletonEntity();
 
-            return ref GetPool<T>(2, 2, 1).Add(singletonID);
+            return ref GetPool<T>(2, 2, 1).GetOrAdd(singletonID);
         }
 
         private void InitSingletonEntity()
@@ -39,7 +39,7 @@ namespace Saro.Entities
         private void InitDummyEntity()
         {
             var dummy = NewEntity();
-            GetPool<Dummy>(2, 2, 1).Add(dummy);
+            GetPool<Dummy>(2, 2, 1).GetOrAdd(dummy);
         }
     }
 }

@@ -51,7 +51,7 @@ namespace Saro.Entities.Transforms
 
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         public static void SetLocalPosition(this int entity, EcsWorld world, in FLOAT3 position)
-            => world.PositionPool.Add(entity).value = position;
+            => world.PositionPool.GetOrAdd(entity).value = position;
 
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         public static void SetLocalPosition(this EcsEntity entity, in FLOAT3 position)
@@ -59,7 +59,7 @@ namespace Saro.Entities.Transforms
 
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         public static void SetLocalRotation(this int entity, EcsWorld world, in QUATERNION rotation)
-            => world.RotationPool.Add(entity).value = rotation;
+            => world.RotationPool.GetOrAdd(entity).value = rotation;
 
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         public static void SetLocalRotation(this EcsEntity entity, in QUATERNION rotation)
@@ -67,7 +67,7 @@ namespace Saro.Entities.Transforms
 
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         public static void SetLocalScale(this int entity, EcsWorld world, in FLOAT3 scale)
-            => world.ScalePool.Add(entity).value = scale;
+            => world.ScalePool.GetOrAdd(entity).value = scale;
 
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         public static void SetLocalScale(this EcsEntity entity, in FLOAT3 scale)
@@ -245,7 +245,7 @@ namespace Saro.Entities.Transforms
 
             while (!parent.entity.IsNull())
             {
-                worldRot = world.RotationPool.Add(parent.entity.id).value * worldRot;
+                worldRot = world.RotationPool.GetOrAdd(parent.entity.id).value * worldRot;
 
                 if (!world.ParentPool.Has(parent.entity.id))
                 {

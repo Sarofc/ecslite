@@ -39,27 +39,34 @@ namespace Saro.Entities
             return new(entity, world.GetEntityGen(entity), world.worldId);
         }
 
+        [System.Obsolete("use 'GetOrAdd' instead")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ref T Add<T>(this EcsEntity self) where T : struct, IEcsComponent
         {
             var pool = self.World.GetPool<T>();
-            return ref pool.Add(self.id);
+            return ref pool.GetOrAdd(self.id);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ref T GetOrAdd<T>(this EcsEntity self) where T : struct, IEcsComponent
+        {
+            var pool = self.World.GetPool<T>();
+            return ref pool.GetOrAdd(self.id);
+        }
+
+        [System.Obsolete("use 'GetOrAdd' instead")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ref T Add<T>(this int self, EcsWorld world) where T : struct, IEcsComponent
         {
             var pool = world.GetPool<T>();
-            return ref pool.Add(self);
+            return ref pool.GetOrAdd(self);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ref T Add<T>(this int self, T component, EcsWorld world) where T : struct, IEcsComponent
+        public static ref T GetOrAdd<T>(this int self, EcsWorld world) where T : struct, IEcsComponent
         {
             var pool = world.GetPool<T>();
-            ref var cc = ref pool.Add(self);
-            cc = component;
-            return ref cc;
+            return ref pool.GetOrAdd(self);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
