@@ -1,16 +1,14 @@
-﻿using FLOAT3 = UnityEngine.Vector3;
-using QUATERNION = UnityEngine.Quaternion;
-
-using System;
+﻿using System;
+using Unity.Mathematics;
 
 namespace Saro.Entities.Transforms
 {
     [Serializable]
     public struct Position : IEcsComponent
     {
-        public FLOAT3 value;
+        public float3 value;
 
-        public Position(FLOAT3 value)
+        public Position(float3 value)
         {
             this.value = value;
         }
@@ -19,9 +17,9 @@ namespace Saro.Entities.Transforms
     [Serializable]
     public struct Rotation : IEcsComponent
     {
-        public QUATERNION value;
+        public quaternion value;
 
-        public Rotation(QUATERNION value)
+        public Rotation(quaternion value)
         {
             this.value = value;
         }
@@ -30,9 +28,9 @@ namespace Saro.Entities.Transforms
     [Serializable]
     public struct Scale : IEcsComponent
     {
-        public FLOAT3 value;
+        public float3 value;
 
-        public Scale(FLOAT3 value)
+        public Scale(float3 value)
         {
             this.value = value;
         }

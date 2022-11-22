@@ -46,6 +46,7 @@ namespace Saro.Entities.UnityEditor
                 DrawComponents(debugView);
                 //EditorUtility.SetDirty(target);
             }
+            serializedObject.ApplyModifiedProperties();
         }
 
         private static void DrawComponents(EcsEntityDebugView debugView)
@@ -93,11 +94,11 @@ namespace Saro.Entities.UnityEditor
             if (foldout)
             {
                 EditorGUI.indentLevel++;
-                EditorGUI.BeginChangeCheck();
-                SEditorUtility.ShowAutoEditorGUI(component);
-                if (EditorGUI.EndChangeCheck())
                 {
-                    pool.SetRaw(debugView.entity.id, component);
+                    EditorGUI.BeginChangeCheck();
+                    SEditorUtility.ShowAutoEditorGUI(component);
+                    if (EditorGUI.EndChangeCheck())
+                        pool.SetRaw(debugView.entity.id, component);
                 }
                 EditorGUI.indentLevel--;
             }

@@ -114,7 +114,7 @@ namespace Saro.Entities.UnityEditor
                     m_Entities[entity.id].transform.localPosition = Vector3.zero;
 
                 if (m_World.RotationPool.Has(entity.id))
-                    m_Entities[entity.id].transform.localRotation = m_World.RotationPool.Get(entity.id).value;
+                    m_Entities[entity.id].transform.localRotation = m_World.RotationPool.Get(entity.id).value; // NaN?
                 else
                     m_Entities[entity.id].transform.localRotation = Quaternion.identity;
             }
