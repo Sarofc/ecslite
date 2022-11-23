@@ -1,8 +1,4 @@
-﻿#if ENABLE_IL2CPP
-#define INLINE_METHODS
-#endif
-
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using Unity.Mathematics;
 
 namespace Saro.Entities.Transforms
@@ -39,12 +35,6 @@ namespace Saro.Entities.Transforms
 
         public static void SetRight(this EcsEntity entity, float3 right)
             => entity.id.SetRight(right, entity.World);
-
-        public static quaternion FromToRotation(in float3 from, in float3 to)
-            => quaternion.AxisAngle(
-                angle: math.acos(math.clamp(math.dot(math.normalizesafe(from), math.normalizesafe(to)), -1f, 1f)),
-                axis: math.normalizesafe(math.cross(from, to))
-            );
 
         public static void SetRight(this int entity, float3 right, EcsWorld world)
             => entity.SetRotation(world, FromToRotation(right, math.right()));
@@ -110,9 +100,7 @@ namespace Saro.Entities.Transforms
         public static ref float3 GetLocalScale(this EcsEntity entity)
             => ref GetLocalScale(entity.id, entity.World);
 
-#if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-#endif
         public static void SetPosition(this int entity, EcsWorld world, in float3 position)
         {
             if (world.ParentPool.Has(entity))
@@ -138,17 +126,11 @@ namespace Saro.Entities.Transforms
             entity.SetLocalPosition(world, position);
         }
 
-#if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-#endif
         public static void SetPosition(this EcsEntity entity, in float3 position)
-        {
-            SetPosition(entity.id, entity.World, position);
-        }
+            => SetPosition(entity.id, entity.World, position);
 
-#if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-#endif
         public static void SetRotation(this int entity, EcsWorld world, in quaternion rotation)
         {
             if (world.ParentPool.Has(entity))
@@ -171,34 +153,22 @@ namespace Saro.Entities.Transforms
             entity.SetLocalRotation(world, rotation);
         }
 
-#if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-#endif
         public static void SetRotation(this EcsEntity entity, in quaternion rotation)
-        {
-            SetRotation(entity.id, entity.World, rotation);
-        }
+            => SetRotation(entity.id, entity.World, rotation);
 
-#if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-#endif
         public static float3 GetPosition(this int entity, EcsWorld world)
         {
             float3 worldPos;
 
             if (world.PositionPool.Has(entity))
-            {
                 worldPos = entity.GetLocalPosition(world);
-            }
             else
-            {
                 worldPos = float3.zero;
-            }
 
             if (!world.ParentPool.Has(entity))
-            {
                 return worldPos;
-            }
 
             var parent = world.ParentPool.Get(entity);
 
@@ -206,13 +176,9 @@ namespace Saro.Entities.Transforms
             {
                 quaternion worldRot;
                 if (world.RotationPool.Has(parent.entity.id))
-                {
                     worldRot = parent.entity.GetLocalRotation();
-                }
                 else
-                {
                     worldRot = quaternion.identity;
-                }
 
                 worldPos = math.mul(worldRot, math.mul(GetScale_Internal(parent.entity),
                     worldPos));
@@ -220,9 +186,7 @@ namespace Saro.Entities.Transforms
                 worldPos += parent.entity.GetLocalPosition();
 
                 if (!world.ParentPool.Has(parent.entity.id))
-                {
                     break;
-                }
 
                 parent = world.ParentPool.Get(parent.entity.id);
             }
@@ -230,33 +194,21 @@ namespace Saro.Entities.Transforms
             return worldPos;
         }
 
-#if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-#endif
         public static float3 GetPosition(this EcsEntity entity)
-        {
-            return GetPosition(entity.id, entity.World);
-        }
+            => GetPosition(entity.id, entity.World);
 
-#if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-#endif
         public static quaternion GetRotation(this int entity, EcsWorld world)
         {
             quaternion worldRot;
             if (world.RotationPool.Has(entity))
-            {
                 worldRot = world.RotationPool.Get(entity).value;
-            }
             else
-            {
                 worldRot = quaternion.identity;
-            }
 
             if (!world.ParentPool.Has(entity))
-            {
                 return worldRot;
-            }
 
             var parent = world.ParentPool.Get(entity);
 
@@ -275,33 +227,21 @@ namespace Saro.Entities.Transforms
             return worldRot;
         }
 
-#if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-#endif
-        public static quaternion GetRotation(this EcsEntity entity)
-        {
-            return GetRotation(entity.id, entity.World);
-        }
+        public static quaternion GetRotation(this EcsEntity entity) 
+            => GetRotation(entity.id, entity.World);
 
-#if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-#endif
         public static float3 GetScale(this int entity, EcsWorld world)
         {
             float3 worldScale;
             if (world.ScalePool.Has(entity))
-            {
                 worldScale = world.ScalePool.Get(entity).value;
-            }
             else
-            {
                 worldScale = _one;
-            }
 
             if (!world.ParentPool.Has(entity))
-            {
                 return worldScale;
-            }
 
             var parent = world.ParentPool.Get(entity);
 
@@ -326,19 +266,9 @@ namespace Saro.Entities.Transforms
             return worldScale;
         }
 
-#if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-#endif
         public static float3 GetScale(this EcsEntity entity)
-        {
-            return GetScale(entity.id, entity.World);
-        }
-
-        // math.mul(v1, v2);
-        [System.Obsolete("", true)]
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        private static float3 Multiply_Internal(in float3 v1, in float3 v2) =>
-            new(v1.x * v2.x, v1.y * v2.y, v1.z * v2.z);
+            => GetScale(entity.id, entity.World);
 
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         private static float3 GetInvScale_Internal(int entity, EcsWorld world)
@@ -348,7 +278,6 @@ namespace Saro.Entities.Transforms
                 var scale = world.ScalePool.Get(entity).value;
 
                 //v = 1f / v;
-
                 if (scale.x != 0f) scale.x = 1f / scale.x;
                 if (scale.y != 0f) scale.y = 1f / scale.y;
                 if (scale.z != 0f) scale.z = 1f / scale.z;
@@ -361,25 +290,24 @@ namespace Saro.Entities.Transforms
 
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         private static float3 GetInvScale_Internal(EcsEntity entity)
-        {
-            return GetInvScale_Internal(entity.id, entity.World);
-        }
+            => GetInvScale_Internal(entity.id, entity.World);
 
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         private static float3 GetScale_Internal(int entity, EcsWorld world)
         {
             if (world.ScalePool.Has(entity))
-            {
                 return world.ScalePool.Get(entity).value;
-            }
-
             return _one;
         }
 
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         private static float3 GetScale_Internal(EcsEntity entity)
-        {
-            return GetScale_Internal(entity.id, entity.World);
-        }
+            => GetScale_Internal(entity.id, entity.World);
+
+        public static quaternion FromToRotation(in float3 from, in float3 to)
+            => quaternion.AxisAngle(
+                angle: math.acos(math.clamp(math.dot(math.normalizesafe(from), math.normalizesafe(to)), -1f, 1f)),
+                axis: math.normalizesafe(math.cross(from, to))
+            );
     }
 }
