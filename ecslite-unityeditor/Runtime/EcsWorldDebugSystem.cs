@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using Saro.Diagnostics;
 using UnityEngine;
-using Object = UnityEngine.Object;
+using UObject = UnityEngine.Object;
 
 namespace Saro.Entities.UnityEditor
 {
@@ -31,7 +31,7 @@ namespace Saro.Entities.UnityEditor
             m_EntityNameFormat = entityNameFormat;
             var rootGoName = string.IsNullOrEmpty(m_World.worldName) ? "[ECS-WORLD]" : $"[ECS-WORLD] {m_World.worldName}";
             m_RootGo = new GameObject(rootGoName);
-            Object.DontDestroyOnLoad(m_RootGo);
+            UObject.DontDestroyOnLoad(m_RootGo);
             m_RootGo.hideFlags = HideFlags.NotEditable;
             m_EntitiesRoot = new GameObject("Entities").transform;
             m_EntitiesRoot.gameObject.hideFlags = HideFlags.NotEditable;
@@ -172,7 +172,7 @@ namespace Saro.Entities.UnityEditor
         void IEcsWorldEventListener.OnWorldDestroyed(EcsWorld world)
         {
             m_World.RemoveEventListener(this);
-            Object.Destroy(m_RootGo);
+            UObject.Destroy(m_RootGo);
         }
 
         public EcsEntityDebugView GetEntityView(int entity)
