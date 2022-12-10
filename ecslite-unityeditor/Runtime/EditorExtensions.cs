@@ -6,9 +6,7 @@
 #if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
-using Saro.Entities.Extension;
 using UnityEngine;
-using UnityEngine.WSA;
 
 namespace Saro.Entities.UnityEditor
 {

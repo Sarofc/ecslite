@@ -1,6 +1,5 @@
 # ecslite
 
-
 -----------------
 ## 单例组件
 
@@ -12,11 +11,6 @@ struct YourSingletonComponent : IEcsComponentSingleton
 
 ref var singletonComp = ref world.GetSingleton<YourSingletonComponent>();
 ```
-
------------------
-## 数据蓝图，可编辑entity资源，通过代码一键生成想要的实体
-
-<img src="https://github.com/Sarofc/ecslite/blob/main/doc/pic2.jpg" width=50%>
 
 -----------------
 ## transform层级系统

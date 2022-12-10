@@ -6,8 +6,6 @@
 using System;
 using System.Collections.Generic;
 using Saro.Diagnostics;
-using Saro.Entities.Extension;
-using Saro.Entities.Transforms;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
