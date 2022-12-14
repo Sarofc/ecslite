@@ -5,7 +5,6 @@
         "Saro.Entities",
         "Saro.Entities.UnityIntegration",
         "Saro.MGF",
-        "Saro.Entities.Extension",
         "Saro.MGF.Editor"
     ],
     "includePlatforms": [

@@ -2,8 +2,8 @@
     "name": "Saro.Entities",
     "rootNamespace": "Saro.Entities",
     "references": [
-        "GUID:c2c64ac720dc15a4995edc5ccba2f281",
-        "GUID:d8b63aba1907145bea998dd612889d6b"
+        "Saro.MGF",
+        "Unity.Mathematics"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

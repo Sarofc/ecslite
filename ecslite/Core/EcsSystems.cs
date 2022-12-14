@@ -230,11 +230,15 @@ namespace Saro.Entities
         {
             for (int i = 0, iMax = m_RunSystemsCount; i < iMax; i++)
             {
-                m_RunSystems[i].Run(this, deltaTime);
+                var sys = m_RunSystems[i];
+                if (sys.Enable)
+                {
+                    sys.Run(this, deltaTime);
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
-                var worldName = CheckForLeakedEntities();
-                if (worldName != null) { throw new System.Exception($"Empty entity detected in world \"{worldName}\" after {m_RunSystems[i].GetType().Name}.Run()."); }
+                    var worldName = CheckForLeakedEntities();
+                    if (worldName != null) { throw new System.Exception($"Empty entity detected in world \"{worldName}\" after {m_RunSystems[i].GetType().Name}.Run()."); }
 #endif
+                }
             }
         }
 

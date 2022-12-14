@@ -33,9 +33,10 @@ namespace Saro.Entities.UnityEditor
             m_RootGo = new GameObject(rootGoName);
             UObject.DontDestroyOnLoad(m_RootGo);
             m_RootGo.hideFlags = HideFlags.NotEditable;
-            m_EntitiesRoot = new GameObject("Entities").transform;
-            m_EntitiesRoot.gameObject.hideFlags = HideFlags.NotEditable;
-            m_EntitiesRoot.SetParent(m_RootGo.transform, false);
+            //m_EntitiesRoot = new GameObject("Entities").transform;
+            //m_EntitiesRoot.gameObject.hideFlags = HideFlags.NotEditable;
+            //m_EntitiesRoot.SetParent(m_RootGo.transform, false);
+            m_EntitiesRoot = m_RootGo.transform;
         }
 
         void IEcsPreInitSystem.PreInit(EcsSystems _)
@@ -112,7 +113,7 @@ namespace Saro.Entities.UnityEditor
                     m_Entities[entity.id].transform.localPosition = Vector3.zero;
 
                 if (m_World.RotationPool.Has(entity.id))
-                    m_Entities[entity.id].transform.localRotation = m_World.RotationPool.Get(entity.id).value; // TODO NaN?
+                    m_Entities[entity.id].transform.localRotation = m_World.RotationPool.Get(entity.id).value; // TODO // transform.localRotation assign attempt for '00000013:SphereShape:Aabb:BodyMask:ProjectileObj:LifeSpan:Position:Rotation:Parent:Children:CustomMovementType:' is not valid. Input rotation is { NaN, NaN, NaN, NaN }.
                 else
                     m_Entities[entity.id].transform.localRotation = Quaternion.identity;
             }
