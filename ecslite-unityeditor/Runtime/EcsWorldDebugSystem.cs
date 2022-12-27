@@ -9,6 +9,14 @@ using Saro.Diagnostics;
 using UnityEngine;
 using UObject = UnityEngine.Object;
 
+#if FIXED_POINT_MATH
+using ME.ECS.Mathematics;
+using Single = sfloat;
+#else
+using Unity.Mathematics;
+using Single = System.Single;
+#endif
+
 namespace Saro.Entities.UnityEditor
 {
     public sealed class EcsWorldDebugSystem : IEcsPreInitSystem, IEcsRunSystem, IEcsWorldEventListener
@@ -108,12 +116,12 @@ namespace Saro.Entities.UnityEditor
                 if (!m_World.IsEntityAlive(entity.id)) continue;
 
                 if (m_World.PositionPool.Has(entity.id))
-                    m_Entities[entity.id].transform.localPosition = m_World.PositionPool.Get(entity.id).value;
+                    m_Entities[entity.id].transform.localPosition = (Vector3)m_World.PositionPool.Get(entity.id).value;
                 else
                     m_Entities[entity.id].transform.localPosition = Vector3.zero;
 
                 if (m_World.RotationPool.Has(entity.id))
-                    m_Entities[entity.id].transform.localRotation = m_World.RotationPool.Get(entity.id).value; // TODO // transform.localRotation assign attempt for '00000013:SphereShape:Aabb:BodyMask:ProjectileObj:LifeSpan:Position:Rotation:Parent:Children:CustomMovementType:' is not valid. Input rotation is { NaN, NaN, NaN, NaN }.
+                    m_Entities[entity.id].transform.localRotation = (Quaternion)m_World.RotationPool.Get(entity.id).value; // TODO // transform.localRotation assign attempt for '00000013:SphereShape:Aabb:BodyMask:ProjectileObj:LifeSpan:Position:Rotation:Parent:Children:CustomMovementType:' is not valid. Input rotation is { NaN, NaN, NaN, NaN }.
                 else
                     m_Entities[entity.id].transform.localRotation = Quaternion.identity;
             }

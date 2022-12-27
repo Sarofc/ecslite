@@ -1,5 +1,12 @@
 ﻿using System.Runtime.CompilerServices;
+
+#if FIXED_POINT_MATH
+using ME.ECS.Mathematics;
+using Single = sfloat;
+#else
 using Unity.Mathematics;
+using Single = System.Single;
+#endif
 
 namespace Saro.Entities.Transforms
 {
