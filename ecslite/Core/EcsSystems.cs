@@ -3,6 +3,14 @@
 // Copyright (c) 2012-2022 Leopotam <leopotam@yandex.ru>
 // ----------------------------------------------------------------------------
 
+#if FIXED_POINT_MATH
+using ME.ECS.Mathematics;
+using Single = sfloat;
+#else
+using Unity.Mathematics;
+using Single = System.Single;
+#endif
+
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
@@ -24,7 +32,7 @@ namespace Saro.Entities
     {
         bool Enable { get; set; }
 
-        void Run(EcsSystems systems, float deltaTime);
+        void Run(EcsSystems systems, Single deltaTime);
     }
 
     public interface IEcsDestroySystem : IEcsSystem
@@ -226,7 +234,7 @@ namespace Saro.Entities
             }
         }
 
-        public void Run(float deltaTime)
+        public void Run(Single deltaTime)
         {
             for (int i = 0, iMax = m_RunSystemsCount; i < iMax; i++)
             {

@@ -1,4 +1,12 @@
-﻿using System;
+﻿#if FIXED_POINT_MATH
+using ME.ECS.Mathematics;
+using Single = sfloat;
+#else
+using Unity.Mathematics;
+using Single = System.Single;
+#endif
+
+using System;
 using System.Collections.Generic;
 
 namespace Saro.Entities
@@ -66,7 +74,7 @@ namespace Saro.Entities
             }
         }
 
-        public virtual void Run(EcsSystems systems, float deltaTime)
+        public virtual void Run(EcsSystems systems, Single deltaTime)
         {
             for (int i = 0; i < m_RunSystems.Count; i++)
             {

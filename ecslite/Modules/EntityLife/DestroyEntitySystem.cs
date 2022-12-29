@@ -1,4 +1,12 @@
-﻿//using System;
+﻿// #if FIXED_POINT_MATH
+// using ME.ECS.Mathematics;
+// using Single = sfloat;
+// #else
+// using Unity.Mathematics;
+// using Single = System.Single;
+// #endif
+
+//using System;
 
 //namespace Saro.Entities
 //{
@@ -24,7 +32,7 @@
 //            m_Destroyeds = m_World.Filter().Inc<Destroy>().End();
 //        }
 
-//        void IEcsRunSystem.Run(EcsSystems systems, float deltaTime)
+//        void IEcsRunSystem.Run(EcsSystems systems, Single deltaTime)
 //        {
 //            foreach (var entity in m_Destroyeds)
 //            {
