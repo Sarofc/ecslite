@@ -353,9 +353,9 @@ namespace Saro.Entities
         public int GetFreeMaskCount() => m_FreeMasksCount;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public EcsPool<T> GetPool<T>() where T : class, IEcsManagedComponent<T>, new() => GetPool<T>(m_PoolDenseSize, entities.Length, m_PoolRecycledSize);
+        public EcsPool<T> GetPool<T>() where T : class, IEcsComponent, new() => GetPool<T>(m_PoolDenseSize, entities.Length, m_PoolRecycledSize);
 
-        internal EcsPool<T> GetPool<T>(int denseCapacity, int sparseCapacity, int recycledCapacity) where T : class, IEcsManagedComponent<T>, new()
+        internal EcsPool<T> GetPool<T>(int denseCapacity, int sparseCapacity, int recycledCapacity) where T : class, IEcsComponent, new()
         {
             var poolType = typeof(T);
             if (m_PoolHashes.TryGetValue(poolType, out var rawPool))
@@ -377,8 +377,8 @@ namespace Saro.Entities
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public EcsPoolUnmanaged<T> GetPoolUnmanaged<T>() where T : unmanaged, IEcsUnmanagedComponent<T> => GetPoolUnmanaged<T>(m_PoolDenseSize, entities.Length, m_PoolRecycledSize);
-        internal EcsPoolUnmanaged<T> GetPoolUnmanaged<T>(int denseCapacity, int sparseCapacity, int recycledCapacity) where T : unmanaged, IEcsUnmanagedComponent<T>
+        internal EcsPoolUnmanaged<T> GetPoolUnmanaged<T>() where T : unmanaged, IEcsComponent => GetPoolUnmanaged<T>(m_PoolDenseSize, entities.Length, m_PoolRecycledSize);
+        internal EcsPoolUnmanaged<T> GetPoolUnmanaged<T>(int denseCapacity, int sparseCapacity, int recycledCapacity) where T : unmanaged, IEcsComponent
         {
             var poolType = typeof(T);
             if (m_PoolHashes.TryGetValue(poolType, out var rawPool))
@@ -792,7 +792,7 @@ namespace Saro.Entities
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public Mask Inc<T>() where T : class, IEcsManagedComponent<T>, new()
+            public Mask Inc<T>() where T : class, IEcsComponent, new()
             {
                 var poolId = m_World.GetPool<T>().GetId();
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
@@ -824,7 +824,7 @@ namespace Saro.Entities
             [UnityEngine.Scripting.Preserve] // TODO 好像没啥用？
 #endif
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public Mask Exc<T>() where T : class, IEcsManagedComponent<T>, new()
+            public Mask Exc<T>() where T : class, IEcsComponent, new()
             {
                 var poolId = m_World.GetPool<T>().GetId();
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
@@ -853,7 +853,7 @@ namespace Saro.Entities
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public Mask IncUnmanaged<T>() where T : unmanaged, IEcsUnmanagedComponent<T>
+            public Mask IncUnmanaged<T>() where T : unmanaged, IEcsComponent
             {
                 var poolId = m_World.GetPoolUnmanaged<T>().GetId();
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
@@ -882,7 +882,7 @@ namespace Saro.Entities
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public Mask ExcUnmanaged<T>() where T : unmanaged, IEcsUnmanagedComponent<T>
+            public Mask ExcUnmanaged<T>() where T : unmanaged, IEcsComponent
             {
                 var poolId = m_World.GetPoolUnmanaged<T>().GetId();
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
@@ -981,4 +981,10 @@ namespace Saro.Entities
         void OnWorldDestroyed(EcsWorld world);
     }
 #endif
+
+    public static class EcsWorldExtensionUnmanaged
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static EcsPoolUnmanaged<T> GetPoolUnmanaged<T>(this EcsWorld world) where T : unmanaged, IEcsComponent => world.GetPoolUnmanaged<T>();
+    }
 }

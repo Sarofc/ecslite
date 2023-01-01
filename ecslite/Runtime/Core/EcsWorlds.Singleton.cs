@@ -4,7 +4,7 @@ namespace Saro.Entities
 {
     public partial class EcsWorld
     {
-        private struct Dummy : IEcsUnmanagedComponentSingleton<Dummy> { }
+        private struct Dummy : IEcsComponentSingleton { }
 
         private int m_SingletonEntityId = 0;
 
@@ -21,14 +21,14 @@ namespace Saro.Entities
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ref T GetSingleton<T>() where T : class, IEcsManagedComponentSingleton<T>, new()
+        public ref T GetSingleton<T>() where T : class, IEcsComponentSingleton, new()
         {
             var singletonID = GetSingletonEntity();
             return ref GetPool<T>(2, 2, 1).GetOrAdd(singletonID);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ref T GetSingletonUnmanaged<T>() where T : unmanaged, IEcsUnmanagedComponentSingleton<T>
+        public ref T GetSingletonUnmanaged<T>() where T : unmanaged, IEcsComponentSingleton
         {
             var singletonID = GetSingletonEntity();
             return ref GetPoolUnmanaged<T>(2, 2, 1).GetOrAdd(singletonID);

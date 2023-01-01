@@ -65,7 +65,7 @@ namespace Saro.Entities.Tests
             return e;
         }
 
-        private class TestComponent : IEcsManagedComponent<TestComponent>
+        private class TestComponent : IEcsComponent, IEcsAutoReset<TestComponent>
         {
             public data d;
 
@@ -75,12 +75,12 @@ namespace Saro.Entities.Tests
             }
         }
 
-        private struct TestUnmanagedComponent : IEcsUnmanagedComponent<TestUnmanagedComponent>
+        private struct TestUnmanagedComponent : IEcsComponent
         {
             public data d;
         }
 
-        private struct TestUnmanagedComponentSingleton : IEcsUnmanagedComponentSingleton<TestUnmanagedComponentSingleton>
+        private struct TestUnmanagedComponentSingleton : IEcsComponentSingleton
         {
             public data d;
         }

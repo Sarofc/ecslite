@@ -2,12 +2,12 @@
 
 namespace Saro.Entities.Transforms
 {
-    internal struct Parent : IEcsUnmanagedComponent<Parent>
+    internal struct Parent : IEcsComponent
     {
         public EcsEntity entity;
     }
 
-    internal struct Children : IEcsUnmanagedComponent<Children>
+    internal struct Children : IEcsComponent
     {
         public Collections.IntrusiveList items;
     }

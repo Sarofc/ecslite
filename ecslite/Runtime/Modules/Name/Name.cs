@@ -14,7 +14,7 @@ namespace Saro.Entities
     /// <summary>
     /// Name component for entity
     /// </summary>
-    public partial class Name : IEcsManagedComponent<Name>
+    public partial class Name : IEcsComponent, IEcsAutoReset<Name>
     {
         public string name; // TODO FixedString 后，可以
 

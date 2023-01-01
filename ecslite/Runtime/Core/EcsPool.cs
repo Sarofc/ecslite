@@ -13,7 +13,7 @@ namespace Saro.Entities
     [Unity.IL2CPP.CompilerServices.Il2CppSetOption(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
     [Unity.IL2CPP.CompilerServices.Il2CppSetOption(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 #endif
-    public sealed partial class EcsPool<T> : IEcsPool where T : class, IEcsManagedComponent<T>, new()
+    public sealed partial class EcsPool<T> : IEcsPool where T : class, IEcsComponent, new()
     {
         private readonly Type m_Type;
         private readonly EcsWorld m_World;
@@ -49,7 +49,7 @@ namespace Saro.Entities
             }
 #endif
 
-            Singleton = typeof(IEcsManagedComponentSingleton<T>).IsAssignableFrom(m_Type);
+            Singleton = typeof(IEcsComponentSingleton).IsAssignableFrom(m_Type);
 
             m_World = world;
             m_ID = id;
@@ -60,9 +60,10 @@ namespace Saro.Entities
             m_RecycledItemsCount = 0;
             var isAutoReset = typeof(IEcsAutoReset<T>).IsAssignableFrom(m_Type);
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
-            if (!isAutoReset && m_Type.GetInterface("IEcsAutoReset`1") != null)
+            //if (!isAutoReset && m_Type.GetInterface("IEcsAutoReset`1") != null)
+            if (!isAutoReset)
             {
-                throw new EcsException($"IEcsAutoReset should have <{m_Type.Name}> constraint for component \"{m_Type.Name}\".");
+                throw new EcsException($"ManagedComponent <{m_Type.Name}> MUST have IEcsAutoReset interface.");
             }
 #endif
             if (isAutoReset)
@@ -71,8 +72,7 @@ namespace Saro.Entities
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
                 if (autoResetMethod == null)
                 {
-                    throw new EcsException(
-                        $"IEcsAutoReset<{m_Type.Name}> explicit implementation not supported, use implicit instead.");
+                    throw new EcsException($"IEcsAutoReset<{m_Type.Name}> explicit implementation not supported, use implicit instead.");
                 }
 #endif
                 m_AutoReset = (AutoResetHandler)Delegate.CreateDelegate(

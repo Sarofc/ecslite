@@ -10,7 +10,7 @@ namespace Saro.Entities
     [Unity.IL2CPP.CompilerServices.Il2CppSetOption(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
     [Unity.IL2CPP.CompilerServices.Il2CppSetOption(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 #endif
-    public sealed partial class EcsPoolUnmanaged<T> : IEcsPool where T : unmanaged, IEcsUnmanagedComponent<T>
+    public sealed partial class EcsPoolUnmanaged<T> : IEcsPool where T : unmanaged, IEcsComponent
     {
         private readonly Type m_Type;
         private readonly EcsWorld m_World;
@@ -46,7 +46,7 @@ namespace Saro.Entities
             }
 #endif
 
-            Singleton = typeof(IEcsUnmanagedComponentSingleton<T>).IsAssignableFrom(m_Type);
+            Singleton = typeof(IEcsComponentSingleton).IsAssignableFrom(m_Type);
 
             m_World = world;
             m_ID = id;
