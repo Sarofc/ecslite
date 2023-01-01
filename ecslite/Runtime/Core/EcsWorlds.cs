@@ -152,7 +152,7 @@ namespace Saro.Entities
                 s_Worlds[worldId] = this;
             }
 
-            InitDummyEntity();
+            InitDummyAndSingletonEntity();
 
             m_Destroyed = false;
         }
@@ -353,17 +353,17 @@ namespace Saro.Entities
         public int GetFreeMaskCount() => m_FreeMasksCount;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public EcsPool<T> GetPool<T>() where T : class, IEcsComponent, new() => GetPool<T>(m_PoolDenseSize, entities.Length, m_PoolRecycledSize);
+        public EcsPoolManaged<T> GetPool<T>() where T : class, IEcsComponent, new() => GetPool<T>(m_PoolDenseSize, entities.Length, m_PoolRecycledSize);
 
-        internal EcsPool<T> GetPool<T>(int denseCapacity, int sparseCapacity, int recycledCapacity) where T : class, IEcsComponent, new()
+        internal EcsPoolManaged<T> GetPool<T>(int denseCapacity, int sparseCapacity, int recycledCapacity) where T : class, IEcsComponent, new()
         {
             var poolType = typeof(T);
             if (m_PoolHashes.TryGetValue(poolType, out var rawPool))
             {
-                return (EcsPool<T>)rawPool;
+                return (EcsPoolManaged<T>)rawPool;
             }
 
-            var pool = new EcsPool<T>(this, m_PoolsCount, denseCapacity, sparseCapacity, recycledCapacity);
+            var pool = new EcsPoolManaged<T>(this, m_PoolsCount, denseCapacity, sparseCapacity, recycledCapacity);
             m_PoolHashes[poolType] = pool;
             if (m_PoolsCount == m_Pools.Length)
             {
@@ -986,10 +986,12 @@ namespace Saro.Entities
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static EcsPoolUnmanaged<T> GetPool<T>(this EcsWorld world) where T : unmanaged, IEcsComponent => world.GetPoolUnmanaged<T>();
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ref T GetSingleton<T>(this EcsWorld world) where T : unmanaged, IEcsComponentSingleton => ref world.GetSingletonUnmanaged<T>();
+
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static EcsWorld.Mask Inc<T>(this EcsWorld.Mask mask) where T : unmanaged, IEcsComponent => mask.IncUnmanaged<T>();
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static EcsWorld.Mask Exc<T>(this EcsWorld.Mask mask) where T : unmanaged, IEcsComponent => mask.ExcUnmanaged<T>();
     }

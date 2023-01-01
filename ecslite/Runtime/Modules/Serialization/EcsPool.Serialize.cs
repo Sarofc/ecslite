@@ -40,7 +40,7 @@ namespace Saro.Entities
         T Deserialize(object d);
     }
 
-    partial class EcsPool<T>
+    partial class EcsPoolManaged<T>
     {
         public delegate T SerializeHandler(in T component);
         public delegate void DeserializeHandler(T d, ref T c);

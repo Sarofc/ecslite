@@ -13,7 +13,7 @@ namespace Saro.Entities
     [Unity.IL2CPP.CompilerServices.Il2CppSetOption(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
     [Unity.IL2CPP.CompilerServices.Il2CppSetOption(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 #endif
-    public sealed partial class EcsPool<T> : IEcsPool where T : class, IEcsComponent, new()
+    public sealed partial class EcsPoolManaged<T> : IEcsPool where T : class, IEcsComponent, new()
     {
         private readonly Type m_Type;
         private readonly EcsWorld m_World;
@@ -38,7 +38,7 @@ namespace Saro.Entities
             return $"type: {m_Type.Name} id: {m_ID} denseItem: {m_DenseItems.Length} recycledItems: {m_RecycledItems.Length} sparseItems: {m_SparseItems.Length}";
         }
 
-        internal EcsPool(EcsWorld world, int id, int denseCapacity, int sparseCapacity, int recycledCapacity)
+        internal EcsPoolManaged(EcsWorld world, int id, int denseCapacity, int sparseCapacity, int recycledCapacity)
         {
             m_Type = typeof(T);
 

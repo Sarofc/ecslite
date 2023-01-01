@@ -4,13 +4,13 @@ namespace Saro.Entities
 {
     public partial class EcsWorld
     {
-        public EcsPool<Name> NamePool
+        public EcsPoolManaged<Name> NamePool
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => m_NamePool ??= GetPool<Name>();
         }
 
-        private EcsPool<Name> m_NamePool;
+        private EcsPoolManaged<Name> m_NamePool;
 
         public int NewEntity(string name)
         {

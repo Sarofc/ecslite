@@ -28,7 +28,7 @@ namespace Saro.Entities
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ref T GetSingletonUnmanaged<T>() where T : unmanaged, IEcsComponentSingleton
+        internal ref T GetSingletonUnmanaged<T>() where T : unmanaged, IEcsComponentSingleton
         {
             var singletonID = GetSingletonEntity();
             return ref GetPoolUnmanaged<T>(2, 2, 1).GetOrAdd(singletonID);
@@ -36,11 +36,16 @@ namespace Saro.Entities
 
         /// <summary>
         /// 0号entity是没用的，占个位
+        /// 1号entity是singleton
         /// </summary>
-        private void InitDummyEntity()
+        private void InitDummyAndSingletonEntity()
         {
+            // dummy
             var dummy = NewEntity();
             GetPoolUnmanaged<Dummy>(2, 2, 1).GetOrAdd(dummy);
+
+            // singleton
+            GetSingletonUnmanaged<Dummy>();
         }
     }
 }

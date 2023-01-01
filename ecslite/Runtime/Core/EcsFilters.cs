@@ -37,6 +37,18 @@ namespace Saro.Entities
         int m_EventListenersCount;
 #endif
 
+        public int this[int index]
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => m_DenseEntities[index];
+        }
+
+        public int EntitiesCount
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => m_EntitiesCount;
+        }
+
         internal EcsFilter(EcsWorld world, EcsWorld.Mask mask, int denseCapacity, int sparseCapacity)
         {
             m_World = world;
