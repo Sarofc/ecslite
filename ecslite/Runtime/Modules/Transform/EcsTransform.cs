@@ -11,7 +11,7 @@ using Single = System.Single;
 namespace Saro.Entities.Transforms
 {
     [Serializable]
-    public struct Position : IEcsComponent
+    public struct Position : IEcsUnmanagedComponent<Position>
     {
         public float3 value;
 
@@ -22,7 +22,7 @@ namespace Saro.Entities.Transforms
     }
 
     [Serializable]
-    public struct Rotation : IEcsComponent
+    public struct Rotation : IEcsUnmanagedComponent<Rotation>
     {
         public quaternion value;
 
@@ -33,7 +33,7 @@ namespace Saro.Entities.Transforms
     }
 
     [Serializable]
-    public struct Scale : IEcsComponent
+    public struct Scale : IEcsUnmanagedComponent<Scale>
     {
         public float3 value;
 

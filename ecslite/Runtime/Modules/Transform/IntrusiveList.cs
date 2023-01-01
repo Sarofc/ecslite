@@ -13,7 +13,7 @@ namespace Saro.Entities.Collections
      * 功能等价于 链表，性能更好？
      */
 
-    public struct IntrusiveListNode : IEcsComponent
+    public struct IntrusiveListNode : IEcsUnmanagedComponent<IntrusiveListNode>
     {
         public EcsEntity next;
         public EcsEntity prev;

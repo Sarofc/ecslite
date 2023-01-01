@@ -1,20 +1,51 @@
 ﻿using System;
+using System.Collections;
+using System.Diagnostics;
+using System.Drawing;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
+using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
+using UnityEngine;
 
 namespace Saro.Entities
 {
     /// <summary>
     /// Name component for entity
     /// </summary>
-    public struct Name : IEcsComponent, IEquatable<Name>
+    public partial class Name : IEcsManagedComponent<Name>
     {
-        public string name; // TODO FixedString?
+        public string name; // TODO FixedString 后，可以
+
+        public Name() : this(null) { }
 
         public Name(string name)
         {
             this.name = name;
         }
 
+        public void AutoReset(ref Name c)
+        {
+            c.name = null;
+        }
+    }
+
+    partial class Name : IEquatable<Name>
+    {
+        public bool Equals(Name other) => name == other.name;
+
+        public override bool Equals(object obj) => obj is Name other && Equals(other);
+
+        public override int GetHashCode() => (name != null ? name.GetHashCode() : 0);
+
+        public static bool operator !=(in Name x, in Name y) => !(x == y);
+
+        public static bool operator ==(in Name x, in Name y) => x.name == y.name;
+    }
+
+    partial class Name // utility
+    {
         public const string k_EntityNameFormat = "X8";
 
         public static string GetEntityName(EcsEntity entity, string entityNameFormat = k_EntityNameFormat)
@@ -77,15 +108,5 @@ namespace Saro.Entities
 
             return $"{Name.GetEntityInfo(entity, world, entityNameFormat)} [{sb}]";
         }
-
-        public bool Equals(Name other) => name == other.name;
-
-        public override bool Equals(object obj) => obj is Name other && Equals(other);
-
-        public override int GetHashCode() => (name != null ? name.GetHashCode() : 0);
-
-        public static bool operator !=(in Name x, in Name y) => !(x == y);
-
-        public static bool operator ==(in Name x, in Name y) => x.name == y.name;
     }
 }

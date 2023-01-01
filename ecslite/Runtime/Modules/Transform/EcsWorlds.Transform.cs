@@ -6,43 +6,43 @@ namespace Saro.Entities
 {
     public partial class EcsWorld
     {
-        internal EcsPool<Position> PositionPool
+        internal EcsPoolUnmanaged<Position> PositionPool
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => m_PositionPool ??= GetPool<Position>();
+            get => m_PositionPool ??= GetPoolUnmanaged<Position>();
         }
-        internal EcsPool<Rotation> RotationPool
+        internal EcsPoolUnmanaged<Rotation> RotationPool
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => m_RotationPool ??= GetPool<Rotation>();
+            get => m_RotationPool ??= GetPoolUnmanaged<Rotation>();
         }
-        internal EcsPool<Scale> ScalePool
+        internal EcsPoolUnmanaged<Scale> ScalePool
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => m_ScalePool ??= GetPool<Scale>();
+            get => m_ScalePool ??= GetPoolUnmanaged<Scale>();
         }
-        internal EcsPool<Parent> ParentPool
+        internal EcsPoolUnmanaged<Parent> ParentPool
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => m_ParentPool ??= GetPool<Parent>();
+            get => m_ParentPool ??= GetPoolUnmanaged<Parent>();
         }
-        internal EcsPool<Children> ChildrenPool
+        internal EcsPoolUnmanaged<Children> ChildrenPool
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => m_ChildrenPool ??= GetPool<Children>();
+            get => m_ChildrenPool ??= GetPoolUnmanaged<Children>();
         }
-        internal EcsPool<IntrusiveListNode> NodePool
+        internal EcsPoolUnmanaged<IntrusiveListNode> NodePool
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => m_NodePool ??= GetPool<IntrusiveListNode>();
+            get => m_NodePool ??= GetPoolUnmanaged<IntrusiveListNode>();
         }
 
-        private EcsPool<Position> m_PositionPool;
-        private EcsPool<Rotation> m_RotationPool;
-        private EcsPool<Scale> m_ScalePool;
+        private EcsPoolUnmanaged<Position> m_PositionPool;
+        private EcsPoolUnmanaged<Rotation> m_RotationPool;
+        private EcsPoolUnmanaged<Scale> m_ScalePool;
 
-        private EcsPool<Parent> m_ParentPool;
-        private EcsPool<Children> m_ChildrenPool;
-        private EcsPool<IntrusiveListNode> m_NodePool;
+        private EcsPoolUnmanaged<Parent> m_ParentPool;
+        private EcsPoolUnmanaged<Children> m_ChildrenPool;
+        private EcsPoolUnmanaged<IntrusiveListNode> m_NodePool;
     }
 }

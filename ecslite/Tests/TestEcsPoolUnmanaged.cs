@@ -60,22 +60,27 @@ namespace Saro.Entities.Tests
             var world = systems.GetWorld();
             var e = world.NewEcsEntity();
             ref var c1 = ref e.GetOrAdd<TestComponent>();
-            ref var c2 = ref e.GetOrAddUnmanaged<TestUnmanagedComponent>();
+            ref var c2 = ref e.GetOrAdd<TestUnmanagedComponent>();
             c1.d = c2.d = d;
             return e;
         }
 
-        private struct TestComponent : IEcsComponent
+        private class TestComponent : IEcsManagedComponent<TestComponent>
+        {
+            public data d;
+
+            public void AutoReset(ref TestComponent c)
+            {
+                c.d = default;
+            }
+        }
+
+        private struct TestUnmanagedComponent : IEcsUnmanagedComponent<TestUnmanagedComponent>
         {
             public data d;
         }
 
-        private struct TestUnmanagedComponent : IEcsComponent
-        {
-            public data d;
-        }
-
-        private struct TestUnmanagedComponentSingleton : IEcsComponentSingleton
+        private struct TestUnmanagedComponentSingleton : IEcsUnmanagedComponentSingleton<TestUnmanagedComponentSingleton>
         {
             public data d;
         }
@@ -97,11 +102,14 @@ namespace Saro.Entities.Tests
                 {
                     Assert.IsTrue(ent.Has<TestUnmanagedComponent>(world), "EcsEntity:Has should equal true");
 
-                    ref var c = ref ent.GetUnmanaged<TestUnmanagedComponent>(world);
-
+                    ref var c = ref ent.Get<TestUnmanagedComponent>(world);
                     Assert.AreEqual(c.d, d[index]);
 
+                    ref var c1 = ref ent.Get<TestComponent>(world);
+                    Assert.AreEqual(c1.d, d[index]);
+
                     //Debug.Log($" {c.d.c} == {d[index].c} ");
+                    //Debug.Log($" {c1.d.c} == {d[index].c} ");
 
                     index++;
                 }

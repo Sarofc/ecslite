@@ -4,7 +4,7 @@ namespace Saro.Entities
 {
     public partial class EcsWorld
     {
-        private struct Dummy : IEcsComponentSingleton { }
+        private struct Dummy : IEcsUnmanagedComponentSingleton<Dummy> { }
 
         private int m_SingletonEntityId = 0;
 
@@ -21,20 +21,18 @@ namespace Saro.Entities
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ref T GetSingleton<T>() where T : struct, IEcsComponentSingleton
+        public ref T GetSingleton<T>() where T : class, IEcsManagedComponentSingleton<T>, new()
         {
             var singletonID = GetSingletonEntity();
             return ref GetPool<T>(2, 2, 1).GetOrAdd(singletonID);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ref T GetSingletonUnmanaged<T>() where T : unmanaged, IEcsComponentSingleton
+        public ref T GetSingletonUnmanaged<T>() where T : unmanaged, IEcsUnmanagedComponentSingleton<T>
         {
             var singletonID = GetSingletonEntity();
             return ref GetPoolUnmanaged<T>(2, 2, 1).GetOrAdd(singletonID);
         }
-
-        private void InitSingletonEntity() => GetSingleton<Dummy>();
 
         /// <summary>
         /// 0号entity是没用的，占个位
@@ -42,7 +40,7 @@ namespace Saro.Entities
         private void InitDummyEntity()
         {
             var dummy = NewEntity();
-            GetPool<Dummy>(2, 2, 1).GetOrAdd(dummy);
+            GetPoolUnmanaged<Dummy>(2, 2, 1).GetOrAdd(dummy);
         }
     }
 }

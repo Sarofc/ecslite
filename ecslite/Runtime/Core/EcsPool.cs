@@ -1,21 +1,24 @@
-﻿using System;
+﻿// ----------------------------------------------------------------------------
+// The Proprietary or MIT-Red License
+// Copyright (c) 2012-2022 Leopotam <leopotam@yandex.ru>
+// ----------------------------------------------------------------------------
+
+using System;
 using System.Runtime.CompilerServices;
 
 namespace Saro.Entities
 {
-    // TODO 验证！
-    // 意义就是直接确定内存连续，可以使用指针算法
 #if ENABLE_IL2CPP
     [Unity.IL2CPP.CompilerServices.Il2CppSetOption(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
     [Unity.IL2CPP.CompilerServices.Il2CppSetOption(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
     [Unity.IL2CPP.CompilerServices.Il2CppSetOption(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 #endif
-    public sealed partial class EcsPoolUnmanaged<T> : IEcsPool where T : unmanaged, IEcsComponent
+    public sealed partial class EcsPool<T> : IEcsPool where T : class, IEcsManagedComponent<T>, new()
     {
         private readonly Type m_Type;
         private readonly EcsWorld m_World;
         private readonly int m_ID;
-        //private readonly AutoResetHandler m_AutoReset;
+        private readonly AutoResetHandler m_AutoReset;
 
         // 1-based index.
         private T[] m_DenseItems;
@@ -26,16 +29,16 @@ namespace Saro.Entities
 
         public bool Singleton { get; private set; }
 
-        //#if ENABLE_IL2CPP && !UNITY_EDITOR
-        //        T m_AutoresetFakeInstance;
-        //#endif
+#if ENABLE_IL2CPP && !UNITY_EDITOR
+        T m_AutoresetFakeInstance;
+#endif
 
         public override string ToString()
         {
             return $"type: {m_Type.Name} id: {m_ID} denseItem: {m_DenseItems.Length} recycledItems: {m_RecycledItems.Length} sparseItems: {m_SparseItems.Length}";
         }
 
-        internal EcsPoolUnmanaged(EcsWorld world, int id, int denseCapacity, int sparseCapacity, int recycledCapacity)
+        internal EcsPool(EcsWorld world, int id, int denseCapacity, int sparseCapacity, int recycledCapacity)
         {
             m_Type = typeof(T);
 
@@ -46,7 +49,7 @@ namespace Saro.Entities
             }
 #endif
 
-            Singleton = typeof(IEcsComponentSingleton).IsAssignableFrom(m_Type);
+            Singleton = typeof(IEcsManagedComponentSingleton<T>).IsAssignableFrom(m_Type);
 
             m_World = world;
             m_ID = id;
@@ -55,32 +58,34 @@ namespace Saro.Entities
             m_DenseItemsCount = 1;
             m_RecycledItems = new int[recycledCapacity];
             m_RecycledItemsCount = 0;
-            //            var isAutoReset = typeof(IEcsAutoReset<T>).IsAssignableFrom(m_Type);
-            //#if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
-            //            if (!isAutoReset && m_Type.GetInterface("IEcsAutoReset`1") != null)
-            //            {
-            //                throw new EcsException($"IEcsAutoReset should have <{m_Type.Name}> constraint for component \"{m_Type.Name}\".");
-            //            }
-            //#endif
-            //            if (isAutoReset)
-            //            {
-            //                var autoResetMethod = m_Type.GetMethod(nameof(IEcsAutoReset<T>.AutoReset));
-            //#if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
-            //                if (autoResetMethod == null)
-            //                {
-            //                    throw new EcsException(
-            //                        $"IEcsAutoReset<{m_Type.Name}> explicit implementation not supported, use implicit instead.");
-            //                }
-            //#endif
-            //                m_AutoReset = (AutoResetHandler)Delegate.CreateDelegate(
-            //                    typeof(AutoResetHandler),
-            //#if ENABLE_IL2CPP && !UNITY_EDITOR
-            //                    m_AutoresetFakeInstance,
-            //#else
-            //                    null,
-            //#endif
-            //                    autoResetMethod);
-            //            }
+            var isAutoReset = typeof(IEcsAutoReset<T>).IsAssignableFrom(m_Type);
+#if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
+            if (!isAutoReset && m_Type.GetInterface("IEcsAutoReset`1") != null)
+            {
+                throw new EcsException($"IEcsAutoReset should have <{m_Type.Name}> constraint for component \"{m_Type.Name}\".");
+            }
+#endif
+            if (isAutoReset)
+            {
+                var autoResetMethod = m_Type.GetMethod(nameof(IEcsAutoReset<T>.AutoReset));
+#if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
+                if (autoResetMethod == null)
+                {
+                    throw new EcsException(
+                        $"IEcsAutoReset<{m_Type.Name}> explicit implementation not supported, use implicit instead.");
+                }
+#endif
+                m_AutoReset = (AutoResetHandler)Delegate.CreateDelegate(
+                    typeof(AutoResetHandler),
+#if ENABLE_IL2CPP && !UNITY_EDITOR
+                    m_AutoresetFakeInstance,
+#else
+                    null,
+#endif
+                    autoResetMethod);
+            }
+
+            InitSerialize();
         }
 
 #if UNITY_2020_3_OR_NEWER
@@ -164,7 +169,8 @@ namespace Saro.Entities
                     Array.Resize(ref m_DenseItems, m_DenseItemsCount << 1);
                 }
                 m_DenseItemsCount++;
-                //m_AutoReset?.Invoke(ref m_DenseItems[idx]);
+                m_DenseItems[idx] = new T();
+                m_AutoReset?.Invoke(ref m_DenseItems[idx]);
             }
             m_SparseItems[entity] = idx;
             m_World.OnEntityChange_Add_Internal(entity, m_ID);
@@ -212,14 +218,14 @@ namespace Saro.Entities
                     Array.Resize(ref m_RecycledItems, m_RecycledItemsCount << 1);
                 }
                 m_RecycledItems[m_RecycledItemsCount++] = sparseData;
-                //if (m_AutoReset != null)
-                //{
-                //    m_AutoReset.Invoke(ref m_DenseItems[sparseData]);
-                //}
-                //else
+                if (m_AutoReset != null)
                 {
-                    m_DenseItems[sparseData] = default;
+                    m_AutoReset.Invoke(ref m_DenseItems[sparseData]);
                 }
+                //else
+                //{
+                //    m_DenseItems[sparseData] = default;
+                //}
                 sparseData = 0;
                 ref var entityData = ref m_World.entities[entity];
                 entityData.compsCount--;
@@ -234,6 +240,6 @@ namespace Saro.Entities
             }
         }
 
-        //private delegate void AutoResetHandler(ref T component);
+        private delegate void AutoResetHandler(ref T component);
     }
 }
