@@ -853,7 +853,7 @@ namespace Saro.Entities
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public Mask IncUnmanaged<T>() where T : unmanaged, IEcsComponent
+            internal Mask IncUnmanaged<T>() where T : unmanaged, IEcsComponent
             {
                 var poolId = m_World.GetPoolUnmanaged<T>().GetId();
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
@@ -882,7 +882,7 @@ namespace Saro.Entities
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public Mask ExcUnmanaged<T>() where T : unmanaged, IEcsComponent
+            internal Mask ExcUnmanaged<T>() where T : unmanaged, IEcsComponent
             {
                 var poolId = m_World.GetPoolUnmanaged<T>().GetId();
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
@@ -985,6 +985,12 @@ namespace Saro.Entities
     public static class EcsWorldExtensionUnmanaged
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static EcsPoolUnmanaged<T> GetPoolUnmanaged<T>(this EcsWorld world) where T : unmanaged, IEcsComponent => world.GetPoolUnmanaged<T>();
+        public static EcsPoolUnmanaged<T> GetPool<T>(this EcsWorld world) where T : unmanaged, IEcsComponent => world.GetPoolUnmanaged<T>();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static EcsWorld.Mask Inc<T>(this EcsWorld.Mask mask) where T : unmanaged, IEcsComponent => mask.IncUnmanaged<T>();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static EcsWorld.Mask Exc<T>(this EcsWorld.Mask mask) where T : unmanaged, IEcsComponent => mask.ExcUnmanaged<T>();
     }
 }

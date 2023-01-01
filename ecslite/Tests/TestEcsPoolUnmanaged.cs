@@ -96,7 +96,7 @@ namespace Saro.Entities.Tests
 
             protected override void RunInternal(Single deltaTime)
             {
-                var filter = world.Filter().IncUnmanaged<TestUnmanagedComponent>().Inc<TestComponent>().End();
+                var filter = world.Filter().Inc<TestUnmanagedComponent>().Inc<TestComponent>().End();
                 int index = 0;
                 foreach (var ent in filter)
                 {
