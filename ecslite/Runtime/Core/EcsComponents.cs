@@ -10,7 +10,7 @@ namespace Saro.Entities
 {
     // TODO 数据不可变的资源，避免struct copy，类似unity blobasset
 
-    public interface IEcsPool
+    public partial interface IEcsPool
     {
         bool Singleton { get; }
         void Resize(int capacity);
@@ -37,7 +37,7 @@ namespace Saro.Entities
     [Unity.IL2CPP.CompilerServices.Il2CppSetOption(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
     [Unity.IL2CPP.CompilerServices.Il2CppSetOption(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 #endif
-    public sealed class EcsPool<T> : IEcsPool where T : struct, IEcsComponent
+    public sealed partial class EcsPool<T> : IEcsPool where T : IEcsComponent
     {
         private readonly Type m_Type;
         private readonly EcsWorld m_World;
@@ -46,15 +46,16 @@ namespace Saro.Entities
 
         // 1-based index.
         private T[] m_DenseItems;
-        private int[] m_SparseItems;
         private int m_DenseItemsCount;
+        private int[] m_SparseItems;
         private int[] m_RecycledItems;
         private int m_RecycledItemsCount;
+
+        public bool Singleton { get; private set; }
+
 #if ENABLE_IL2CPP && !UNITY_EDITOR
         T m_AutoresetFakeInstance;
 #endif
-
-        public bool Singleton { get; private set; }
 
         public override string ToString()
         {
@@ -107,6 +108,8 @@ namespace Saro.Entities
 #endif
                     autoResetMethod);
             }
+
+            InitSerialize();
         }
 
 #if UNITY_2020_3_OR_NEWER

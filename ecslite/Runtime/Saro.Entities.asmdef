@@ -1,0 +1,18 @@
+{
+    "name": "Saro.Entities",
+    "rootNamespace": "Saro.Entities",
+    "references": [
+        "Saro.MGF",
+        "Unity.Mathematics",
+        "ME.ECS.FPMath"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

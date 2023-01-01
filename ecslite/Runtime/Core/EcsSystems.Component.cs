@@ -39,6 +39,38 @@ namespace Saro.Entities
             return new(entity, world.GetEntityGen(entity), world.worldId);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool Has<T>(this int self, EcsWorld world) where T : struct, IEcsComponent
+        {
+            var pool = world.GetPoolByType(typeof(T));
+            if (pool == null)
+                return false;
+            return pool.Has(self);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool Has<T>(in this EcsEntity self) where T : struct, IEcsComponent
+        {
+            var pool = self.World.GetPoolByType(typeof(T));
+            if (pool == null)
+                return false;
+            return pool.Has(self.id);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Del<T>(in this EcsEntity self) where T : struct, IEcsComponent
+        {
+            var pool = self.World.GetPool<T>();
+            pool.Del(self.id);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Del<T>(this int self, EcsWorld world) where T : struct, IEcsComponent
+        {
+            var pool = world.GetPool<T>();
+            pool.Del(self);
+        }
+
         [System.Obsolete("use 'GetOrAdd' instead")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ref T Add<T>(this EcsEntity self) where T : struct, IEcsComponent
@@ -70,20 +102,6 @@ namespace Saro.Entities
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Has<T>(this int self, EcsWorld world) where T : struct, IEcsComponent
-        {
-            var pool = world.GetPool<T>();
-            return pool.Has(self);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Has<T>(in this EcsEntity ent) where T : struct, IEcsComponent
-        {
-            var pool = ent.World.GetPool<T>();
-            return pool.Has(ent.id);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ref T Get<T>(in this EcsEntity self) where T : struct, IEcsComponent
         {
             var pool = self.World.GetPool<T>();
@@ -95,20 +113,6 @@ namespace Saro.Entities
         {
             var pool = world.GetPool<T>();
             return ref pool.Get(self);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Del<T>(in this EcsEntity self) where T : struct, IEcsComponent
-        {
-            var pool = self.World.GetPool<T>();
-            pool.Del(self.id);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Del<T>(this int self, EcsWorld world) where T : struct, IEcsComponent
-        {
-            var pool = world.GetPool<T>();
-            pool.Del(self);
         }
     }
 }

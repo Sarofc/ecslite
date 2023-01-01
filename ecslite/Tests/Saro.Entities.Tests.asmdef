@@ -1,12 +1,14 @@
 {
-    "name": "Saro.Entities",
-    "rootNamespace": "Saro.Entities",
+    "name": "Saro.Entities.Tests",
+    "rootNamespace": "",
     "references": [
-        "Saro.MGF",
+        "Saro.Entities",
         "Unity.Mathematics",
         "ME.ECS.FPMath"
     ],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,

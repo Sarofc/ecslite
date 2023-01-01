@@ -24,14 +24,17 @@ namespace Saro.Entities
         public ref T GetSingleton<T>() where T : struct, IEcsComponentSingleton
         {
             var singletonID = GetSingletonEntity();
-
             return ref GetPool<T>(2, 2, 1).GetOrAdd(singletonID);
         }
 
-        private void InitSingletonEntity()
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ref T GetSingletonUnmanaged<T>() where T : unmanaged, IEcsComponentSingleton
         {
-            GetSingleton<Dummy>();
+            var singletonID = GetSingletonEntity();
+            return ref GetPoolUnmanaged<T>(2, 2, 1).GetOrAdd(singletonID);
         }
+
+        private void InitSingletonEntity() => GetSingleton<Dummy>();
 
         /// <summary>
         /// 0号entity是没用的，占个位

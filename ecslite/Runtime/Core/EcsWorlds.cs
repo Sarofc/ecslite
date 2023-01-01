@@ -373,13 +373,35 @@ namespace Saro.Entities
                 Array.Resize(ref m_FiltersByIncludedComponents, newSize);
                 Array.Resize(ref m_FiltersByExcludedComponents, newSize);
             }
-
             m_Pools[m_PoolsCount++] = pool;
             return pool;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IEcsPool GetPoolById(int typeId) => typeId >= 0 && typeId < m_PoolsCount ? m_Pools[typeId] : null;
+        public EcsPoolUnmanaged<T> GetPoolUnmanaged<T>() where T : unmanaged, IEcsComponent => GetPoolUnmanaged<T>(m_PoolDenseSize, entities.Length, m_PoolRecycledSize);
+        internal EcsPoolUnmanaged<T> GetPoolUnmanaged<T>(int denseCapacity, int sparseCapacity, int recycledCapacity) where T : unmanaged, IEcsComponent
+        {
+            var poolType = typeof(T);
+            if (m_PoolHashes.TryGetValue(poolType, out var rawPool))
+            {
+                return (EcsPoolUnmanaged<T>)rawPool;
+            }
+
+            var pool = new EcsPoolUnmanaged<T>(this, m_PoolsCount, denseCapacity, sparseCapacity, recycledCapacity);
+            m_PoolHashes[poolType] = pool;
+            if (m_PoolsCount == m_Pools.Length)
+            {
+                var newSize = m_PoolsCount << 1;
+                Array.Resize(ref m_Pools, newSize);
+                Array.Resize(ref m_FiltersByIncludedComponents, newSize);
+                Array.Resize(ref m_FiltersByExcludedComponents, newSize);
+            }
+            m_Pools[m_PoolsCount++] = pool;
+            return pool;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public IEcsPool GetPoolById(int id) => id >= 0 && id < m_PoolsCount ? m_Pools[id] : null;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEcsPool GetPoolByType(Type type) => m_PoolHashes.TryGetValue(type, out var pool) ? pool : null;
@@ -808,10 +830,68 @@ namespace Saro.Entities
             }
 
 #if UNITY_2020_3_OR_NEWER
-            [UnityEngine.Scripting.Preserve]
+            [UnityEngine.Scripting.Preserve] // TODO 好像没啥用？
 #endif
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public Mask Exc<T>() where T : struct, IEcsComponent
+            {
+                var poolId = m_World.GetPool<T>().GetId();
+#if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
+                if (m_Built)
+                {
+                    throw new EcsException("Cant change built mask.");
+                }
+
+                if (Array.IndexOf(include, poolId, 0, includeCount) != -1)
+                {
+                    throw new EcsException($"{typeof(T).Name} already in constraints list.");
+                }
+
+                if (Array.IndexOf(exclude, poolId, 0, excludeCount) != -1)
+                {
+                    throw new EcsException($"{typeof(T).Name} already in constraints list.");
+                }
+#endif
+                if (excludeCount == exclude.Length)
+                {
+                    Array.Resize(ref exclude, excludeCount << 1);
+                }
+
+                exclude[excludeCount++] = poolId;
+                return this;
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public Mask IncUnmanaged<T>() where T : unmanaged, IEcsComponent
+            {
+                var poolId = m_World.GetPoolUnmanaged<T>().GetId();
+#if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
+                if (m_Built)
+                {
+                    throw new EcsException("Cant change built mask.");
+                }
+
+                if (Array.IndexOf(include, poolId, 0, includeCount) != -1)
+                {
+                    throw new EcsException($"{typeof(T).Name} already in constraints list.");
+                }
+
+                if (Array.IndexOf(exclude, poolId, 0, excludeCount) != -1)
+                {
+                    throw new EcsException($"{typeof(T).Name} already in constraints list.");
+                }
+#endif
+                if (includeCount == include.Length)
+                {
+                    Array.Resize(ref include, includeCount << 1);
+                }
+
+                include[includeCount++] = poolId;
+                return this;
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public Mask ExcUnmanaged<T>() where T : unmanaged, IEcsComponent
             {
                 var poolId = m_World.GetPool<T>().GetId();
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
