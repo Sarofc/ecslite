@@ -17,8 +17,8 @@ namespace Saro.Entities
 #endif
     public partial class EcsWorld
     {
-        internal EntityData[] entities;
-        private int m_EntitiesCount;
+        internal EntityData[] m_Entities;
+        internal int m_EntitiesCount;
         private int[] m_RecycledEntities;
         private int m_RecycledEntitiesCount;
         private IEcsPool[] m_Pools;
@@ -79,7 +79,7 @@ namespace Saro.Entities
             {
                 for (int i = 0, iMax = m_LeakedEntities.Count; i < iMax; i++)
                 {
-                    ref var entityData = ref entities[m_LeakedEntities[i]];
+                    ref var entityData = ref m_Entities[m_LeakedEntities[i]];
                     if (entityData.gen > 0 && entityData.compsCount == 0)
                     {
                         return true;
@@ -105,7 +105,7 @@ namespace Saro.Entities
 
             // entities.
             var capacity = cfg.entities > 0 ? cfg.entities : Config.k_EntitiesDefault;
-            entities = new EntityData[capacity];
+            m_Entities = new EntityData[capacity];
             capacity = cfg.recycledEntities > 0 ? cfg.recycledEntities : Config.k_RecycledEntitiesDefault;
             m_RecycledEntities = new int[capacity];
             m_EntitiesCount = 0;
@@ -187,7 +187,7 @@ namespace Saro.Entities
 #endif
             for (var i = m_EntitiesCount - 1; i > 0; i--)
             {
-                ref var entityData = ref entities[i];
+                ref var entityData = ref m_Entities[i];
                 if (entityData.compsCount > 0)
                 {
                     DelEntity_Internal(i); // world被销毁了，就不用管层级关系了，直接干掉
@@ -226,17 +226,17 @@ namespace Saro.Entities
             if (m_RecycledEntitiesCount > 0)
             {
                 entity = m_RecycledEntities[--m_RecycledEntitiesCount];
-                ref var entityData = ref entities[entity];
+                ref var entityData = ref m_Entities[entity];
                 entityData.gen = (short)-entityData.gen;
             }
             else
             {
                 // new entity.
-                if (m_EntitiesCount == entities.Length)
+                if (m_EntitiesCount == m_Entities.Length)
                 {
                     // resize entities and component pools.
                     var newSize = m_EntitiesCount << 1;
-                    Array.Resize(ref entities, newSize);
+                    Array.Resize(ref m_Entities, newSize);
                     for (int i = 0, iMax = m_PoolsCount; i < iMax; i++)
                     {
                         m_Pools[i].Resize(newSize);
@@ -255,7 +255,7 @@ namespace Saro.Entities
                 }
 
                 entity = m_EntitiesCount++;
-                entities[entity].gen = 1;
+                m_Entities[entity].gen = 1;
             }
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
             m_LeakedEntities.Add(entity);
@@ -282,7 +282,7 @@ namespace Saro.Entities
                 throw new EcsException("Cant touch destroyed entity.");
             }
 #endif
-            ref var entityData = ref entities[entity];
+            ref var entityData = ref m_Entities[entity];
             if (entityData.gen < 0)
             {
                 return;
@@ -329,16 +329,16 @@ namespace Saro.Entities
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetComponentsCount(int entity) => entities[entity].compsCount;
+        public int GetComponentsCount(int entity) => m_Entities[entity].compsCount;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public short GetEntityGen(int entity) => entities[entity].gen;
+        public short GetEntityGen(int entity) => m_Entities[entity].gen;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int GetAllocatedEntitiesCount() => m_EntitiesCount - 1;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetWorldSize() => entities.Length;
+        public int GetWorldSize() => m_Entities.Length;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int GetPoolsCount() => m_PoolsCount;
@@ -347,13 +347,13 @@ namespace Saro.Entities
         public int GetEntitiesCount() => m_EntitiesCount - m_RecycledEntitiesCount - 1;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public EntityData[] GetRawEntities() => entities;
+        public EntityData[] GetRawEntities() => m_Entities;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int GetFreeMaskCount() => m_FreeMasksCount;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public EcsPoolManaged<T> GetPool<T>() where T : class, IEcsComponent, new() => GetPool<T>(m_PoolDenseSize, entities.Length, m_PoolRecycledSize);
+        public EcsPoolManaged<T> GetPool<T>() where T : class, IEcsComponent, new() => GetPool<T>(m_PoolDenseSize, m_Entities.Length, m_PoolRecycledSize);
 
         internal EcsPoolManaged<T> GetPool<T>(int denseCapacity, int sparseCapacity, int recycledCapacity) where T : class, IEcsComponent, new()
         {
@@ -377,7 +377,7 @@ namespace Saro.Entities
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal EcsPoolUnmanaged<T> GetPoolUnmanaged<T>() where T : unmanaged, IEcsComponent => GetPoolUnmanaged<T>(m_PoolDenseSize, entities.Length, m_PoolRecycledSize);
+        internal EcsPoolUnmanaged<T> GetPoolUnmanaged<T>() where T : unmanaged, IEcsComponent => GetPoolUnmanaged<T>(m_PoolDenseSize, m_Entities.Length, m_PoolRecycledSize);
         internal EcsPoolUnmanaged<T> GetPoolUnmanaged<T>(int denseCapacity, int sparseCapacity, int recycledCapacity) where T : unmanaged, IEcsComponent
         {
             var poolType = typeof(T);
@@ -414,7 +414,7 @@ namespace Saro.Entities
             var id = 0;
             for (int i = 1, iMax = m_EntitiesCount; i < iMax; i++)
             {
-                ref var entityData = ref this.entities[i];
+                ref var entityData = ref this.m_Entities[i];
                 // should we skip empty entities here?
                 if (entityData.gen > 0 && entityData.compsCount >= 0)
                     entities[id++] = i;
@@ -453,7 +453,7 @@ namespace Saro.Entities
 
         public int GetComponents(int entity, ref object[] array)
         {
-            var itemsCount = entities[entity].compsCount;
+            var itemsCount = m_Entities[entity].compsCount;
             if (itemsCount == 0)
             {
                 return 0;
@@ -477,7 +477,7 @@ namespace Saro.Entities
 
         public void GetComponents(int entity, ref List<object> list)
         {
-            var itemsCount = entities[entity].compsCount;
+            var itemsCount = m_Entities[entity].compsCount;
             if (itemsCount == 0)
             {
                 return;
@@ -504,7 +504,7 @@ namespace Saro.Entities
 
         public int GetComponentTypes(int entity, ref Type[] array)
         {
-            var itemsCount = entities[entity].compsCount;
+            var itemsCount = m_Entities[entity].compsCount;
             if (itemsCount == 0)
             {
                 return 0;
@@ -536,7 +536,7 @@ namespace Saro.Entities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsEntityAlive(int entity)
         {
-            return entity > 0 && entity < m_EntitiesCount && entities[entity].gen > 0;
+            return entity > 0 && entity < m_EntitiesCount && m_Entities[entity].gen > 0;
         }
 
         public T GetSystem<T>() where T : class
@@ -560,7 +560,7 @@ namespace Saro.Entities
             }
 
             // create new filter
-            filter = new EcsFilter(this, mask, capacity, entities.Length);
+            filter = new EcsFilter(this, mask, capacity, m_Entities.Length);
             m_HashedFilters[hash] = filter;
             m_AllFilters.Add(filter);
 
@@ -592,7 +592,7 @@ namespace Saro.Entities
             // scan exist entities for compatibility with new filter.
             for (int i = 1, iMax = m_EntitiesCount; i < iMax; i++)
             {
-                ref var entityData = ref entities[i];
+                ref var entityData = ref m_Entities[i];
                 if (entityData.compsCount > 0 && IsMaskCompatible(mask, i))
                 {
                     filter.AddEntity(i);

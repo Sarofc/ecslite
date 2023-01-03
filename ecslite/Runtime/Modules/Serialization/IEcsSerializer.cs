@@ -6,8 +6,8 @@ namespace Saro.Entities.Serialization
 {
     public interface IEcsSerializer
     {
-        void Serialize(WorldData inData, IEcsWriter writer);
-        void Deserialize(IEcsReader reader, WorldData outData);
+        void Serialize(WorldState inData);
+        void Deserialize(WorldState outData);
     }
 
     public interface IEcsReader : IDisposable

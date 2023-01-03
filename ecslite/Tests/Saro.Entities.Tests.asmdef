@@ -4,7 +4,8 @@
     "references": [
         "Saro.Entities",
         "Unity.Mathematics",
-        "ME.ECS.FPMath"
+        "ME.ECS.FPMath",
+        "Saro.MGF"
     ],
     "includePlatforms": [
         "Editor"

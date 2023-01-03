@@ -13,6 +13,8 @@ using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Saro.Entities.Serialization;
+using Saro.Utility;
+using System.Diagnostics;
 
 namespace Saro.Entities.Tests
 {
@@ -43,7 +45,30 @@ namespace Saro.Entities.Tests
             CreateTestEntity(systems, d1);
             CreateTestEntity(systems, d2);
 
-            //var serializer = new JsonEcsSerializer();
+            var world = systems.GetWorld();
+
+            // get
+            WorldState state = null;
+            world.GetWorldState(ref state);
+            var json1 = JsonHelper.ToJson(state);
+            Log.INFO(json1);
+
+            systems.Run(0.1f);
+
+            // set
+            world.SetWorldState(state);
+
+            // get
+            WorldState newState = null;
+            world.GetWorldState(ref newState);
+            var json2 = JsonHelper.ToJson(newState);
+            Log.INFO(json2);
+
+            Assert.AreEqual(json1, json2);
+
+            //var serializer = new BinaryEcsSerializer();
+            //serializer.Serialize()
+            //var binaryWriter = new BinaryEcsWriter();
         }
 
 
@@ -65,13 +90,18 @@ namespace Saro.Entities.Tests
             return e;
         }
 
-        private class TestComponent : IEcsComponent, IEcsAutoReset<TestComponent>
+        private class TestComponent : IEcsComponent, IEcsAutoReset<TestComponent>, ICloneable
         {
             public data d;
 
             public void AutoReset(ref TestComponent c)
             {
                 c.d = default;
+            }
+
+            public object Clone()
+            {
+                return new TestComponent { d = d };
             }
         }
 

@@ -85,7 +85,7 @@ namespace Saro.Entities
                     autoResetMethod);
             }
 
-            InitSerialize();
+            InitPoolState();
         }
 
 #if UNITY_2020_3_OR_NEWER
@@ -174,7 +174,7 @@ namespace Saro.Entities
             }
             m_SparseItems[entity] = idx;
             m_World.OnEntityChange_Add_Internal(entity, m_ID);
-            m_World.entities[entity].compsCount++;
+            m_World.m_Entities[entity].compsCount++;
 
 #if DEBUG || LEOECSLITE_WORLD_EVENTS
             m_World.RaiseEntityChangeEvent(entity);
@@ -227,7 +227,7 @@ namespace Saro.Entities
                 //    m_DenseItems[sparseData] = default;
                 //}
                 sparseData = 0;
-                ref var entityData = ref m_World.entities[entity];
+                ref var entityData = ref m_World.m_Entities[entity];
                 entityData.compsCount--;
 #if DEBUG || LEOECSLITE_WORLD_EVENTS
                 m_World.RaiseEntityChangeEvent(entity);
