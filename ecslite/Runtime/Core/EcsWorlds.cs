@@ -620,7 +620,7 @@ namespace Saro.Entities
                     if (IsMaskCompatible(filter.GetMask(), entity))
                     {
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
-                        if (filter.sparseEntities[entity] > 0)
+                        if (filter.m_SparseItems[entity] > 0)
                         {
                             throw new EcsException($"Entity already in filter. worldID: {worldId} hash: {filter.GetMask().hash} entity: {entity} componentType: {GetPoolById(componentType).GetComponentType().Name}");
                         }
@@ -637,7 +637,7 @@ namespace Saro.Entities
                     if (IsMaskCompatibleWithout(filter.GetMask(), entity, componentType))
                     {
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
-                        if (filter.sparseEntities[entity] == 0)
+                        if (filter.m_SparseItems[entity] == 0)
                         {
                             throw new EcsException("Entity not in filter.");
                         }
@@ -661,7 +661,7 @@ namespace Saro.Entities
                     if (IsMaskCompatible(filter.GetMask(), entity))
                     {
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
-                        if (filter.sparseEntities[entity] == 0)
+                        if (filter.m_SparseItems[entity] == 0)
                         {
                             throw new EcsException("Entity not in filter.");
                         }
@@ -678,7 +678,7 @@ namespace Saro.Entities
                     if (IsMaskCompatibleWithout(filter.GetMask(), entity, componentType))
                     {
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
-                        if (filter.sparseEntities[entity] > 0)
+                        if (filter.m_SparseItems[entity] > 0)
                         {
                             throw new EcsException("Entity already in filter.");
                         }

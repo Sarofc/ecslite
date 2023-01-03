@@ -26,5 +26,10 @@ namespace Saro.Entities.Serialization
             m_Stream?.Dispose();
             m_Writer?.Dispose();
         }
+
+        public void Reset()
+        {
+            m_Stream.Position = 0;
+        }
     }
 }

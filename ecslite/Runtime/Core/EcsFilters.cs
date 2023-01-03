@@ -25,9 +25,10 @@ namespace Saro.Entities
     {
         private readonly EcsWorld m_World;
         private readonly EcsWorld.Mask m_Mask;
-        private int[] m_DenseEntities;
-        private int m_EntitiesCount;
-        internal int[] sparseEntities;
+
+        private int[] m_DenseItems;
+        private int m_DenseItemsCount;
+        internal int[] m_SparseItems;
         private int m_LockCount;
         private DelayedOp[] m_DelayedOps;
         private int m_DelayedOpsCount;
@@ -40,22 +41,22 @@ namespace Saro.Entities
         public int this[int index]
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => m_DenseEntities[index];
+            get => m_DenseItems[index];
         }
 
         public int EntitiesCount
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => m_EntitiesCount;
+            get => m_DenseItemsCount;
         }
 
         internal EcsFilter(EcsWorld world, EcsWorld.Mask mask, int denseCapacity, int sparseCapacity)
         {
             m_World = world;
             m_Mask = mask;
-            m_DenseEntities = new int[denseCapacity];
-            sparseEntities = new int[sparseCapacity];
-            m_EntitiesCount = 0;
+            m_DenseItems = new int[denseCapacity];
+            m_SparseItems = new int[sparseCapacity];
+            m_DenseItemsCount = 0;
             m_DelayedOps = new DelayedOp[512];
             m_DelayedOpsCount = 0;
             m_LockCount = 0;
@@ -63,13 +64,13 @@ namespace Saro.Entities
 
         public EcsWorld GetWorld() => m_World;
 
-        public int GetEntitiesCount() => m_EntitiesCount;
+        public int GetEntitiesCount() => m_DenseItemsCount;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int[] GetRawEntities() => m_DenseEntities;
+        public int[] GetRawEntities() => m_DenseItems;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int[] GetSparseIndex() => sparseEntities;
+        public int[] GetSparseIndex() => m_SparseItems;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Enumerator GetEnumerator() => new(this);
@@ -103,7 +104,7 @@ namespace Saro.Entities
 #endif
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void ResizeSparseIndex(int capacity) => Array.Resize(ref sparseEntities, capacity);
+        internal void ResizeSparseIndex(int capacity) => Array.Resize(ref m_SparseItems, capacity);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal EcsWorld.Mask GetMask() => m_Mask;
@@ -112,12 +113,12 @@ namespace Saro.Entities
         internal void AddEntity(int entity)
         {
             if (AddDelayedOp(true, entity)) return;
-            if (m_EntitiesCount == m_DenseEntities.Length)
+            if (m_DenseItemsCount == m_DenseItems.Length)
             {
-                Array.Resize(ref m_DenseEntities, m_EntitiesCount << 1);
+                Array.Resize(ref m_DenseItems, m_DenseItemsCount << 1);
             }
-            m_DenseEntities[m_EntitiesCount++] = entity;
-            sparseEntities[entity] = m_EntitiesCount;
+            m_DenseItems[m_DenseItemsCount++] = entity;
+            m_SparseItems[entity] = m_DenseItemsCount;
 
 #if LEOECSLITE_FILTER_EVENTS
             ProcessEventListeners_Add(entity);
@@ -128,13 +129,13 @@ namespace Saro.Entities
         internal void RemoveEntity(int entity)
         {
             if (AddDelayedOp(false, entity)) return;
-            var idx = sparseEntities[entity] - 1;
-            sparseEntities[entity] = 0;
-            m_EntitiesCount--;
-            if (idx < m_EntitiesCount)
+            var idx = m_SparseItems[entity] - 1;
+            m_SparseItems[entity] = 0;
+            m_DenseItemsCount--;
+            if (idx < m_DenseItemsCount)
             {
-                m_DenseEntities[idx] = m_DenseEntities[m_EntitiesCount];
-                sparseEntities[m_DenseEntities[idx]] = idx + 1;
+                m_DenseItems[idx] = m_DenseItems[m_DenseItemsCount];
+                m_SparseItems[m_DenseItems[idx]] = idx + 1;
             }
 
 #if LEOECSLITE_FILTER_EVENTS
@@ -248,8 +249,8 @@ namespace Saro.Entities
             {
                 m_Filter = filter;
                 filter.Lock();
-                m_Entities = filter.m_DenseEntities;
-                m_Count = filter.m_EntitiesCount;
+                m_Entities = filter.m_DenseItems;
+                m_Count = filter.m_DenseItemsCount;
                 m_Idx = -1;
             }
 

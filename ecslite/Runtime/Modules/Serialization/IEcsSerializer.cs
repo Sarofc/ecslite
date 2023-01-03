@@ -4,11 +4,11 @@ using Sirenix.Serialization;
 
 namespace Saro.Entities.Serialization
 {
-    public interface IEcsSerializer
-    {
-        void Serialize(WorldState inData);
-        void Deserialize(WorldState outData);
-    }
+    //public interface IEcsSerializer
+    //{
+    //    void Serialize(WorldState inData);
+    //    void Deserialize(WorldState outData);
+    //}
 
     public interface IEcsReader : IDisposable
     {
@@ -18,6 +18,7 @@ namespace Saro.Entities.Serialization
 
         void ReadUnmanaged<T>(ref T obj) where T : unmanaged;
         int ReadArrayUnmanaged<T>(ref T[] array) where T : unmanaged;
+        void Reset();
     }
 
     public interface IEcsWriter : IDisposable
@@ -28,5 +29,7 @@ namespace Saro.Entities.Serialization
 
         void WriteUnmanaged<T>(in T obj) where T : unmanaged;
         void WriteArrayUnmanaged<T>(ref T[] array, int length) where T : unmanaged;
+
+        void Reset(); // TODO 可能叫Seek更好？
     }
 }

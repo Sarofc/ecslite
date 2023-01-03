@@ -15,6 +15,7 @@ using NUnit.Framework;
 using Saro.Entities.Serialization;
 using Saro.Utility;
 using System.Diagnostics;
+using System.IO;
 
 namespace Saro.Entities.Tests
 {
@@ -27,7 +28,7 @@ namespace Saro.Entities.Tests
         }
 
         [Test]
-        public void TestUnmanagedEcsPool()
+        public void TestSerializeDeserializeWorld()
         {
             var systems = EcsMockUtility.CreateMockSystem();
 
@@ -47,28 +48,42 @@ namespace Saro.Entities.Tests
 
             var world = systems.GetWorld();
 
+            using var ms = new MemoryStream(2048);
+
+            var writer = new BinaryEcsWriter(ms);
+            var reader = new BinaryEcsReader(ms);
+
             // get
-            WorldState state = null;
-            world.GetWorldState(ref state);
-            var json1 = JsonHelper.ToJson(state);
-            Log.INFO(json1);
+            world.Serialize(writer);
+            var json1 = JsonHelper.ToJson(ms.GetBuffer());
+            //Log.INFO(json1);
 
             systems.Run(0.1f);
 
             // set
-            world.SetWorldState(state);
+            reader.Reset();
+            world.Deserialize(reader);
 
             // get
-            WorldState newState = null;
-            world.GetWorldState(ref newState);
-            var json2 = JsonHelper.ToJson(newState);
-            Log.INFO(json2);
+            writer.Reset();
+            world.Serialize(writer);
+            var json2 = JsonHelper.ToJson(ms.GetBuffer());
+            //Log.INFO(json2);
 
             Assert.AreEqual(json1, json2);
 
-            //var serializer = new BinaryEcsSerializer();
-            //serializer.Serialize()
-            //var binaryWriter = new BinaryEcsWriter();
+            // ====================================================
+            CreateTestEntity(systems, d2);
+
+            // get
+            writer.Reset();
+            world.Serialize(writer);
+            var json3 = JsonHelper.ToJson(ms.GetBuffer());
+            //Log.INFO(json3);
+
+            //Log.INFO($"position: {ms.Position}");
+
+            Assert.AreNotEqual(json2, json3);
         }
 
 
