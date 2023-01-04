@@ -1,15 +1,7 @@
 ﻿using System;
-using System.IO;
-using Sirenix.Serialization;
 
 namespace Saro.Entities.Serialization
 {
-    //public interface IEcsSerializer
-    //{
-    //    void Serialize(WorldState inData);
-    //    void Deserialize(WorldState outData);
-    //}
-
     public interface IEcsReader : IDisposable
     {
         int ReadInt32();
@@ -27,7 +19,7 @@ namespace Saro.Entities.Serialization
         void Write(ReadOnlySpan<byte> buffer);
 
 
-        void WriteUnmanaged<T>(in T obj) where T : unmanaged;
+        void WriteUnmanaged<T>(ref T obj) where T : unmanaged;
         void WriteArrayUnmanaged<T>(ref T[] array, int length) where T : unmanaged;
 
         void Reset(); // TODO 可能叫Seek更好？

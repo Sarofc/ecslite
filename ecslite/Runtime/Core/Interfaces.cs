@@ -23,7 +23,7 @@ namespace Saro.Entities
         /// <summary>
         /// 组件是否是单例
         /// </summary>
-        bool Singleton { get; }
+        bool IsSingleton { get; }
         void Resize(int capacity);
         bool Has(int entity);
         void Del(int entity);

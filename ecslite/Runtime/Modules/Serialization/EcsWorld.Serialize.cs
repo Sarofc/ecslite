@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Text;
 using CsvHelper;
 using Saro.Entities.Serialization;
 using Saro.Utility;
@@ -16,57 +18,67 @@ namespace Saro.Entities
             m_EntitiesCount = reader.ReadArrayUnmanaged(ref m_Entities);
             m_RecycledEntitiesCount = reader.ReadArrayUnmanaged(ref m_RecycledEntities);
 
-            m_PoolsCount = reader.ReadInt32();
-            int poolIndex = 0;
-            for (; poolIndex < m_PoolsCount; poolIndex++)
             {
-                var pool = m_Pools[poolIndex];
-                if (pool == null) continue;
-                pool.Deserialize(reader);
-            }
-            for (; poolIndex < m_Pools.Length; poolIndex++)
-            {
-                var pool = m_Pools[poolIndex];
-                if (pool == null) continue;
-                pool.Reset();
+                m_PoolsCount = reader.ReadInt32();
+                int poolId = 1; // 0号index，肯定是 Dummy，可以忽略掉
+                for (; poolId < m_PoolsCount; poolId++)
+                {
+                    var pool = m_Pools[poolId];
+                    //if (pool == null) continue; // TODO 没有对象，就需要创建
+                    pool.Deserialize(reader);
+                }
+                for (; poolId < m_Pools.Length; poolId++)
+                {
+                    var pool = m_Pools[poolId];
+                    if (pool == null) continue;
+                    pool.Reset();
+                }
             }
 
-            int filterIndex = 0;
-            var filterCount = reader.ReadInt32();
-            for (; filterIndex < filterCount; filterIndex++)
             {
-                var filter = m_AllFilters[filterIndex];
-                filter.Deserialize(reader);
-            }
-            for (; filterIndex < m_AllFilters.Count; filterIndex++)
-            {
-                var filter = m_AllFilters[filterIndex];
-                if (filter == null) continue;
-                filter.Reset();
+                int filterIndex = 0;
+                var filterCount = reader.ReadInt32();
+                for (; filterIndex < filterCount; filterIndex++)
+                {
+                    var filter = m_AllFilters[filterIndex];
+                    filter.Deserialize(reader);
+                }
+                for (; filterIndex < m_AllFilters.Count; filterIndex++)
+                {
+                    var filter = m_AllFilters[filterIndex];
+                    if (filter == null) continue;
+                    filter.Reset();
+                }
             }
         }
 
         public void Serialize(IEcsWriter writer)
         {
-            //writer.Write(m_EntitiesCount);
-            //writer.Write(m_RecycledEntitiesCount);
+            //writer.WriteEntryName(nameof(EcsWorld), true);
 
+            //writer.WriteEntryName(nameof(m_Entities));
             writer.WriteArrayUnmanaged(ref m_Entities, m_EntitiesCount);
+            //writer.WriteEntryName(nameof(m_RecycledEntities));
             writer.WriteArrayUnmanaged(ref m_RecycledEntities, m_RecycledEntitiesCount);
 
-            writer.Write(m_PoolsCount);
-            for (int i = 0; i < m_PoolsCount; i++)
             {
-                var pool = m_Pools[i];
-                if (pool == null) continue;
-                pool.Serialize(writer);
+                //writer.WriteEntryName(nameof(m_Pools));
+                writer.Write(m_PoolsCount);
+                for (int poolId = 1; poolId < m_PoolsCount; poolId++) // 0号pool是Dummy，忽略掉
+                {
+                    var pool = m_Pools[poolId];
+                    pool.Serialize(writer);
+                }
             }
 
-            writer.Write(m_AllFilters.Count);
-            for (int i = 0; i < m_AllFilters.Count; i++)
             {
-                var filter = m_AllFilters[i];
-                filter.Serialize(writer);
+                //writer.WriteEntryName(nameof(m_AllFilters));
+                writer.Write(m_AllFilters.Count);
+                for (int i = 0; i < m_AllFilters.Count; i++)
+                {
+                    var filter = m_AllFilters[i];
+                    filter.Serialize(writer);
+                }
             }
         }
     }
@@ -84,8 +96,13 @@ namespace Saro.Entities
 
         public void Serialize(IEcsWriter writer)
         {
+            //writer.WriteEntryName(nameof(EcsFilter), true);
+
+            //writer.WriteEntryName(nameof(m_DenseItems));
             writer.WriteArrayUnmanaged(ref m_DenseItems, m_DenseItemsCount);
+            //writer.WriteEntryName(nameof(m_DelayedOps));
             writer.WriteArrayUnmanaged(ref m_DelayedOps, m_DelayedOpsCount);
+            //writer.WriteEntryName(nameof(m_SparseItems));
             writer.WriteArrayUnmanaged(ref m_SparseItems, m_SparseItemsCount);
         }
 

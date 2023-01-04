@@ -3,7 +3,6 @@ using System.Runtime.CompilerServices;
 
 namespace Saro.Entities
 {
-    // TODO 验证！
     // 意义就是直接确定内存连续，可以使用指针算法
 #if ENABLE_IL2CPP
     [Unity.IL2CPP.CompilerServices.Il2CppSetOption(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
@@ -15,7 +14,6 @@ namespace Saro.Entities
         private readonly Type m_Type;
         private readonly EcsWorld m_World;
         private readonly int m_ID;
-        //private readonly AutoResetHandler m_AutoReset;
 
         // 1-based index.
         private T[] m_DenseItems;
@@ -24,11 +22,7 @@ namespace Saro.Entities
         private int[] m_RecycledItems;
         private int m_RecycledItemsCount;
 
-        public bool Singleton { get; private set; }
-
-        //#if ENABLE_IL2CPP && !UNITY_EDITOR
-        //        T m_AutoresetFakeInstance;
-        //#endif
+        public bool IsSingleton { get; private set; }
 
         public override string ToString()
         {
@@ -41,12 +35,10 @@ namespace Saro.Entities
 
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
             if (!typeof(IEcsComponent).IsAssignableFrom(m_Type))
-            {
                 throw new EcsException($"{m_Type} is not impl {nameof(IEcsComponent)}");
-            }
 #endif
 
-            Singleton = typeof(IEcsComponentSingleton).IsAssignableFrom(m_Type);
+            IsSingleton = typeof(IEcsComponentSingleton).IsAssignableFrom(m_Type);
 
             m_World = world;
             m_ID = id;
@@ -55,39 +47,12 @@ namespace Saro.Entities
             m_DenseItemsCount = 1;
             m_RecycledItems = new int[recycledCapacity];
             m_RecycledItemsCount = 0;
-            //            var isAutoReset = typeof(IEcsAutoReset<T>).IsAssignableFrom(m_Type);
-            //#if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
-            //            if (!isAutoReset && m_Type.GetInterface("IEcsAutoReset`1") != null)
-            //            {
-            //                throw new EcsException($"IEcsAutoReset should have <{m_Type.Name}> constraint for component \"{m_Type.Name}\".");
-            //            }
-            //#endif
-            //            if (isAutoReset)
-            //            {
-            //                var autoResetMethod = m_Type.GetMethod(nameof(IEcsAutoReset<T>.AutoReset));
-            //#if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
-            //                if (autoResetMethod == null)
-            //                {
-            //                    throw new EcsException(
-            //                        $"IEcsAutoReset<{m_Type.Name}> explicit implementation not supported, use implicit instead.");
-            //                }
-            //#endif
-            //                m_AutoReset = (AutoResetHandler)Delegate.CreateDelegate(
-            //                    typeof(AutoResetHandler),
-            //#if ENABLE_IL2CPP && !UNITY_EDITOR
-            //                    m_AutoresetFakeInstance,
-            //#else
-            //                    null,
-            //#endif
-            //                    autoResetMethod);
-            //            }
         }
 
 #if UNITY_2020_3_OR_NEWER
         [UnityEngine.Scripting.Preserve]
-        private
 #endif
-        void ReflectionSupportHack()
+        private void ReflectionSupportHack()
         {
             m_World.GetPoolUnmanaged<T>();
             m_World.Filter().IncUnmanaged<T>().ExcUnmanaged<T>().End();
@@ -102,11 +67,7 @@ namespace Saro.Entities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Type GetComponentType() => m_Type;
 
-        void IEcsPool.Resize(int capacity)
-        {
-            if (Singleton) return;
-            Array.Resize(ref m_SparseItems, capacity);
-        }
+        void IEcsPool.Resize(int capacity) { if (!IsSingleton) Array.Resize(ref m_SparseItems, capacity); }
 
         object IEcsPool.GetRaw(int entity) => Get(entity);
 
@@ -125,7 +86,7 @@ namespace Saro.Entities
             if (dataRaw == null || dataRaw.GetType() != m_Type) { throw new EcsException("Invalid component data, valid \"{typeof (T).Name}\" instance required."); }
 #endif
 
-            ref var data = ref GetOrAdd(entity);
+            GetOrAdd(entity);
         }
 
         public T[] GetRawDenseItems() => m_DenseItems;
@@ -138,12 +99,21 @@ namespace Saro.Entities
 
         public int GetRawRecycledItemsCount() => m_RecycledItemsCount;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ref T GetOrAdd(int entity)
         {
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
             // 不检验0号entity，让dummy通过
             if (entity != 0 && !m_World.IsEntityAlive(entity)) { throw new EcsException($"{typeof(T).Name}::{nameof(GetOrAdd)}. Cant touch destroyed entity: {entity} world: {m_World.worldId} world: {m_World.worldId}"); }
+
+            if (IsSingleton) throw new EcsException($"{m_Type.FullName} is SingletonComponent, use {nameof(EcsWorld.GetSingleton)} instead");
 #endif
+
+            return ref GetOrAddInternal(entity);
+        }
+
+        internal ref T GetOrAddInternal(int entity)
+        {
             // API 调整
             // 已拥有，就直接返回组件
             if (m_SparseItems[entity] > 0)
@@ -181,6 +151,7 @@ namespace Saro.Entities
         {
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
             if (!m_World.IsEntityAlive(entity)) { throw new EcsException($"{typeof(T).Name}::{nameof(Get)}. Cant touch destroyed entity: {entity} world: {m_World.worldId}"); }
+
             if (m_SparseItems[entity] == 0) { throw new EcsException($"Cant get \"{typeof(T).Name}\" component - not attached. entity: {entity}"); }
 #endif
             return ref m_DenseItems[m_SparseItems[entity]];
@@ -233,7 +204,5 @@ namespace Saro.Entities
                 }
             }
         }
-
-        //private delegate void AutoResetHandler(ref T component);
     }
 }

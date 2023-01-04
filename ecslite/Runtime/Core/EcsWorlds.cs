@@ -967,6 +967,11 @@ namespace Saro.Entities
         {
             public short gen;
             public short compsCount;
+
+            public override string ToString()
+            {
+                return $"{gen} {compsCount}";
+            }
         }
     }
 

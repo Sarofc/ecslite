@@ -16,6 +16,8 @@ using Saro.Entities.Serialization;
 using Saro.Utility;
 using System.Diagnostics;
 using System.IO;
+using UnityEngine;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace Saro.Entities.Tests
 {
@@ -48,26 +50,33 @@ namespace Saro.Entities.Tests
 
             var world = systems.GetWorld();
 
-            using var ms = new MemoryStream(2048);
+            var ms = new MemoryStream(1024);
 
-            var writer = new BinaryEcsWriter(ms);
-            var reader = new BinaryEcsReader(ms);
+            using var writer = new BinaryEcsWriter(ms);
+            using var reader = new BinaryEcsReader(ms);
 
             // get
             world.Serialize(writer);
-            var json1 = JsonHelper.ToJson(ms.GetBuffer());
+            var json1 = JsonHelper.ToJson(new ArraySegment<byte>(ms.GetBuffer(), 0, (int)ms.Position));
             //Log.INFO(json1);
-
             systems.Run(0.1f);
 
             // set
             reader.Reset();
             world.Deserialize(reader);
 
+            // text 2
+            {
+                var textMs2 = new FileStream("text2.txt", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
+                textMs2.SetLength(0);
+                using var textWriter2 = new TextEcsWriter(textMs2);
+                world.Serialize(textWriter2);
+            }
+
             // get
             writer.Reset();
             world.Serialize(writer);
-            var json2 = JsonHelper.ToJson(ms.GetBuffer());
+            var json2 = JsonHelper.ToJson(new ArraySegment<byte>(ms.GetBuffer(), 0, (int)ms.Position));
             //Log.INFO(json2);
 
             Assert.AreEqual(json1, json2);
@@ -78,12 +87,36 @@ namespace Saro.Entities.Tests
             // get
             writer.Reset();
             world.Serialize(writer);
-            var json3 = JsonHelper.ToJson(ms.GetBuffer());
+            var json3 = JsonHelper.ToJson(new ArraySegment<byte>(ms.GetBuffer(), 0, (int)ms.Position));
             //Log.INFO(json3);
 
             //Log.INFO($"position: {ms.Position}");
 
             Assert.AreNotEqual(json2, json3);
+
+            // ======================================================
+            // 检测回滚
+            var buffer2 = JsonHelper.FromJson<byte[]>(json2);
+            var checkMs = new MemoryStream(buffer2);
+            using var checkReader = new BinaryEcsReader(checkMs);
+            world.Deserialize(checkReader);
+
+            writer.Reset();
+            world.Serialize(writer);
+            var json4 = JsonHelper.ToJson(new ArraySegment<byte>(ms.GetBuffer(), 0, (int)ms.Position));
+
+            //Log.INFO($"json2: {json2}");
+            //Log.INFO($"json4: {json4}");
+
+            // text 4
+            {
+                var textMs4 = new FileStream("text4.txt", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
+                textMs4.SetLength(0);
+                using var textWriter4 = new TextEcsWriter(textMs4);
+                world.Serialize(textWriter4);
+            }
+
+            Assert.AreEqual(json2, json4);
         }
 
 
@@ -93,6 +126,11 @@ namespace Saro.Entities.Tests
             public int a;
             public float c;
             //public object d;
+
+            public override string ToString()
+            {
+                return $"{a} {c}";
+            }
         }
 
         private EcsEntity CreateTestEntity(EcsSystems systems, in data d)
@@ -105,7 +143,7 @@ namespace Saro.Entities.Tests
             return e;
         }
 
-        private class TestComponent : IEcsComponent, IEcsAutoReset<TestComponent>, ICloneable
+        private class TestComponent : IEcsComponent, IEcsAutoReset<TestComponent>, IEcsSerialize
         {
             public data d;
 
@@ -114,20 +152,35 @@ namespace Saro.Entities.Tests
                 c.d = default;
             }
 
-            public object Clone()
+            public void Deserialize(IEcsReader reader)
             {
-                return new TestComponent { d = d };
+                reader.ReadUnmanaged(ref d);
+            }
+
+            public void Serialize(IEcsWriter writer)
+            {
+                writer.WriteUnmanaged(ref d);
             }
         }
 
         private struct TestUnmanagedComponent : IEcsComponent
         {
             public data d;
+
+            public override string ToString()
+            {
+                return d.ToString();
+            }
         }
 
         private struct TestUnmanagedComponentSingleton : IEcsComponentSingleton
         {
             public data d;
+
+            public override string ToString()
+            {
+                return d.ToString();
+            }
         }
 
         private class TestSystemUnmanaged : MockSystem

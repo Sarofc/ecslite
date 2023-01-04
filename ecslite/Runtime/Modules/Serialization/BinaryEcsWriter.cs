@@ -18,7 +18,7 @@ namespace Saro.Entities.Serialization
         public void Write(int value) => m_Writer.Write(value);
         public void Write(ReadOnlySpan<byte> buffer) => m_Writer.Write(buffer);
 
-        public void WriteUnmanaged<T>(in T obj) where T : unmanaged => m_Writer.WriteUnmanaged(in obj);
+        public void WriteUnmanaged<T>(ref T obj) where T : unmanaged => m_Writer.WriteUnmanaged(ref obj);
         public void WriteArrayUnmanaged<T>(ref T[] array, int length) where T : unmanaged => m_Writer.WriteArrayUnmanaged(ref array, length);
 
         public void Dispose()

@@ -18,6 +18,8 @@ namespace Saro.Entities
         private readonly Type m_Type;
         private readonly EcsWorld m_World;
         private readonly int m_ID;
+
+        private delegate void AutoResetHandler(ref T component);
         private readonly AutoResetHandler m_AutoReset;
 
         // 1-based index.
@@ -27,7 +29,7 @@ namespace Saro.Entities
         private int[] m_RecycledItems;
         private int m_RecycledItemsCount;
 
-        public bool Singleton { get; private set; }
+        public bool IsSingleton { get; private set; }
 
 #if ENABLE_IL2CPP && !UNITY_EDITOR
         T m_AutoresetFakeInstance;
@@ -49,7 +51,7 @@ namespace Saro.Entities
             }
 #endif
 
-            Singleton = typeof(IEcsComponentSingleton).IsAssignableFrom(m_Type);
+            IsSingleton = typeof(IEcsComponentSingleton).IsAssignableFrom(m_Type);
 
             m_World = world;
             m_ID = id;
@@ -90,9 +92,8 @@ namespace Saro.Entities
 
 #if UNITY_2020_3_OR_NEWER
         [UnityEngine.Scripting.Preserve]
-        private
 #endif
-        void ReflectionSupportHack()
+        private void ReflectionSupportHack()
         {
             m_World.GetPool<T>();
             m_World.Filter().Inc<T>().Exc<T>().End();
@@ -107,11 +108,7 @@ namespace Saro.Entities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Type GetComponentType() => m_Type;
 
-        void IEcsPool.Resize(int capacity)
-        {
-            if (Singleton) return;
-            Array.Resize(ref m_SparseItems, capacity);
-        }
+        void IEcsPool.Resize(int capacity) { if (!IsSingleton) Array.Resize(ref m_SparseItems, capacity); }
 
         object IEcsPool.GetRaw(int entity) => Get(entity);
 
@@ -130,7 +127,7 @@ namespace Saro.Entities
             if (dataRaw == null || dataRaw.GetType() != m_Type) { throw new EcsException("Invalid component data, valid \"{typeof (T).Name}\" instance required."); }
 #endif
 
-            ref var data = ref GetOrAdd(entity);
+            GetOrAdd(entity);
         }
 
         public T[] GetRawDenseItems() => m_DenseItems;
@@ -143,12 +140,21 @@ namespace Saro.Entities
 
         public int GetRawRecycledItemsCount() => m_RecycledItemsCount;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ref T GetOrAdd(int entity)
         {
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
             // 不检验0号entity，让dummy通过
             if (entity != 0 && !m_World.IsEntityAlive(entity)) { throw new EcsException($"{typeof(T).Name}::{nameof(GetOrAdd)}. Cant touch destroyed entity: {entity} world: {m_World.worldId} world: {m_World.worldId}"); }
+
+            if (IsSingleton) throw new EcsException($"{m_Type.FullName} is SingletonComponent, use {nameof(EcsWorld.GetSingleton)} instead");
 #endif
+
+            return ref GetOrAddInternal(entity);
+        }
+
+        internal ref T GetOrAddInternal(int entity)
+        {
             // API 调整
             // 已拥有，就直接返回组件
             if (m_SparseItems[entity] > 0)
@@ -169,7 +175,7 @@ namespace Saro.Entities
                     Array.Resize(ref m_DenseItems, m_DenseItemsCount << 1);
                 }
                 m_DenseItemsCount++;
-                m_DenseItems[idx] = new T();
+                m_DenseItems[idx] = CreateComponentInstance();
                 m_AutoReset?.Invoke(ref m_DenseItems[idx]);
             }
             m_SparseItems[entity] = idx;
@@ -183,10 +189,14 @@ namespace Saro.Entities
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private T CreateComponentInstance() => new T();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ref T Get(int entity)
         {
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
             if (!m_World.IsEntityAlive(entity)) { throw new EcsException($"{typeof(T).Name}::{nameof(Get)}. Cant touch destroyed entity: {entity} world: {m_World.worldId}"); }
+
             if (m_SparseItems[entity] == 0) { throw new EcsException($"Cant get \"{typeof(T).Name}\" component - not attached. entity: {entity}"); }
 #endif
             return ref m_DenseItems[m_SparseItems[entity]];
@@ -239,7 +249,5 @@ namespace Saro.Entities
                 }
             }
         }
-
-        private delegate void AutoResetHandler(ref T component);
     }
 }
