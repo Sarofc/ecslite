@@ -1,4 +1,12 @@
-﻿using System;
+﻿#if FIXED_POINT_MATH
+using ME.ECS.Mathematics;
+using Single = sfloat;
+#else
+using Unity.Mathematics;
+using Single = System.Single;
+#endif
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -28,10 +36,11 @@ namespace Saro.Entities.Serialization
             m_Stream.Position = 0;
         }
 
-        public void Write(int value)
-        {
-            m_Writer.WriteLine(value);
-        }
+        public void Write(bool value) => m_Writer.WriteLine(value);
+        public void Write(string value) => m_Writer.WriteLine(value);
+        public void Write(int value) => m_Writer.WriteLine(value);
+        public void Write(Single value) => m_Writer.WriteLine(value);
+        //public void Write(float3 value) => m_Writer.WriteLine(value);
 
         public void Write(ReadOnlySpan<byte> buffer)
         {
