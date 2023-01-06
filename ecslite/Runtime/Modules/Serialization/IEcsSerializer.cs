@@ -15,6 +15,7 @@ namespace Saro.Entities.Serialization
         bool ReadBoolean();
         string ReadString();
         int ReadInt32();
+        byte ReadByte();
         Single ReadSingle();
         //float3 ReadSingle3();
 
@@ -31,6 +32,7 @@ namespace Saro.Entities.Serialization
         void Write(bool value);
         void Write(string value);
         void Write(int value);
+        void Write(byte value);
         void Write(Single value);
         //void Write(float3 value);
 

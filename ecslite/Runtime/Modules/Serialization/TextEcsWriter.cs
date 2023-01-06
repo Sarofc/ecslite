@@ -39,6 +39,7 @@ namespace Saro.Entities.Serialization
         public void Write(bool value) => m_Writer.WriteLine(value);
         public void Write(string value) => m_Writer.WriteLine(value);
         public void Write(int value) => m_Writer.WriteLine(value);
+        public void Write(byte value) => m_Writer.WriteLine(value);
         public void Write(Single value) => m_Writer.WriteLine(value);
         //public void Write(float3 value) => m_Writer.WriteLine(value);
 

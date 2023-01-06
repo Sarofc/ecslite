@@ -26,6 +26,7 @@ namespace Saro.Entities.Serialization
         public void Write(bool value) => m_Writer.Write(value);
         public void Write(string value) => m_Writer.Write(value);
         public void Write(int value) => m_Writer.Write(value);
+        public void Write(byte value) => m_Writer.Write(value);
         public void Write(Single value)
         {
 #if FIXED_POINT_MATH

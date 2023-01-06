@@ -26,6 +26,7 @@ namespace Saro.Entities.Serialization
         public bool ReadBoolean() => m_Reader.ReadBoolean();
         public string ReadString() => m_Reader.ReadString();
         public int ReadInt32() => m_Reader.ReadInt32();
+        public byte ReadByte() => m_Reader.ReadByte();
         public Single ReadSingle()
         {
 #if FIXED_POINT_MATH
