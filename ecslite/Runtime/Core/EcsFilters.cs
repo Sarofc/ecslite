@@ -64,6 +64,7 @@ namespace Saro.Entities
 
         public EcsWorld GetWorld() => m_World;
 
+        [Obsolete("use 'EntitiesCount' instead")]
         public int GetEntitiesCount() => m_DenseItemsCount;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -206,6 +207,11 @@ namespace Saro.Entities
         public override string ToString()
         {
             var sb = StringBuilderCache.Get(1024);
+
+            sb.Append(nameof(EcsFilter.EntitiesCount))
+                .Append(": ")
+                .Append(EntitiesCount)
+                .Append(' ');
 
             if (m_Mask.includeCount > 0)
             {
