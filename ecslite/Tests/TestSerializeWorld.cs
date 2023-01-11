@@ -59,7 +59,7 @@ namespace Saro.Entities.Tests
             world.Serialize(writer);
             var json1 = JsonHelper.ToJson(new ArraySegment<byte>(ms.GetBuffer(), 0, (int)ms.Position));
             //Log.INFO(json1);
-            systems.Run(0.1f);
+            systems.Run((Single)0.1f);
 
             // set
             reader.Reset();

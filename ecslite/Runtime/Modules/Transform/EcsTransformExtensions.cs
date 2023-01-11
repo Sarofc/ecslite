@@ -1,12 +1,12 @@
-﻿using System.Runtime.CompilerServices;
-
-#if FIXED_POINT_MATH
+﻿#if FIXED_POINT_MATH
 using ME.ECS.Mathematics;
 using Single = sfloat;
 #else
 using Unity.Mathematics;
 using Single = System.Single;
 #endif
+
+using System.Runtime.CompilerServices;
 
 namespace Saro.Entities.Transforms
 {
@@ -20,7 +20,7 @@ namespace Saro.Entities.Transforms
 
     public static class EcsTransformExtensions
     {
-        public static readonly float3 _one = new(1f, 1f, 1f);
+        public static readonly float3 _one = new((Single)1f, (Single)1f, (Single)1f);
 
         public static float3 GetForward(this int entity, EcsWorld world)
             => math.mul(entity.GetRotation(world), math.forward());
@@ -57,7 +57,6 @@ namespace Saro.Entities.Transforms
 
         public static void SetUp(this int entity, float3 up, EcsWorld world)
             => entity.SetRotation(world, FromToRotation(up, math.up()));
-
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void SetLocalPosition(this int entity, EcsWorld world, in float3 position)
@@ -284,9 +283,9 @@ namespace Saro.Entities.Transforms
                 var scale = world.ScalePool.Get(entity).value;
 
                 //v = 1f / v;
-                if (scale.x != 0f) scale.x = 1f / scale.x;
-                if (scale.y != 0f) scale.y = 1f / scale.y;
-                if (scale.z != 0f) scale.z = 1f / scale.z;
+                if (scale.x != (Single)0f) scale.x = (Single)1f / scale.x;
+                if (scale.y != (Single)0f) scale.y = (Single)1f / scale.y;
+                if (scale.z != (Single)0f) scale.z = (Single)1f / scale.z;
 
                 return scale;
             }
@@ -317,7 +316,7 @@ namespace Saro.Entities.Transforms
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static quaternion FromToRotation(in float3 from, in float3 to)
             => quaternion.AxisAngle(
-                angle: math.acos(math.clamp(math.dot(math.normalizesafe(from), math.normalizesafe(to)), -1f, 1f)),
+                angle: math.acos(math.clamp(math.dot(math.normalizesafe(from), math.normalizesafe(to)), -(Single)1f, (Single)1f)),
                 axis: math.normalizesafe(math.cross(from, to))
             );
     }

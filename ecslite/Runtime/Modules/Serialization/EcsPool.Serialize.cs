@@ -31,9 +31,9 @@ namespace Saro.Entities
 
         private int GetComponentIndex(int entity)
         {
-#if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
-            if (!m_World.IsEntityAlive(entity)) { throw new EcsException($"{typeof(T).Name}::{nameof(Has)}. Cant touch destroyed entity: {entity} world: {m_World.worldId}"); }
-#endif
+//#if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
+//            if (!m_World.IsEntityAlive(entity)) { throw new EcsException($"{typeof(T).Name}::{nameof(Has)}. Cant touch destroyed entity: {entity} world: {m_World.worldId}"); }
+//#endif
 
             if (m_SparseItems.Length <= entity) return 0; // 兼容singleton改动，singleton组件只会分配1个
 

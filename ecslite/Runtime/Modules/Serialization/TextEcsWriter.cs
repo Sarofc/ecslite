@@ -54,6 +54,9 @@ namespace Saro.Entities.Serialization
         {
             if (length > 0)
             {
+                m_Writer.Write(array.GetType().GetElementType().Name);
+                m_Writer.Write(' ');
+
                 m_Writer.Write(length);
 
                 m_Writer.Write(" : [");
@@ -70,6 +73,8 @@ namespace Saro.Entities.Serialization
         private List<object> m_Refs = new();
         public void WriteRef<T>(ref T @ref) where T : class
         {
+            //m_Writer.Write(@ref.GetType().Name);
+
             if (@ref is IEcsSerializable serializable)
             {
                 var index = m_Refs.IndexOf(@ref);

@@ -970,7 +970,7 @@ namespace Saro.Entities
 
             public override string ToString()
             {
-                return $"{gen} {compsCount}";
+                return $"{gen}-{compsCount}";
             }
         }
     }

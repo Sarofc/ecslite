@@ -1,12 +1,12 @@
-﻿using System;
-
-#if FIXED_POINT_MATH
+﻿#if FIXED_POINT_MATH
 using ME.ECS.Mathematics;
 using Single = sfloat;
 #else
 using Unity.Mathematics;
 using Single = System.Single;
 #endif
+
+using System;
 
 namespace Saro.Entities.Transforms
 {
@@ -19,6 +19,11 @@ namespace Saro.Entities.Transforms
         {
             this.value = value;
         }
+
+        public override string ToString()
+        {
+            return value.ToString();
+        }
     }
 
     [Serializable]
@@ -30,6 +35,11 @@ namespace Saro.Entities.Transforms
         {
             this.value = value;
         }
+
+        public override string ToString()
+        {
+            return value.ToString();
+        }
     }
 
     [Serializable]
@@ -40,6 +50,11 @@ namespace Saro.Entities.Transforms
         public Scale(float3 value)
         {
             this.value = value;
+        }
+
+        public override string ToString()
+        {
+            return value.ToString();
         }
     }
 }

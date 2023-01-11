@@ -43,7 +43,7 @@ namespace Saro.Entities.Tests
             systems.Add(new TestSystemUnmanaged(new data[] { d1, d2 }));
             systems.Init();
 
-            systems.Run(0.1f);
+            systems.Run((Single)0.1f);
         }
 
 
