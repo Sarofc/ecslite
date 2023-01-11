@@ -67,6 +67,31 @@ namespace Saro.Entities.Serialization
             m_Writer.WriteLine();
         }
 
+        private List<object> m_Refs = new();
+        public void WriteRef<T>(ref T @ref) where T : class
+        {
+            if (@ref is IEcsSerializable serializable)
+            {
+                var index = m_Refs.IndexOf(@ref);
+                var hasRef = index >= 0;
+                if (hasRef)
+                {
+                    m_Writer.WriteLine($"$ref:{index}");
+                }
+                else
+                {
+                    m_Writer.WriteLine($"$ref:{m_Refs.Count}");
+                    serializable.Serialize(this);
+
+                    m_Refs.Add(@ref);
+                }
+            }
+            else
+            {
+                Log.ERROR($"{@ref.GetType().Name} not impl {nameof(IEcsSerializable)}");
+            }
+        }
+
         public void WriteUnmanaged<T>(ref T obj) where T : unmanaged
         {
             m_Writer.WriteLine(obj.ToString());

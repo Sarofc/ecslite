@@ -10,6 +10,12 @@ using System;
 
 namespace Saro.Entities.Serialization
 {
+    public interface IEcsSerializable
+    {
+        void Serialize(IEcsWriter writer);
+        void Deserialize(IEcsReader reader);
+    }
+
     public interface IEcsReader : IDisposable
     {
         bool ReadBoolean();
@@ -23,6 +29,8 @@ namespace Saro.Entities.Serialization
 
         void ReadUnmanaged<T>(ref T obj) where T : unmanaged;
         int ReadArrayUnmanaged<T>(ref T[] array) where T : unmanaged;
+
+        void ReadRef<T>(ref T @ref) where T : class;
 
         void Reset();
     }
@@ -40,6 +48,8 @@ namespace Saro.Entities.Serialization
 
         void WriteUnmanaged<T>(ref T obj) where T : unmanaged;
         void WriteArrayUnmanaged<T>(ref T[] array, int length) where T : unmanaged;
+
+        void WriteRef<T>(ref T @ref) where T : class;
 
         void Reset(); // TODO 可能叫Seek更好？
     }

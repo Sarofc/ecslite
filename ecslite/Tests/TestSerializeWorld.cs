@@ -143,7 +143,7 @@ namespace Saro.Entities.Tests
             return e;
         }
 
-        private class TestComponent : IEcsComponent, IEcsAutoReset<TestComponent>, IEcsSerialize
+        private class TestComponent : IEcsComponent, IEcsAutoReset<TestComponent>, IEcsSerializable
         {
             public data d;
 

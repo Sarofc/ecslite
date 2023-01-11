@@ -18,12 +18,6 @@ namespace Saro.Entities
         void Reset();
     }
 
-    public interface IEcsSerialize
-    {
-        void Serialize(IEcsWriter writer);
-        void Deserialize(IEcsReader reader);
-    }
-
     partial class EcsPoolManaged<T>
     {
         private bool m_HasEcsSerializeInterface;
@@ -32,7 +26,7 @@ namespace Saro.Entities
 
         private void InitPoolState()
         {
-            m_HasEcsSerializeInterface = typeof(IEcsSerialize).IsAssignableFrom(m_Type);
+            m_HasEcsSerializeInterface = typeof(IEcsSerializable).IsAssignableFrom(m_Type);
         }
 
         private int GetComponentIndex(int entity)
@@ -50,7 +44,7 @@ namespace Saro.Entities
         {
             if (m_HasEcsSerializeInterface == false)
             {
-                Log.WARN($"{m_Type.FullName} don't impl '{nameof(IEcsSerialize)}' interface. ");
+                Log.WARN($"{m_Type.FullName} don't impl '{nameof(IEcsSerializable)}' interface. ");
                 return;
             }
 
@@ -69,7 +63,7 @@ namespace Saro.Entities
                     //ref var c = ref Get(e);
                     ref var c = ref m_DenseItems[index];
                     if (c == null) c = CreateComponentInstance(); //  没有对象，就需要创建
-                    ((IEcsSerialize)c).Deserialize(reader);
+                    ((IEcsSerializable)c).Deserialize(reader);
 
                     used.Add(index);
                 }
@@ -99,7 +93,7 @@ namespace Saro.Entities
         {
             if (m_HasEcsSerializeInterface == false)
             {
-                Log.WARN($"{m_Type.FullName} don't impl '{nameof(IEcsSerialize)}' interface. ");
+                Log.WARN($"{m_Type.FullName} don't impl '{nameof(IEcsSerializable)}' interface. ");
                 return;
             }
 
@@ -121,7 +115,7 @@ namespace Saro.Entities
                 if (index > 0)
                 {
                     ref var c = ref m_DenseItems[index];
-                    ((IEcsSerialize)c).Serialize(writer);
+                    ((IEcsSerializable)c).Serialize(writer);
 #if DEBUG
                     used.Add(index);
 #endif
