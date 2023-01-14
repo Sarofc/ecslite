@@ -24,6 +24,9 @@ namespace Saro.Entities.Serialization
             m_Writer = new(m_Stream);
         }
 
+        public void BeginWriteObject(string name, bool skipScope = false) { }
+        public void EndWriteObject() { }
+
         public void Write(bool value) => m_Writer.Write(value);
         public void Write(string value) => m_Writer.Write(value);
         public void Write(int value) => m_Writer.Write(value);
@@ -53,7 +56,7 @@ namespace Saro.Entities.Serialization
 
         public void WriteUnmanaged<T>(ref T obj) where T : unmanaged => m_Writer.WriteUnmanaged(ref obj);
         public void WriteArrayUnmanaged<T>(ref T[] array, int length) where T : unmanaged => m_Writer.WriteArrayUnmanaged(ref array, length);
-
+        public void WriteListUnmanaged<T>(ref List<T> list) where T : unmanaged => m_Writer.WriteListUnmanaged(ref list);
 
         private List<object> m_Refs = new();
         //private List<long> m_RefOffsets = new();

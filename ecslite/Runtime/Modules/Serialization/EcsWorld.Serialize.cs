@@ -1,10 +1,6 @@
 ﻿using System;
-using System.IO;
-using System.Text;
-using CsvHelper;
 using Saro.Entities.Serialization;
 using Saro.Utility;
-using UnityEngine;
 
 namespace Saro.Entities
 {
@@ -12,9 +8,6 @@ namespace Saro.Entities
     {
         public void Deserialize(IEcsReader reader)
         {
-            //m_EntitiesCount = reader.ReadInt32();
-            //m_RecycledEntitiesCount = reader.ReadInt32();
-
             m_EntitiesCount = reader.ReadArrayUnmanaged(ref m_Entities);
             m_RecycledEntitiesCount = reader.ReadArrayUnmanaged(ref m_RecycledEntities);
 
@@ -54,32 +47,46 @@ namespace Saro.Entities
 
         public void Serialize(IEcsWriter writer)
         {
-            //writer.WriteEntryName(nameof(EcsWorld), true);
-
-            //writer.WriteEntryName(nameof(m_Entities));
-            writer.WriteArrayUnmanaged(ref m_Entities, m_EntitiesCount);
-            //writer.WriteEntryName(nameof(m_RecycledEntities));
-            writer.WriteArrayUnmanaged(ref m_RecycledEntities, m_RecycledEntitiesCount);
-
+#if DEBUG
+            writer.BeginWriteObject(nameof(EcsWorld), true);
             {
-                //writer.WriteEntryName(nameof(m_Pools));
+#endif
+                writer.WriteArrayUnmanaged(ref m_Entities, m_EntitiesCount);
+                writer.WriteArrayUnmanaged(ref m_RecycledEntities, m_RecycledEntitiesCount);
+#if DEBUG
+            }
+            writer.EndWriteObject();
+#endif
+
+#if DEBUG
+            writer.BeginWriteObject(nameof(IEcsPool));
+            {
+#endif
                 writer.Write(m_PoolsCount);
                 for (int poolId = 1; poolId < m_PoolsCount; poolId++) // 0号pool是Dummy，忽略掉
                 {
                     var pool = m_Pools[poolId];
                     pool.Serialize(writer);
                 }
+#if DEBUG
             }
+            writer.EndWriteObject();
+#endif
 
+#if DEBUG
+            writer.BeginWriteObject(nameof(EcsFilter), true);
             {
-                //writer.WriteEntryName(nameof(m_AllFilters));
+#endif
                 writer.Write(m_AllFilters.Count);
                 for (int i = 0; i < m_AllFilters.Count; i++)
                 {
                     var filter = m_AllFilters[i];
                     filter.Serialize(writer);
                 }
+#if DEBUG
             }
+            writer.EndWriteObject();
+#endif
         }
     }
 
@@ -96,13 +103,8 @@ namespace Saro.Entities
 
         public void Serialize(IEcsWriter writer)
         {
-            //writer.WriteEntryName(nameof(EcsFilter), true);
-
-            //writer.WriteEntryName(nameof(m_DenseItems));
             writer.WriteArrayUnmanaged(ref m_DenseItems, m_DenseItemsCount);
-            //writer.WriteEntryName(nameof(m_DelayedOps));
             writer.WriteArrayUnmanaged(ref m_DelayedOps, m_DelayedOpsCount);
-            //writer.WriteEntryName(nameof(m_SparseItems));
             writer.WriteArrayUnmanaged(ref m_SparseItems, m_SparseItemsCount);
         }
 

@@ -36,24 +36,12 @@ namespace Saro.Entities.Serialization
             return m_Reader.ReadSingle();
 #endif
         }
-        //        public float3 ReadSingle3()
-        //        {
-        //#if FIXED_POINT_MATH
-        //            var x = sfloat.FromRaw(m_Reader.ReadUInt32());
-        //            var y = sfloat.FromRaw(m_Reader.ReadUInt32());
-        //            var z = sfloat.FromRaw(m_Reader.ReadUInt32());
-        //#else
-        //            var x = m_Reader.ReadSingle();
-        //            var y = m_Reader.ReadSingle();
-        //            var z = m_Reader.ReadSingle();
-        //#endif
-        //            return new float3(x, y, z);
-        //        }
 
         public int Read(Span<byte> buffer) => m_Reader.Read(buffer);
 
         public void ReadUnmanaged<T>(ref T obj) where T : unmanaged => m_Reader.ReadUnmanaged(ref obj);
         public int ReadArrayUnmanaged<T>(ref T[] array) where T : unmanaged => m_Reader.ReadArrayUnmanaged(ref array);
+        public void ReadListUnmanaged<T>(ref List<T> list) where T : unmanaged => m_Reader.ReadListUnmanaged(ref list);
 
         private List<object> m_Refs = new();
         public void ReadRef<T>(ref T @ref) where T : class

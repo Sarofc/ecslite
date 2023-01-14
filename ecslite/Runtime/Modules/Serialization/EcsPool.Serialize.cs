@@ -31,12 +31,7 @@ namespace Saro.Entities
 
         private int GetComponentIndex(int entity)
         {
-//#if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
-//            if (!m_World.IsEntityAlive(entity)) { throw new EcsException($"{typeof(T).Name}::{nameof(Has)}. Cant touch destroyed entity: {entity} world: {m_World.worldId}"); }
-//#endif
-
-            if (m_SparseItems.Length <= entity) return 0; // 兼容singleton改动，singleton组件只会分配1个
-
+            if (m_SparseItems.Length <= entity) return 0;
             return m_SparseItems[entity];
         }
 
@@ -60,7 +55,6 @@ namespace Saro.Entities
                 var index = GetComponentIndex(e);
                 if (index > 0)
                 {
-                    //ref var c = ref Get(e);
                     ref var c = ref m_DenseItems[index];
                     if (c == null) c = CreateComponentInstance(); //  没有对象，就需要创建
                     ((IEcsSerializable)c).Deserialize(reader);
@@ -97,33 +91,33 @@ namespace Saro.Entities
                 return;
             }
 
-            //writer.WriteEntryName(typeof(T).FullName, true);
-
-            //writer.WriteEntryName(nameof(m_SparseItems));
-            writer.WriteArrayUnmanaged(ref m_SparseItems, m_SparseItemsCount);
-            //writer.WriteEntryName(nameof(m_RecycledItems));
-            writer.WriteArrayUnmanaged(ref m_RecycledItems, m_RecycledItemsCount);
-
 #if DEBUG
-            using var _ = HashSetPool<int>.Rent(out var used);
-#endif
-            //writer.WriteEntryName(nameof(m_DenseItems));
-            writer.Write(m_DenseItemsCount);
-            for (int e = 1; e < m_World.m_EntitiesCount; e++)
+            writer.BeginWriteObject($"Component: {typeof(T).Name}");
             {
-                var index = GetComponentIndex(e);
-                if (index > 0)
-                {
-                    ref var c = ref m_DenseItems[index];
-                    ((IEcsSerializable)c).Serialize(writer);
-#if DEBUG
-                    used.Add(index);
 #endif
-                }
-            }
+                writer.WriteArrayUnmanaged(ref m_SparseItems, m_SparseItemsCount);
+                writer.WriteArrayUnmanaged(ref m_RecycledItems, m_RecycledItemsCount);
 
 #if DEBUG
-            //Log.INFO($"component serialize count: {used.Count} [{string.Join(",", used)}]");
+                using var _ = HashSetPool<int>.Rent(out var used);
+#endif
+                writer.Write(m_DenseItemsCount);
+                for (int e = 1; e < m_World.m_EntitiesCount; e++)
+                {
+                    var index = GetComponentIndex(e);
+                    if (index > 0)
+                    {
+                        ref var c = ref m_DenseItems[index];
+                        ((IEcsSerializable)c).Serialize(writer);
+#if DEBUG
+                        used.Add(index);
+#endif
+                    }
+                }
+                //Log.INFO($"component serialize count: {used.Count} [{string.Join(",", used)}]");
+#if DEBUG
+            }
+            writer.EndWriteObject();
 #endif
         }
 
@@ -151,22 +145,27 @@ namespace Saro.Entities
 
         unsafe void IEcsPool.Deserialize(IEcsReader reader)
         {
-            m_DenseItemsCount = reader.ReadArrayUnmanaged(ref m_DenseItems);
             m_RecycledItemsCount = reader.ReadArrayUnmanaged(ref m_RecycledItems);
             var sparseItemsCount = reader.ReadArrayUnmanaged(ref m_SparseItems);
+            m_DenseItemsCount = reader.ReadArrayUnmanaged(ref m_DenseItems);
+
             Log.Assert(sparseItemsCount == m_SparseItemsCount, $"sparseItemsCount not equal. {nameof(sparseItemsCount)} != {nameof(m_SparseItemsCount)} {sparseItemsCount} != {m_SparseItemsCount}");
         }
 
         unsafe void IEcsPool.Serialize(IEcsWriter writer)
         {
-            //writer.WriteEntryName(typeof(T).FullName, true);
+#if DEBUG
+            writer.BeginWriteObject($"Component: {typeof(T).Name}");
+            {
+#endif
+                writer.WriteArrayUnmanaged(ref m_RecycledItems, m_RecycledItemsCount);
+                writer.WriteArrayUnmanaged(ref m_SparseItems, m_SparseItemsCount);
 
-            //writer.WriteEntryName(nameof(m_DenseItems));
-            writer.WriteArrayUnmanaged(ref m_DenseItems, m_DenseItemsCount);
-            //writer.WriteEntryName(nameof(m_RecycledItems));
-            writer.WriteArrayUnmanaged(ref m_RecycledItems, m_RecycledItemsCount);
-            //writer.WriteEntryName(nameof(m_SparseItems));
-            writer.WriteArrayUnmanaged(ref m_SparseItems, m_SparseItemsCount);
+                writer.WriteArrayUnmanaged(ref m_DenseItems, m_DenseItemsCount);
+#if DEBUG
+            }
+            writer.EndWriteObject();
+#endif
         }
 
         void IEcsPool.Reset()

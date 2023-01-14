@@ -7,6 +7,7 @@ using Single = System.Single;
 #endif
 
 using System;
+using System.Collections.Generic;
 
 namespace Saro.Entities.Serialization
 {
@@ -23,12 +24,12 @@ namespace Saro.Entities.Serialization
         int ReadInt32();
         byte ReadByte();
         Single ReadSingle();
-        //float3 ReadSingle3();
 
         int Read(Span<byte> buffer);
 
         void ReadUnmanaged<T>(ref T obj) where T : unmanaged;
         int ReadArrayUnmanaged<T>(ref T[] array) where T : unmanaged;
+        void ReadListUnmanaged<T>(ref List<T> list) where T : unmanaged;
 
         void ReadRef<T>(ref T @ref) where T : class;
 
@@ -37,20 +38,23 @@ namespace Saro.Entities.Serialization
 
     public interface IEcsWriter : IDisposable
     {
+        void BeginWriteObject(string name, bool skipScope = false);
+        void EndWriteObject();
+
         void Write(bool value);
         void Write(string value);
         void Write(int value);
         void Write(byte value);
         void Write(Single value);
-        //void Write(float3 value);
 
         void Write(ReadOnlySpan<byte> buffer);
 
         void WriteUnmanaged<T>(ref T obj) where T : unmanaged;
         void WriteArrayUnmanaged<T>(ref T[] array, int length) where T : unmanaged;
+        void WriteListUnmanaged<T>(ref List<T> list) where T : unmanaged;
 
         void WriteRef<T>(ref T @ref) where T : class;
 
-        void Reset(); // TODO 可能叫Seek更好？
+        void Reset();
     }
 }
