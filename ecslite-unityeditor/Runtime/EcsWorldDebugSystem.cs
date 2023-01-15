@@ -3,12 +3,6 @@
 // Copyright (c) 2012-2022 Leopotam <leopotam@yandex.ru>
 // ----------------------------------------------------------------------------
 
-using System;
-using System.Collections.Generic;
-using Saro.Diagnostics;
-using UnityEngine;
-using UObject = UnityEngine.Object;
-
 #if FIXED_POINT_MATH
 using ME.ECS.Mathematics;
 using Single = sfloat;
@@ -16,6 +10,12 @@ using Single = sfloat;
 using Unity.Mathematics;
 using Single = System.Single;
 #endif
+
+using System;
+using System.Collections.Generic;
+using Saro.Diagnostics;
+using UnityEngine;
+using UObject = UnityEngine.Object;
 
 namespace Saro.Entities.UnityEditor
 {
@@ -41,9 +41,6 @@ namespace Saro.Entities.UnityEditor
             m_RootGo = new GameObject(rootGoName);
             UObject.DontDestroyOnLoad(m_RootGo);
             m_RootGo.hideFlags = HideFlags.NotEditable;
-            //m_EntitiesRoot = new GameObject("Entities").transform;
-            //m_EntitiesRoot.gameObject.hideFlags = HideFlags.NotEditable;
-            //m_EntitiesRoot.SetParent(m_RootGo.transform, false);
             m_EntitiesRoot = m_RootGo.transform;
         }
 
@@ -121,7 +118,16 @@ namespace Saro.Entities.UnityEditor
                     m_Entities[entity.id].transform.localPosition = Vector3.zero;
 
                 if (m_World.RotationPool.Has(entity.id))
-                    m_Entities[entity.id].transform.localRotation = (Quaternion)m_World.RotationPool.Get(entity.id).value; // TODO // transform.localRotation assign attempt for '00000013:SphereShape:Aabb:BodyMask:ProjectileObj:LifeSpan:Position:Rotation:Parent:Children:CustomMovementType:' is not valid. Input rotation is { NaN, NaN, NaN, NaN }.
+                {
+                    var localRot = m_World.RotationPool.Get(entity.id).value;
+                    //if (math.any(math.isnan(localRot.value)))
+                    //{
+                    //    Log.ERROR($"rotation is NaN? {localRot}");
+                    //    localRot = quaternion.identity;
+                    //}
+                    m_Entities[entity.id].transform.localRotation = (Quaternion)localRot;
+                    // TODO // transform.localRotation assign attempt for '00000013:SphereShape:Aabb:BodyMask:ProjectileObj:LifeSpan:Position:Rotation:Parent:Children:CustomMovementType:' is not valid. Input rotation is { NaN, NaN, NaN, NaN }.
+                }
                 else
                     m_Entities[entity.id].transform.localRotation = Quaternion.identity;
             }

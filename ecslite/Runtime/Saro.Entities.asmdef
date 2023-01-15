@@ -4,7 +4,8 @@
     "references": [
         "Saro.MGF",
         "Unity.Mathematics",
-        "ME.ECS.FPMath"
+        "ME.ECS.FPMath",
+        "MemoryPack"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

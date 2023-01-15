@@ -40,7 +40,7 @@ namespace Saro.Entities.Serialization
         public int Read(Span<byte> buffer) => m_Reader.Read(buffer);
 
         public void ReadUnmanaged<T>(ref T obj) where T : unmanaged => m_Reader.ReadUnmanaged(ref obj);
-        public int ReadArrayUnmanaged<T>(ref T[] array) where T : unmanaged => m_Reader.ReadArrayUnmanaged(ref array);
+        public int ReadArrayUnmanaged<T>(ref T[] array, int index = 0) where T : unmanaged => m_Reader.ReadArrayUnmanaged(ref array, index);
         public void ReadListUnmanaged<T>(ref List<T> list) where T : unmanaged => m_Reader.ReadListUnmanaged(ref list);
 
         private List<object> m_Refs = new();

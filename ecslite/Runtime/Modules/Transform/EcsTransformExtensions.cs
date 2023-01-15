@@ -149,7 +149,6 @@ namespace Saro.Entities.Transforms
                 {
                     var containerRotation = parent.GetRotation();
                     var containerRotationInverse = math.inverse(containerRotation);
-                    //var containerRotationInverse = quaternion.Inverse(containerRotation);
                     entity.SetLocalRotation(world, math.mul(containerRotationInverse, rotation));
 
                     return;
@@ -173,6 +172,8 @@ namespace Saro.Entities.Transforms
             else
                 worldPos = float3.zero;
 
+            Log.Assert(!math.any(math.isnan(worldPos)), $"{entity}'s Position is NaN");
+
             if (!world.ParentPool.Has(entity))
                 return worldPos;
 
@@ -180,13 +181,24 @@ namespace Saro.Entities.Transforms
 
             while (!parent.entity.IsNull())
             {
-                quaternion worldRot;
+                // new
                 if (world.RotationPool.Has(parent.entity.id))
-                    worldRot = parent.entity.GetLocalRotation();
-                else
-                    worldRot = quaternion.identity;
+                {
+                    var parentRot = parent.entity.GetLocalRotation();
 
-                worldPos = math.mul(worldRot, Multiply_Internal(GetScale_Internal(parent.entity), worldPos));
+                    Log.Assert(!math.any(math.isnan(parentRot.value)), $"{parent.entity.id}'s Rotation is NaN");
+
+                    worldPos = math.mul(parentRot, Multiply_Internal(GetScale_Internal(parent.entity), worldPos));
+                }
+
+                // old
+                //quaternion parentRot;
+                //if (world.RotationPool.Has(parent.entity.id))
+                //    parentRot = parent.entity.GetLocalRotation();
+                //else
+                //    parentRot = quaternion.identity;
+
+                //worldPos = math.mul(parentRot, Multiply_Internal(GetScale_Internal(parent.entity), worldPos));
 
                 worldPos += parent.entity.GetLocalPosition();
 
@@ -212,6 +224,8 @@ namespace Saro.Entities.Transforms
             else
                 worldRot = quaternion.identity;
 
+            Log.Assert(!math.any(math.isnan(worldRot.value)), $"{entity}'s Rotation is NaN");
+
             if (!world.ParentPool.Has(entity))
                 return worldRot;
 
@@ -219,12 +233,21 @@ namespace Saro.Entities.Transforms
 
             while (!parent.entity.IsNull())
             {
-                worldRot = math.mul(world.RotationPool.GetOrAdd(parent.entity.id).value, worldRot);
+                // new
+                if (world.RotationPool.Has(parent.entity.id))
+                {
+                    var parentRot = world.RotationPool.Get(parent.entity.id).value;
+
+                    Log.Assert(!math.any(math.isnan(parentRot.value)), $"{parent.entity.id}'s Rotation is NaN");
+
+                    worldRot = math.mul(parentRot, worldRot);
+                }
+
+                // old
+                //worldRot = math.mul(world.RotationPool.GetOrAdd(parent.entity.id).value, worldRot);
 
                 if (!world.ParentPool.Has(parent.entity.id))
-                {
                     break;
-                }
 
                 parent = world.ParentPool.Get(parent.entity.id);
             }

@@ -67,7 +67,7 @@ namespace Saro.Entities.Serialization
             m_Writer.WriteLine(HashUtility.ToHexString(buffer));
         }
 
-        public void WriteArrayUnmanaged<T>(ref T[] array, int length) where T : unmanaged
+        public void WriteArrayUnmanaged<T>(ref T[] array, int length, int index = 0) where T : unmanaged
         {
             if (m_SkipScope) return;
 
@@ -77,7 +77,8 @@ namespace Saro.Entities.Serialization
             //m_Writer.Write(typeName);
             //m_Writer.Write(" : [");
             m_Writer.Write("[");
-            for (int i = 0; i < length; i++)
+            length += index;
+            for (int i = index; i < length; i++)
             {
                 m_Writer.Write(array[i].ToString());
                 if (i < length - 1) m_Writer.Write(',');
