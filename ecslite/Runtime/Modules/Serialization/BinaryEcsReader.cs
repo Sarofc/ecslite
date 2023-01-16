@@ -44,8 +44,15 @@ namespace Saro.Entities.Serialization
         public void ReadListUnmanaged<T>(ref List<T> list) where T : unmanaged => m_Reader.ReadListUnmanaged(ref list);
 
         private List<object> m_Refs = new();
-        public void ReadRef<T>(ref T @ref) where T : class
+        public void ReadObjectRef<T>(ref T @ref) where T : class
         {
+            bool isNull = m_Reader.ReadBoolean();
+            if (isNull)
+            {
+                @ref = null; // TODO 如果是池化对象？
+                return;
+            }
+
             if (@ref is IEcsSerializable serializable)
             {
                 var isRef = m_Reader.ReadBoolean();
@@ -75,6 +82,7 @@ namespace Saro.Entities.Serialization
         public void Reset()
         {
             m_Stream.Position = 0;
+            m_Refs.Clear();
         }
     }
 }

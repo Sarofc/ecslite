@@ -60,8 +60,12 @@ namespace Saro.Entities.Serialization
 
         private List<object> m_Refs = new();
         //private List<long> m_RefOffsets = new();
-        public void WriteRef<T>(ref T @ref) where T : class
+        public void WriteObjectRef<T>(ref T @ref) where T : class
         {
+            bool isNull = @ref == null;
+            m_Writer.Write(isNull);
+            if (isNull) return;
+
             if (@ref is IEcsSerializable serializable)
             {
                 var index = m_Refs.IndexOf(@ref);
@@ -95,6 +99,7 @@ namespace Saro.Entities.Serialization
         public void Reset()
         {
             m_Stream.Position = 0;
+            m_Refs.Clear();
         }
     }
 }

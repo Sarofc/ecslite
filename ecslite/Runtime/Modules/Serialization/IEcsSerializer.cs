@@ -31,7 +31,7 @@ namespace Saro.Entities.Serialization
         int ReadArrayUnmanaged<T>(ref T[] array, int offset = 0) where T : unmanaged;
         void ReadListUnmanaged<T>(ref List<T> list) where T : unmanaged;
 
-        void ReadRef<T>(ref T @ref) where T : class;
+        void ReadObjectRef<T>(ref T @ref) where T : class;
 
         void Reset();
     }
@@ -53,7 +53,7 @@ namespace Saro.Entities.Serialization
         void WriteArrayUnmanaged<T>(ref T[] array, int length, int index = 0) where T : unmanaged;
         void WriteListUnmanaged<T>(ref List<T> list) where T : unmanaged;
 
-        void WriteRef<T>(ref T @ref) where T : class;
+        void WriteObjectRef<T>(ref T @ref) where T : class;
 
         void Reset();
     }

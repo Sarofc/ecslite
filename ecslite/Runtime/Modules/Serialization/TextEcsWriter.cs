@@ -106,7 +106,7 @@ namespace Saro.Entities.Serialization
         }
 
         private List<object> m_Refs = new();
-        public void WriteRef<T>(ref T @ref) where T : class
+        public void WriteObjectRef<T>(ref T @ref) where T : class
         {
             if (m_SkipScope) return;
 
