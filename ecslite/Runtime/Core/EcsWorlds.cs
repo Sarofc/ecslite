@@ -17,22 +17,30 @@ namespace Saro.Entities
 #endif
     public partial class EcsWorld
     {
+        internal short worldId;
+        internal string worldName;
         internal EntityData[] m_Entities;
         internal int m_EntitiesCount;
-        private int[] m_RecycledEntities;
-        private int m_RecycledEntitiesCount;
-        private IEcsPool[] m_Pools;
-        private int m_PoolsCount;
+        internal int[] m_RecycledEntities;
+        internal int m_RecycledEntitiesCount;
+        internal IEcsPool[] m_Pools;
+        internal int m_PoolsCount;
+        internal List<EcsFilter> m_AllFilters;
+        internal Mask[] m_Masks;
+        internal int m_FreeMasksCount;
+        private bool m_Destroyed;
+
+        private static EcsWorld[] s_Worlds = new EcsWorld[4];
+        private readonly static IntDispenser k_WorldIdDispenser = new(-1);
+
         private readonly int m_PoolDenseSize;
         private readonly int m_PoolRecycledSize;
         private readonly Dictionary<Type, IEcsPool> m_PoolHashes;
         private readonly Dictionary<int, EcsFilter> m_HashedFilters;
-        private readonly List<EcsFilter> m_AllFilters;
         private List<EcsFilter>[] m_FiltersByIncludedComponents;
         private List<EcsFilter>[] m_FiltersByExcludedComponents;
-        private Mask[] m_Masks;
-        private int m_FreeMasksCount;
-        private bool m_Destroyed;
+
+        private readonly static object k_LockObject = new();
 
         internal readonly List<EcsSystems> ecsSystemsList = new();
 
@@ -92,12 +100,6 @@ namespace Saro.Entities
             return false;
         }
 #endif
-
-        internal readonly short worldId;
-        internal readonly string worldName;
-        private static EcsWorld[] s_Worlds = new EcsWorld[4];
-        private readonly static IntDispenser k_WorldIdDispenser = new(-1);
-        private readonly static object k_LockObject = new();
 
         public EcsWorld(string worldName, in Config cfg = default)
         {

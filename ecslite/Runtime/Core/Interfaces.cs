@@ -5,7 +5,7 @@ namespace Saro.Entities
     /// <summary>
     /// Ecs托管组件必须 *继承* 此接口
     /// </summary>
-    public interface IEcsComponent { }
+    public partial interface IEcsComponent { }
 
     public interface IEcsComponentSingleton : IEcsComponent { }
 

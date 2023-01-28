@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Saro.Entities
 {
     // 意义就是直接确定内存连续，可以使用指针算法
+
 #if ENABLE_IL2CPP
     [Unity.IL2CPP.CompilerServices.Il2CppSetOption(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
     [Unity.IL2CPP.CompilerServices.Il2CppSetOption(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
@@ -89,15 +91,11 @@ namespace Saro.Entities
             GetOrAdd(entity);
         }
 
-        public T[] GetRawDenseItems() => m_DenseItems;
-
-        public int GetRawDenseItemsCount() => m_DenseItemsCount;
-
-        public int[] GetRawSparseItems() => m_SparseItems;
-
-        public int[] GetRawRecycledItems() => m_RecycledItems;
-
-        public int GetRawRecycledItemsCount() => m_RecycledItemsCount;
+        public T[] RawDenseItems => m_DenseItems;
+        public int RawDenseItemsCount => m_DenseItemsCount;
+        public int[] RawSparseItems => m_SparseItems;
+        public int[] RawRecycledItems => m_RecycledItems;
+        public int RawRecycledItemsCount => m_RecycledItemsCount;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ref T GetOrAdd(int entity)
@@ -154,6 +152,8 @@ namespace Saro.Entities
 
             if (m_SparseItems[entity] == 0) { throw new EcsException($"Cant get \"{typeof(T).Name}\" component - not attached. entity: {entity}"); }
 #endif
+
+            //return ref GetDenseItem(GetSparseIndex(entity));
             return ref m_DenseItems[m_SparseItems[entity]];
         }
 
@@ -189,6 +189,7 @@ namespace Saro.Entities
                 //}
                 //else
                 {
+                    //GetDenseItem(sparseData) = default;
                     m_DenseItems[sparseData] = default;
                 }
                 sparseData = 0;
@@ -204,5 +205,12 @@ namespace Saro.Entities
                 }
             }
         }
+
+        // TODO 可以跳过边界检查
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private ref int GetSparseIndex(int entity) => ref Unsafe.Add(ref MemoryMarshal.GetReference<int>(m_SparseItems), entity);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private ref T GetDenseItem(int index) => ref Unsafe.Add(ref MemoryMarshal.GetReference<T>(m_DenseItems), index);
     }
 }

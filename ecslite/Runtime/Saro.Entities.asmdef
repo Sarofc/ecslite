@@ -5,7 +5,7 @@
         "Saro.MGF",
         "Unity.Mathematics",
         "ME.ECS.FPMath",
-        "MemoryPack"
+        "Saro.FSnapshot"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
