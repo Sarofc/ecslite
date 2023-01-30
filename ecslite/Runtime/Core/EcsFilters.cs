@@ -50,6 +50,18 @@ namespace Saro.Entities
             get => m_DenseItemsCount;
         }
 
+        public int[] RawDenseItems
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => m_DenseItems;
+        }
+
+        public int[] RawSparseItems
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => m_SparseItems;
+        }
+
         internal EcsFilter(EcsWorld world, EcsWorld.Mask mask, int denseCapacity, int sparseCapacity)
         {
             m_World = world;
@@ -67,9 +79,11 @@ namespace Saro.Entities
         [Obsolete("use 'EntitiesCount' instead")]
         public int GetEntitiesCount() => m_DenseItemsCount;
 
+        [Obsolete("use 'RawDenseItems' instead")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int[] GetRawEntities() => m_DenseItems;
 
+        [Obsolete("use 'RawSparseItems' instead")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int[] GetSparseIndex() => m_SparseItems;
 

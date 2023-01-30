@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -205,8 +206,14 @@ namespace Saro.Entities
                 }
             }
         }
+    }
 
-        // TODO 可以跳过边界检查
+    partial class EcsPoolUnmanaged<T>
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public unsafe static ref T GetUnsafe(int entity, T* denseItems, int* sparseItems) => ref denseItems[sparseItems[entity]];
+
+        // TODO 可以跳过边界检查，但il2cpp貌似可以直接设置
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private ref int GetSparseIndex(int entity) => ref Unsafe.Add(ref MemoryMarshal.GetReference<int>(m_SparseItems), entity);
 
