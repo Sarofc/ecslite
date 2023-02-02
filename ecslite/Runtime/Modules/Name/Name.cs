@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Text;
+using Saro.FSnapshot;
 
 namespace Saro.Entities
 {
     /// <summary>
     /// Name component for entity
     /// </summary>
+    [FSnapshotable]
     public partial class Name : IEcsComponent, IEcsAutoReset<Name>
     {
-        public string name; // TODO FixedString 后，可以
+        [FSnapshot] public string name; // TODO FixedString 后，可以
 
         public Name() : this(null) { }
 

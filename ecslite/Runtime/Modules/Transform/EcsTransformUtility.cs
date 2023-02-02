@@ -72,32 +72,32 @@ namespace Saro.Entities.Transforms
         }
 
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        public static void SetParent(this int child, int root, EcsWorld world)
+        public static void SetParent(this int child, int parent, EcsWorld world)
         {
-            var _root = world.Pack(root);
+            var _parent = world.Pack(parent);
             var _child = world.Pack(child);
-            _child.SetParent(_root, worldPositionStays: true);
+            _child.SetParent(_parent, worldPositionStays: true);
         }
 
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        public static void SetParent(this EcsEntity child, EcsEntity root)
+        public static void SetParent(this EcsEntity child, EcsEntity parent)
         {
-            child.SetParent(root, worldPositionStays: true);
+            child.SetParent(parent, worldPositionStays: true);
         }
 
-        public static void SetParent(this EcsEntity child, EcsEntity root, bool worldPositionStays)
+        public static void SetParent(this EcsEntity child, EcsEntity parent, bool worldPositionStays)
         {
             if (worldPositionStays)
             {
                 var pos = child.GetPosition();
                 var rot = child.GetRotation();
-                SetParent_Internal(child, root);
+                SetParent_Internal(child, parent);
                 child.SetPosition(pos);
                 child.SetRotation(rot);
             }
             else
             {
-                SetParent_Internal(child, root);
+                SetParent_Internal(child, parent);
             }
         }
 

@@ -44,7 +44,7 @@ namespace Saro.Entities
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Has<T>(in this EcsEntity self) where T : class, IEcsComponent, new()
+        public static bool Has<T>(this EcsEntity self) where T : class, IEcsComponent, new()
         {
             var pool = self.World.GetPoolByType(typeof(T));
             if (pool == null)
@@ -53,7 +53,7 @@ namespace Saro.Entities
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Del<T>(in this EcsEntity self) where T : class, IEcsComponent, new()
+        public static void Del<T>(this EcsEntity self) where T : class, IEcsComponent, new()
         {
             var pool = self.World.GetPool<T>();
             pool.Del(self.id);
@@ -81,7 +81,7 @@ namespace Saro.Entities
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ref T Get<T>(in this EcsEntity self) where T : class, IEcsComponent, new()
+        public static ref T Get<T>(this EcsEntity self) where T : class, IEcsComponent, new()
         {
             var pool = self.World.GetPool<T>();
             return ref pool.Get(self.id);

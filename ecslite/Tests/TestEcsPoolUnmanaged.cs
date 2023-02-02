@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using NUnit.Framework;
 
-namespace Saro.Entities.Tests
+namespace Saro.Entities.Tests.TestEcsPoolUnmanaged
 {
     public class TestEcsPoolUnmanaged
     {

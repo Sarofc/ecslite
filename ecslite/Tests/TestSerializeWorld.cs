@@ -1,218 +1,292 @@
-﻿//#if FIXED_POINT_MATH
-//using ME.ECS.Mathematics;
-//using Single = sfloat;
-//#else
-//using Unity.Mathematics;
-//using Single = System.Single;
-//#endif
+﻿#if FIXED_POINT_MATH
+using ME.ECS.Mathematics;
+using Single = sfloat;
+#else
+using Unity.Mathematics;
+using Single = System.Single;
+#endif
 
-//using System;
-//using System.Collections.Generic;
-//using System.Linq;
-//using System.Text;
-//using System.Threading.Tasks;
-//using NUnit.Framework;
-//using Saro.Entities.Serialization;
-//using Saro.Utility;
-//using System.Diagnostics;
-//using System.IO;
-//using UnityEngine;
-//using System.Runtime.InteropServices.ComTypes;
-//using Saro.FSnapshot;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using NUnit.Framework;
+using Saro.Entities.Serialization;
+using Saro.Utility;
+using System.Diagnostics;
+using System.IO;
+using UnityEngine;
+using System.Runtime.InteropServices.ComTypes;
+using Saro.FSnapshot;
+using System.Buffers;
 
-//namespace Saro.Entities.Tests
-//{
-//    public class TestSerializeWorld
-//    {
-//        [SetUp]
-//        public void Setup()
-//        {
+namespace Saro.Entities.Tests.SerializeWorld
+{
+    public struct data
+    {
+        public int a;
+        public float c;
+        //public object d;
 
-//        }
+        public override string ToString()
+        {
+            return $"{a} {c}";
+        }
+    }
 
-//        [Test]
-//        public void TestSerializeDeserializeWorld()
-//        {
-//            var systems = EcsMockUtility.CreateMockSystem();
+    [FSnapshotable]
+    internal partial class TestComponent : IEcsComponent, IEcsAutoReset<TestComponent>
+    {
+        [FSnapshot] public data d;
 
-//            var d1 = new data
-//            {
-//                a = 1,
-//                c = 1f,
-//            };
+        public void AutoReset(ref TestComponent c)
+        {
+            c.d = default;
+        }
 
-//            var d2 = new data
-//            {
-//                a = 2,
-//                c = 3f,
-//            };
-//            CreateTestEntity(systems, d1);
-//            CreateTestEntity(systems, d2);
+        public override string ToString()
+        {
+            var sb = new System.Text.StringBuilder(128);
 
-//            var world = systems.GetWorld();
+            sb.AppendLine($"d: {d.ToString()}");
 
-//            var ms = new MemoryStream(1024);
+            return sb.ToString();
+        }
+    }
 
-//            using var writer = new BinarySnapshotWriter(ms);
-//            using var reader = new BinarySnapshotReader(ms);
+    internal struct TestUnmanagedComponent : IEcsComponent
+    {
+        public data d;
 
-//            // get
-//            world.Serialize(writer);
-//            var json1 = JsonHelper.ToJson(new ArraySegment<byte>(ms.GetBuffer(), 0, (int)ms.Position));
-//            //Log.INFO(json1);
-//            systems.Run((Single)0.1f);
+        public override string ToString()
+        {
+            return d.ToString();
+        }
+    }
 
-//            // set
-//            reader.Reset();
-//            world.Deserialize(reader);
+    public class TestSerializeWorld
+    {
+        [SetUp]
+        public void Setup()
+        {
+        }
 
-//            // text 2
-//            {
-//                var textMs2 = new FileStream("text2.txt", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
-//                textMs2.SetLength(0);
-//                using var textWriter2 = new TextSnapshotWriter(textMs2);
-//                world.Serialize(textWriter2);
-//            }
+        [Test]
+        public void TestSerializeDeserializeWorld()
+        {
+            var systems = EcsMockUtility.CreateMockSystem();
 
-//            // get
-//            writer.Reset();
-//            world.Serialize(writer);
-//            var json2 = JsonHelper.ToJson(new ArraySegment<byte>(ms.GetBuffer(), 0, (int)ms.Position));
-//            //Log.INFO(json2);
+            var d1 = new data
+            {
+                a = 1,
+                c = 1f,
+            };
 
-//            Assert.AreEqual(json1, json2);
+            var d2 = new data
+            {
+                a = 2,
+                c = 3f,
+            };
+            var e1 = CreateTestEntity(systems, d1);
+            var e2 = CreateTestEntity(systems, d2);
 
-//            // ====================================================
-//            CreateTestEntity(systems, d2);
+            var world = systems.GetWorld();
 
-//            // get
-//            writer.Reset();
-//            world.Serialize(writer);
-//            var json3 = JsonHelper.ToJson(new ArraySegment<byte>(ms.GetBuffer(), 0, (int)ms.Position));
-//            //Log.INFO(json3);
+            var bufferWriter = new ArrayBufferWriter<byte>(1024);
 
-//            //Log.INFO($"position: {ms.Position}");
+            EcsSerializeUtility.SerializeEcsWorld(world, bufferWriter);
 
-//            Assert.AreNotEqual(json2, json3);
+            // get
+            var json1 = JsonHelper.ToJson(bufferWriter.WrittenSpan.ToArray());
+            //Log.INFO(json1);
+            systems.Run((Single)0.1f);
 
-//            // ======================================================
-//            // 检测回滚
-//            var buffer2 = JsonHelper.FromJson<byte[]>(json2);
-//            var checkMs = new MemoryStream(buffer2);
-//            using var checkReader = new BinarySnapshotReader(checkMs);
-//            world.Deserialize(checkReader);
+            // set
+            EcsSerializeUtility.DeserializeEcsWorld(world, bufferWriter.WrittenSpan);
 
-//            writer.Reset();
-//            world.Serialize(writer);
-//            var json4 = JsonHelper.ToJson(new ArraySegment<byte>(ms.GetBuffer(), 0, (int)ms.Position));
+            // get
+            bufferWriter.Clear();
+            EcsSerializeUtility.SerializeEcsWorld(world, bufferWriter);
+            var json2 = JsonHelper.ToJson(bufferWriter.WrittenSpan.ToArray());
+            //Log.INFO(json2);
 
-//            //Log.INFO($"json2: {json2}");
-//            //Log.INFO($"json4: {json4}");
+            Assert.AreEqual(json1, json2);
 
-//            // text 4
-//            {
-//                var textMs4 = new FileStream("text4.txt", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
-//                textMs4.SetLength(0);
-//                using var textWriter4 = new TextSnapshotWriter(textMs4);
-//                world.Serialize(textWriter4);
-//            }
+            // ====================================================
 
-//            Assert.AreEqual(json2, json4);
-//        }
+            //Dump(world);
+
+            CreateTestEntity(systems, d2);
+            ChangeEntityData(e2, d1);
+
+            // get
+            bufferWriter.Clear();
+            EcsSerializeUtility.SerializeEcsWorld(world, bufferWriter);
+            var json3 = JsonHelper.ToJson(bufferWriter.WrittenSpan.ToArray());
+            //Log.INFO(json3);
+
+            Assert.AreNotEqual(json2, json3);
+
+            // ======================================================
+            // 检测回滚
+            var buffer2 = JsonHelper.FromJson<byte[]>(json2);
+            EcsSerializeUtility.DeserializeEcsWorld(world, buffer2);
+
+            bufferWriter.Clear();
+            EcsSerializeUtility.SerializeEcsWorld(world, bufferWriter);
+            var json4 = JsonHelper.ToJson(bufferWriter.WrittenSpan.ToArray());
+
+            //Log.INFO($"rollback. json2: {json2}");
+            //Log.INFO($"rollback. json4: {json4}");
+
+            //Dump(world);
+
+            Assert.AreEqual(json2, json4);
+        }
 
 
-//        // ==================================================================
-//        public struct data
-//        {
-//            public int a;
-//            public float c;
-//            //public object d;
+        // ==================================================================
 
-//            public override string ToString()
-//            {
-//                return $"{a} {c}";
-//            }
-//        }
+        private void Dump(EcsWorld world)
+        {
+            var bufferWriter = new ArrayBufferWriter<char>(1024);
+            EcsSerializeUtility.SerializeEcsWorldIntoText(world, bufferWriter);
+            Log.INFO(bufferWriter.WrittenSpan.ToString());
+        }
 
-//        private EcsEntity CreateTestEntity(EcsSystems systems, in data d)
-//        {
-//            var world = systems.GetWorld();
-//            var e = world.NewEcsEntity();
-//            ref var c1 = ref e.GetOrAdd<TestComponent>();
-//            ref var c2 = ref e.GetOrAdd<TestUnmanagedComponent>();
-//            c1.d = c2.d = d;
-//            return e;
-//        }
+        private EcsEntity CreateTestEntity(EcsSystems systems, in data d)
+        {
+            var world = systems.GetWorld();
+            var e = world.NewEcsEntity();
+            ref var c1 = ref e.GetOrAdd<TestComponent>();
+            ref var c2 = ref e.GetOrAdd<TestUnmanagedComponent>();
+            c1.d = c2.d = d;
+            return e;
+        }
 
-//        private class TestComponent : IEcsComponent, IEcsAutoReset<TestComponent>, IFSnapshotable
-//        {
-//            public data d;
+        private void ChangeEntityData(EcsEntity entity, in data d)
+        {
+            entity.Get<TestComponent>().d = d;
+        }
 
-//            public void AutoReset(ref TestComponent c)
-//            {
-//                c.d = default;
-//            }
+        private class TestSystemUnmanaged : MockSystem
+        {
+            public TestSystemUnmanaged(data[] d)
+            {
+                this.d = d;
+            }
 
-//            public void RestoreSnapshot(ref FSnapshotReader reader)
-//            {
-//                reader.ReadUnmanaged(ref d);
-//            }
+            public data[] d;
 
-//            public void TakeSnapshot(ref FSnapshotWriter writer)
-//            {
-//                writer.WriteUnmanaged(d);
-//            }
-//        }
+            protected override void RunInternal(Single deltaTime)
+            {
+                var filter = world.Filter().Inc<TestUnmanagedComponent>().Inc<TestComponent>().End();
+                int index = 0;
+                foreach (var ent in filter)
+                {
+                    Assert.IsTrue(ent.Has<TestUnmanagedComponent>(world), "EcsEntity:Has should equal true");
 
-//        private struct TestUnmanagedComponent : IEcsComponent
-//        {
-//            public data d;
+                    ref var c = ref ent.Get<TestUnmanagedComponent>(world);
+                    Assert.AreEqual(c.d, d[index]);
 
-//            public override string ToString()
-//            {
-//                return d.ToString();
-//            }
-//        }
+                    ref var c1 = ref ent.Get<TestComponent>(world);
+                    Assert.AreEqual(c1.d, d[index]);
 
-//        private struct TestUnmanagedComponentSingleton : IEcsComponentSingleton
-//        {
-//            public data d;
+                    //Debug.Log($" {c.d.c} == {d[index].c} ");
+                    //Debug.Log($" {c1.d.c} == {d[index].c} ");
 
-//            public override string ToString()
-//            {
-//                return d.ToString();
-//            }
-//        }
+                    index++;
+                }
+            }
+        }
+    }
 
-//        private class TestSystemUnmanaged : MockSystem
-//        {
-//            public TestSystemUnmanaged(data[] d)
-//            {
-//                this.d = d;
-//            }
 
-//            public data[] d;
 
-//            protected override void RunInternal(Single deltaTime)
-//            {
-//                var filter = world.Filter().Inc<TestUnmanagedComponent>().Inc<TestComponent>().End();
-//                int index = 0;
-//                foreach (var ent in filter)
-//                {
-//                    Assert.IsTrue(ent.Has<TestUnmanagedComponent>(world), "EcsEntity:Has should equal true");
 
-//                    ref var c = ref ent.Get<TestUnmanagedComponent>(world);
-//                    Assert.AreEqual(c.d, d[index]);
 
-//                    ref var c1 = ref ent.Get<TestComponent>(world);
-//                    Assert.AreEqual(c1.d, d[index]);
 
-//                    //Debug.Log($" {c.d.c} == {d[index].c} ");
-//                    //Debug.Log($" {c1.d.c} == {d[index].c} ");
+    // TODO unit test 下，代码生成无效，这里拷贝一份来用
+    partial class TestComponent : IFSnapshotable
+    {
+        public void RestoreSnapshot(ref FSnapshotReader reader)
+        {
 
-//                    index++;
-//                }
-//            }
-//        }
-//    }
-//}
+            reader.ReadUnmanaged(ref d);
+
+        }
+        public void TakeSnapshot(ref FSnapshotWriter writer)
+        {
+
+
+            writer.WriteUnmanaged(d);
+
+
+        }
+
+        public void Dump(ref FTextWriter writer)
+        {
+
+            writer.WriteUnmanaged(d);
+        }
+
+    }
+
+    partial class TestComponent
+    {
+        static TestComponent()
+        {
+            if (!FSnapshotFormatterProvider.IsRegistered<global::Saro.Entities.Tests.SerializeWorld.TestComponent>())
+            {
+                FSnapshotFormatterProvider.Register(new Formatter());
+            }
+        }
+
+        class Formatter : FSnapshotFormatter<TestComponent>
+        {
+            public override void TakeSnapshot(ref FSnapshotWriter writer, in global::Saro.Entities.Tests.SerializeWorld.TestComponent @ref)
+            {
+                if (writer.WriteObjectHeader(@ref))
+                    return;
+
+                var refId = writer.WriteObjectReferenceId(@ref);
+                if (refId == -1)
+                {
+                    writer.AddObjectReference(@ref);
+                    @ref.TakeSnapshot(ref writer);
+                }
+            }
+
+            public override void RestoreSnapshot(ref FSnapshotReader reader, ref global::Saro.Entities.Tests.SerializeWorld.TestComponent @ref)
+            {
+                var isNull = reader.ReadObjectHeader();
+                if (isNull)
+                {
+                    @ref = default; // TODO 销毁实例，池对象怎么办？
+                    return;
+                }
+
+                var refId = reader.ReadObjectReferenceId();
+                if (refId == -1)
+                {
+                    if (@ref == null)
+                        @ref = new global::Saro.Entities.Tests.SerializeWorld.TestComponent(); // TODO 创建实例
+
+                    reader.AddObjectReference(@ref);
+                    @ref.RestoreSnapshot(ref reader);
+                }
+                else
+                {
+                    @ref = reader.GetObjectReference<global::Saro.Entities.Tests.SerializeWorld.TestComponent>(refId);
+                }
+            }
+
+            public override void Dump(ref FTextWriter writer, global::Saro.Entities.Tests.SerializeWorld.TestComponent @ref)
+            {
+                @ref.Dump(ref writer);
+            }
+
+        }
+    }
+}

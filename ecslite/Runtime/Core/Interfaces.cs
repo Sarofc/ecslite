@@ -3,7 +3,7 @@
 namespace Saro.Entities
 {
     /// <summary>
-    /// Ecs托管组件必须 *继承* 此接口
+    /// Ecs组件必须 *继承* 此接口
     /// </summary>
     public partial interface IEcsComponent { }
 

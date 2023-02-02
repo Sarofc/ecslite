@@ -44,10 +44,12 @@ namespace Saro.Entities
             if (m_HasEcsSerializeInterface == false)
                 return;
 
-            var sparseItemsCount = reader.ReadUnmanagedArray(ref m_SparseItems, 1) + 1;
+            var m_SparseItemsSpan = new Span<int>(m_SparseItems);
+            var sparseItemsCount = reader.ReadUnmanagedSpan(ref m_SparseItemsSpan);
             Log.Assert(sparseItemsCount == m_SparseItemsCount, $"sparseItemsCount not equal. {nameof(sparseItemsCount)} != {nameof(m_SparseItemsCount)} {sparseItemsCount} != {m_SparseItemsCount}");
 
-            m_RecycledItemsCount = reader.ReadUnmanagedArray(ref m_RecycledItems, 1) + 1;
+            var m_RecycledItemsSpan = new Span<int>(m_RecycledItems);
+            m_RecycledItemsCount = reader.ReadUnmanagedSpan(ref m_RecycledItemsSpan);
 
             reader.ReadUnmanaged(ref m_DenseItemsCount);
             using var _ = HashSetPool<int>.Rent(out var used);
@@ -89,8 +91,8 @@ namespace Saro.Entities
             if (m_HasEcsSerializeInterface == false)
                 return;
 
-            writer.WriteUnmanagedArray(m_SparseItems, m_SparseItemsCount - 1, 1);
-            writer.WriteUnmanagedArray(m_RecycledItems, m_RecycledItemsCount - 1, 1);
+            writer.WriteUnmanagedSpan(m_SparseItems.AsSpan(0, m_SparseItemsCount));
+            writer.WriteUnmanagedSpan(m_RecycledItems.AsSpan(0, m_RecycledItemsCount));
 
 #if DEBUG
             using var _ = HashSetPool<int>.Rent(out var used);
@@ -135,19 +137,22 @@ namespace Saro.Entities
 
         void IEcsPool.Deserialize(ref FSnapshotReader reader)
         {
-            m_RecycledItemsCount = reader.ReadUnmanagedArray(ref m_RecycledItems, 1) + 1;
-            var sparseItemsCount = reader.ReadUnmanagedArray(ref m_SparseItems, 1) + 1;
-            m_DenseItemsCount = reader.ReadUnmanagedArray(ref m_DenseItems, 1) + 1;
+            Span<int> m_RecycledItemsSpan = m_RecycledItems;
+            m_RecycledItemsCount = reader.ReadUnmanagedSpan(ref m_RecycledItemsSpan);
+            Span<int> m_SparseItemsSpan = m_SparseItems;
+            var sparseItemsCount = reader.ReadUnmanagedSpan(ref m_SparseItemsSpan);
+            Span<T> m_DenseItemsSpan = m_DenseItems;
+            m_DenseItemsCount = reader.ReadUnmanagedSpan(ref m_DenseItemsSpan);
 
             Log.Assert(sparseItemsCount == m_SparseItemsCount, $"sparseItemsCount not equal. {nameof(sparseItemsCount)} != {nameof(m_SparseItemsCount)} {sparseItemsCount} != {m_SparseItemsCount}");
         }
 
         void IEcsPool.Serialize(ref FSnapshotWriter writer)
         {
-            writer.WriteUnmanagedArray(m_RecycledItems, m_RecycledItemsCount - 1, 1);
-            writer.WriteUnmanagedArray(m_SparseItems, m_SparseItemsCount - 1, 1);
+            writer.WriteUnmanagedSpan(m_RecycledItems.AsSpan(0, m_RecycledItemsCount));
+            writer.WriteUnmanagedSpan(m_SparseItems.AsSpan(0, m_SparseItemsCount));
 
-            writer.WriteUnmanagedArray(m_DenseItems, m_DenseItemsCount - 1, 1);
+            writer.WriteUnmanagedSpan(m_DenseItems.AsSpan(0, m_DenseItemsCount));
         }
 
         void IEcsPool.Reset()

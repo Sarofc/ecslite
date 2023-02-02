@@ -1,30 +1,27 @@
 ﻿using System;
-using System.IO;
+using System.Buffers;
+using Saro.FSnapshot;
 
 namespace Saro.Entities.Serialization
 {
     public static partial class EcsSerializeUtility
     {
-        public static unsafe void SerializeEcsWorldIntoYAML(EcsWorld world, StreamWriter writer)
+        public static void SerializeEcsWorldIntoText(EcsWorld world, IBufferWriter<char> bufferWriter)
         {
-            var yaml = new YamlWriter(writer);
-            //WriteYAMLHeader(yaml);
+            var writer = new FTextWriter(bufferWriter);
 
-            // TODO ecslite 考虑使用span整理api，span可以替代一部分裸指针功能，性能也强劲，并且更安全
-
-            world.SerializeIntoYAML(yaml);
-        }
-
-        static void WriteYAMLHeader(YamlWriter writer)
-        {
-            if (writer.CurrentIndent != 0)
+            try
             {
-                throw new InvalidOperationException("The header can only be written as root element");
+                world.Dump(ref writer);
             }
-
-            writer.WriteLine(@"%YAML 1.1")
-                .WriteLine(@"---")
-                .WriteLine(@"# EcsLite Debugging file");
+            catch (Exception e)
+            {
+                Log.ERROR(e);
+            }
+            finally
+            {
+                writer.Dispose();
+            }
         }
     }
 }

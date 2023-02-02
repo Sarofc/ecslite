@@ -53,8 +53,24 @@ namespace Saro.Entities
             return ref pool.GetOrAdd(self.id);
         }
 
+        [System.Obsolete("")]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ref T Add<T>(this EcsEntity self) where T : unmanaged, IEcsComponent
+        {
+            var pool = self.World.GetPoolUnmanaged<T>();
+            return ref pool.GetOrAdd(self.id);
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ref T GetOrAdd<T>(this int self, EcsWorld world) where T : unmanaged, IEcsComponent
+        {
+            var pool = world.GetPoolUnmanaged<T>();
+            return ref pool.GetOrAdd(self);
+        }
+
+        [System.Obsolete("")]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ref T Add<T>(this int self, EcsWorld world) where T : unmanaged, IEcsComponent
         {
             var pool = world.GetPoolUnmanaged<T>();
             return ref pool.GetOrAdd(self);
