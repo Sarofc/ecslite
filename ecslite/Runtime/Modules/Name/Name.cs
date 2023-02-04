@@ -27,7 +27,11 @@ namespace Saro.Entities
 
     partial class Name : IEquatable<Name>
     {
-        public bool Equals(Name other) => name == other.name;
+        public bool Equals(Name other)
+        {
+            if (other is null) return false;
+            return name == other.name;
+        }
 
         public override bool Equals(object obj) => obj is Name other && Equals(other);
 
@@ -35,7 +39,12 @@ namespace Saro.Entities
 
         public static bool operator !=(in Name x, in Name y) => !(x == y);
 
-        public static bool operator ==(in Name x, in Name y) => x.name == y.name;
+        public static bool operator ==(in Name x, in Name y)
+        {
+            if (x is null && y is null) return true;
+            if (x is null) return false;
+            return x.Equals(y);
+        }
     }
 
     partial class Name // utility

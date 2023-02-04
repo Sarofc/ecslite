@@ -115,7 +115,7 @@ namespace Saro.Entities.Tests.SerializeWorld
 
             // ====================================================
 
-            //Dump(world);
+            //DumpText(world);
 
             CreateTestEntity(systems, d2);
             ChangeEntityData(e2, d1);
@@ -140,7 +140,7 @@ namespace Saro.Entities.Tests.SerializeWorld
             //Log.INFO($"rollback. json2: {json2}");
             //Log.INFO($"rollback. json4: {json4}");
 
-            //Dump(world);
+            //DumpText(world);
 
             Assert.AreEqual(json2, json4);
         }
@@ -148,7 +148,7 @@ namespace Saro.Entities.Tests.SerializeWorld
 
         // ==================================================================
 
-        private void Dump(EcsWorld world)
+        private void DumpText(EcsWorld world)
         {
             var bufferWriter = new ArrayBufferWriter<char>(1024);
             EcsSerializeUtility.SerializeEcsWorldIntoText(world, bufferWriter);
@@ -282,9 +282,9 @@ namespace Saro.Entities.Tests.SerializeWorld
                 }
             }
 
-            public override void Dump(ref FTextWriter writer, global::Saro.Entities.Tests.SerializeWorld.TestComponent @ref)
+            public override void Dump(ref FTextWriter writer, in global::Saro.Entities.Tests.SerializeWorld.TestComponent value)
             {
-                @ref.Dump(ref writer);
+                value.Dump(ref writer);
             }
 
         }
