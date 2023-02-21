@@ -19,8 +19,7 @@ namespace Saro.Entities
         private readonly EcsWorld m_World;
         private readonly int m_ID;
 
-        private delegate void AutoResetHandler(ref T component);
-        private readonly AutoResetHandler m_AutoReset;
+        private EcsCleanupHandler<T> m_CleanupHandler;
 
         // 1-based index.
         private T[] m_DenseItems;
@@ -32,7 +31,7 @@ namespace Saro.Entities
         public bool IsSingleton { get; private set; }
 
 #if ENABLE_IL2CPP && !UNITY_EDITOR
-        T m_AutoresetFakeInstance;
+        T m_CleanupFakeInstance = new T();
 #endif
 
         public override string ToString()
@@ -60,34 +59,39 @@ namespace Saro.Entities
             m_DenseItemsCount = 1;
             m_RecycledItems = new int[recycledCapacity];
             m_RecycledItemsCount = 0;
-            var isAutoReset = typeof(IEcsAutoReset<T>).IsAssignableFrom(m_Type);
+
+            SetupCleanup();
+
+            InitPoolState();
+        }
+
+        private void SetupCleanup()
+        {
+            var hasCleanup = typeof(IEcsCleanup<T>).IsAssignableFrom(m_Type);
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
-            //if (!isAutoReset && m_Type.GetInterface("IEcsAutoReset`1") != null)
-            if (!isAutoReset)
+            if (!hasCleanup)
             {
-                throw new EcsException($"ManagedComponent <{m_Type.Name}> MUST have IEcsAutoReset interface.");
+                throw new EcsException($"ManagedComponent<{m_Type.Name}> MUST have {nameof(IEcsCleanup<T>)} interface.");
             }
 #endif
-            if (isAutoReset)
+            if (hasCleanup)
             {
-                var autoResetMethod = m_Type.GetMethod(nameof(IEcsAutoReset<T>.AutoReset));
+                var cleanupMethod = m_Type.GetMethod(nameof(IEcsCleanup<T>.Cleanup));
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
-                if (autoResetMethod == null)
+                if (cleanupMethod == null)
                 {
-                    throw new EcsException($"IEcsAutoReset<{m_Type.Name}> explicit implementation not supported, use implicit instead.");
+                    throw new EcsException($"{nameof(IEcsCleanup<T>)}<{m_Type.Name}> explicit implementation not supported, use implicit instead.");
                 }
 #endif
-                m_AutoReset = (AutoResetHandler)Delegate.CreateDelegate(
-                    typeof(AutoResetHandler),
+                m_CleanupHandler = (EcsCleanupHandler<T>)Delegate.CreateDelegate(
+                    typeof(EcsCleanupHandler<T>),
 #if ENABLE_IL2CPP && !UNITY_EDITOR
-                    m_AutoresetFakeInstance,
+                    m_CleanupFakeInstance,
 #else
                     null,
 #endif
-                    autoResetMethod);
+                    cleanupMethod);
             }
-
-            InitPoolState();
         }
 
 #if UNITY_2020_3_OR_NEWER
@@ -103,7 +107,7 @@ namespace Saro.Entities
         public EcsWorld GetWorld() => m_World;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetId() => m_ID;
+        public int GetComponentId() => m_ID;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Type GetComponentType() => m_Type;
@@ -176,7 +180,7 @@ namespace Saro.Entities
                 }
                 m_DenseItemsCount++;
                 m_DenseItems[idx] = CreateComponentInstance();
-                m_AutoReset?.Invoke(ref m_DenseItems[idx]);
+                m_CleanupHandler?.Invoke(ref m_DenseItems[idx]);
             }
             m_SparseItems[entity] = idx;
             m_World.OnEntityChange_Add_Internal(entity, m_ID);
@@ -228,9 +232,9 @@ namespace Saro.Entities
                     Array.Resize(ref m_RecycledItems, m_RecycledItemsCount << 1);
                 }
                 m_RecycledItems[m_RecycledItemsCount++] = sparseData;
-                if (m_AutoReset != null)
+                if (m_CleanupHandler != null)
                 {
-                    m_AutoReset.Invoke(ref m_DenseItems[sparseData]);
+                    m_CleanupHandler.Invoke(ref m_DenseItems[sparseData]);
                 }
                 //else
                 //{

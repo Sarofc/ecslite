@@ -12,7 +12,8 @@ using Unity.IL2CPP.CompilerServices;
 
 namespace Saro.Entities
 {
-    public readonly struct EcsEntity : IEquatable<EcsEntity>
+    [Unity.VisualScripting.IncludeInSettings(true)]
+    public readonly partial struct EcsEntity : IEquatable<EcsEntity>
     {
         public static readonly EcsEntity k_Null = default;
 

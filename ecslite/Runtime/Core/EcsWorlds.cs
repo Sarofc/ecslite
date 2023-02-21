@@ -15,6 +15,7 @@ namespace Saro.Entities
     [Unity.IL2CPP.CompilerServices.Il2CppSetOption(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
     [Unity.IL2CPP.CompilerServices.Il2CppSetOption(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 #endif
+    [Unity.VisualScripting.IncludeInSettings(true)]
     public partial class EcsWorld
     {
         internal short worldId;
@@ -796,7 +797,7 @@ namespace Saro.Entities
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public Mask Inc<T>() where T : class, IEcsComponent, new()
             {
-                var poolId = m_World.GetPool<T>().GetId();
+                var poolId = m_World.GetPool<T>().GetComponentId();
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
                 if (m_Built)
                 {
@@ -828,7 +829,7 @@ namespace Saro.Entities
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public Mask Exc<T>() where T : class, IEcsComponent, new()
             {
-                var poolId = m_World.GetPool<T>().GetId();
+                var poolId = m_World.GetPool<T>().GetComponentId();
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
                 if (m_Built)
                 {
@@ -857,7 +858,7 @@ namespace Saro.Entities
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             internal Mask IncUnmanaged<T>() where T : unmanaged, IEcsComponent
             {
-                var poolId = m_World.GetPoolUnmanaged<T>().GetId();
+                var poolId = m_World.GetPoolUnmanaged<T>().GetComponentId();
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
                 if (m_Built)
                 {
@@ -886,7 +887,7 @@ namespace Saro.Entities
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             internal Mask ExcUnmanaged<T>() where T : unmanaged, IEcsComponent
             {
-                var poolId = m_World.GetPoolUnmanaged<T>().GetId();
+                var poolId = m_World.GetPoolUnmanaged<T>().GetComponentId();
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
                 if (m_Built)
                 {

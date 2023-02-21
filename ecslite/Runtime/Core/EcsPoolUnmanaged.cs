@@ -25,6 +25,12 @@ namespace Saro.Entities
         private int[] m_RecycledItems;
         private int m_RecycledItemsCount;
 
+        private EcsCleanupHandler<T> m_CleanupHandler;
+
+#if ENABLE_IL2CPP && !UNITY_EDITOR
+        private T m_CleanupFakeInstance;
+#endif
+
         public bool IsSingleton { get; private set; }
 
         public override string ToString()
@@ -50,6 +56,31 @@ namespace Saro.Entities
             m_DenseItemsCount = 1;
             m_RecycledItems = new int[recycledCapacity];
             m_RecycledItemsCount = 0;
+
+            SetupCleanup();
+        }
+
+        private void SetupCleanup()
+        {
+            var hasCleanup = typeof(IEcsCleanup<T>).IsAssignableFrom(m_Type);
+            if (hasCleanup)
+            {
+                var cleanupMethod = m_Type.GetMethod(nameof(IEcsCleanup<T>.Cleanup));
+#if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
+                if (cleanupMethod == null)
+                {
+                    throw new EcsException($"{nameof(IEcsCleanup<T>)}<{m_Type.Name}> explicit implementation not supported, use implicit instead.");
+                }
+#endif
+                m_CleanupHandler = (EcsCleanupHandler<T>)Delegate.CreateDelegate(
+                    typeof(EcsCleanupHandler<T>),
+#if ENABLE_IL2CPP && !UNITY_EDITOR
+                    m_CleanupFakeInstance,
+#else
+                    null,
+#endif
+                    cleanupMethod);
+            }
         }
 
 #if UNITY_2020_3_OR_NEWER
@@ -65,7 +96,7 @@ namespace Saro.Entities
         public EcsWorld GetWorld() => m_World;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetId() => m_ID;
+        public int GetComponentId() => m_ID;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Type GetComponentType() => m_Type;
@@ -133,7 +164,7 @@ namespace Saro.Entities
                     Array.Resize(ref m_DenseItems, m_DenseItemsCount << 1);
                 }
                 m_DenseItemsCount++;
-                //m_AutoReset?.Invoke(ref m_DenseItems[idx]);
+                m_CleanupHandler?.Invoke(ref m_DenseItems[idx]);
             }
             m_SparseItems[entity] = idx;
             m_World.OnEntityChange_Add_Internal(entity, m_ID);
@@ -184,11 +215,11 @@ namespace Saro.Entities
                     Array.Resize(ref m_RecycledItems, m_RecycledItemsCount << 1);
                 }
                 m_RecycledItems[m_RecycledItemsCount++] = sparseData;
-                //if (m_AutoReset != null)
-                //{
-                //    m_AutoReset.Invoke(ref m_DenseItems[sparseData]);
-                //}
-                //else
+                if (m_CleanupHandler != null)
+                {
+                    m_CleanupHandler.Invoke(ref m_DenseItems[sparseData]);
+                }
+                else
                 {
                     //GetDenseItem(sparseData) = default;
                     m_DenseItems[sparseData] = default;

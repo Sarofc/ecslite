@@ -4,8 +4,9 @@
     "references": [
         "Saro.MGF",
         "Unity.Mathematics",
-        "ME.ECS.FPMath",
-        "Saro.FSnapshot"
+        "Saro.FSnapshot",
+        "Saro.FPMath",
+        "Unity.VisualScripting.Core"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -14,6 +15,12 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.visualscripting",
+            "expression": "",
+            "define": "UNITY_VISUAL_SCRIPTING"
+        }
+    ],
     "noEngineReferences": false
 }

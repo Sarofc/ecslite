@@ -9,7 +9,8 @@ namespace Saro.Entities.Transforms
     [Unity.IL2CPP.CompilerServices.Il2CppSetOption(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
     [Unity.IL2CPP.CompilerServices.Il2CppSetOption(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 #endif
-    public static class EcsTransformUtility
+    [Unity.VisualScripting.IncludeInSettings(true)]
+    public static partial class EcsTransformUtility
     {
         internal static void OnEntityDestroy(EcsEntity toDestroy)
         {
@@ -49,25 +50,6 @@ namespace Saro.Entities.Transforms
                         }
                     }
                 }
-            }
-        }
-
-        static void __OnEntityDestroy(EcsEntity toDestroy)
-        {
-            if (toDestroy.World.ParentPool.Has(toDestroy.id))
-            {
-                SetParent_Internal(toDestroy, EcsEntity.k_Null);
-            }
-
-            if (toDestroy.World.ChildrenPool.Has(toDestroy.id))
-            {
-                // TODO: Possible stack overflow while using Clear(true) because of OnEntityDestroy call
-                ref var nodes = ref toDestroy.World.ChildrenPool.Get(toDestroy.id);
-                foreach (ref readonly var child in nodes.items)
-                {
-                    child.World.ParentPool.Del(child.id);
-                }
-                nodes.items.Clear(destroyData: true);
             }
         }
 
@@ -200,33 +182,5 @@ namespace Saro.Entities.Transforms
         {
             return FindInHierarchy(entity.id, entity.World, root);
         }
-
-        // TODO new version?
-        //         public static void OnEntityVersionChanged(EcsEntityWithWorld entity)
-        //         {
-        //             if (entity.TryGet<Nodes>(out var nodes) == true)
-        //             {
-        //                 var world = entity.world;
-        //                 foreach (var item in nodes.items)
-        //                 {
-        //                     world.IncrementEntityVersion(in item);
-        //                     // TODO: Possible stack overflow while using OnEntityVersionChanged call
-        //                     world.OnEntityVersionChanged(in item);
-        //                 }
-        //             }
-        //         }
-        //
-        //         public static uint GetVersionInHierarchy(this EcsEntityWithWorld entity)
-        //         {
-        //             var v = entity.GetVersion();
-        //             var ent = entity;
-        //             while (ent.TryGet<Container>(out var container) == true)
-        //             {
-        //                 ent = container.entity;
-        //                 v += ent.GetVersion();
-        //             }
-        //             return v;
-        //         }
-
     }
 }

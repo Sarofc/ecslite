@@ -1,6 +1,6 @@
 ﻿#if FIXED_POINT_MATH
-using ME.ECS.Mathematics;
-using Single = sfloat;
+using Saro.FPMath;
+using Single = Saro.FPMath.sfloat;
 #else
 using Unity.Mathematics;
 using Single = System.Single;
@@ -18,7 +18,7 @@ namespace Saro.Entities.Transforms
     //private static readonly Vector3 rightVector = new Vector3(1f, 0f, 0f);
     //private static readonly Vector3 forwardVector = new Vector3(0f, 0f, 1f);
 
-    public static class EcsTransformExtensions
+    public static partial class EcsTransformUtility
     {
         public static readonly float3 _one = new((Single)1f, (Single)1f, (Single)1f);
 
@@ -28,10 +28,10 @@ namespace Saro.Entities.Transforms
         public static float3 GetForward(this EcsEntity entity)
             => entity.id.GetForward(entity.World);
 
-        public static void SetForward(this int entity, float3 forward, EcsWorld world)
+        public static void SetForward(this int entity, in float3 forward, EcsWorld world)
             => entity.SetRotation(world, quaternion.LookRotationSafe(forward, math.up()));
 
-        public static void SetForward(this EcsEntity entity, float3 forward)
+        public static void SetForward(this EcsEntity entity, in float3 forward)
             => entity.id.SetForward(forward, entity.World);
 
         public static void GetRight(this EcsEntity entity)
@@ -40,10 +40,10 @@ namespace Saro.Entities.Transforms
         public static float3 GetRight(this int entity, EcsWorld world)
             => math.mul(entity.GetRotation(world), math.right());
 
-        public static void SetRight(this EcsEntity entity, float3 right)
+        public static void SetRight(this EcsEntity entity, in float3 right)
             => entity.id.SetRight(right, entity.World);
 
-        public static void SetRight(this int entity, float3 right, EcsWorld world)
+        public static void SetRight(this int entity, in float3 right, EcsWorld world)
             => entity.SetRotation(world, FromToRotation(right, math.right()));
 
         public static void GetUp(this EcsEntity entity)
@@ -52,10 +52,10 @@ namespace Saro.Entities.Transforms
         public static float3 GetUp(this int entity, EcsWorld world)
             => math.mul(entity.GetRotation(world), math.up());
 
-        public static void SetUp(this EcsEntity entity, float3 up)
+        public static void SetUp(this EcsEntity entity, in float3 up)
             => entity.id.SetUp(up, entity.World);
 
-        public static void SetUp(this int entity, float3 up, EcsWorld world)
+        public static void SetUp(this int entity, in float3 up, EcsWorld world)
             => entity.SetRotation(world, FromToRotation(up, math.up()));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

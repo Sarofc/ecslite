@@ -209,13 +209,13 @@ namespace Saro.Entities
                 if (used.Contains(componentIndex)) continue;
                 var c = m_DenseItems[componentIndex];
                 if (c == null) continue;
-                m_AutoReset?.Invoke(ref c);
+                m_CleanupHandler?.Invoke(ref c);
             }
             for (; componentIndex < m_DenseItems.Length; componentIndex++)
             {
                 var c = m_DenseItems[componentIndex];
                 if (c == null) continue;
-                m_AutoReset?.Invoke(ref c);
+                m_CleanupHandler?.Invoke(ref c);
             }
         }
 
@@ -255,8 +255,8 @@ namespace Saro.Entities
             {
                 var c = m_DenseItems[i];
 
-                if (m_AutoReset != null)
-                    m_AutoReset(ref c);
+                if (m_CleanupHandler != null)
+                    m_CleanupHandler(ref c);
             }
 
             m_DenseItemsCount = 1;

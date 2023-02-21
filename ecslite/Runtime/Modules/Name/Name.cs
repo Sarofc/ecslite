@@ -8,7 +8,7 @@ namespace Saro.Entities
     /// Name component for entity
     /// </summary>
     [FSnapshotable]
-    public partial class Name : IEcsComponent, IEcsAutoReset<Name>
+    public partial class Name : IEcsComponent, IEcsCleanup<Name>
     {
         [FSnapshot] public string name; // TODO FixedString 后，可以
 
@@ -19,7 +19,7 @@ namespace Saro.Entities
             this.name = name;
         }
 
-        public void AutoReset(ref Name c)
+        public void Cleanup(ref Name c)
         {
             c.name = null;
         }

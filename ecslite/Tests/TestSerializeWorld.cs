@@ -1,6 +1,6 @@
 ﻿#if FIXED_POINT_MATH
-using ME.ECS.Mathematics;
-using Single = sfloat;
+using Saro.FPMath;
+using Single = Saro.FPMath.sfloat;
 #else
 using Unity.Mathematics;
 using Single = System.Single;
@@ -36,11 +36,11 @@ namespace Saro.Entities.Tests.SerializeWorld
     }
 
     [FSnapshotable]
-    internal partial class TestComponent : IEcsComponent, IEcsAutoReset<TestComponent>
+    internal partial class TestComponent : IEcsComponent, IEcsCleanup<TestComponent>
     {
         [FSnapshot] public data d;
 
-        public void AutoReset(ref TestComponent c)
+        public void Cleanup(ref TestComponent c)
         {
             c.d = default;
         }
