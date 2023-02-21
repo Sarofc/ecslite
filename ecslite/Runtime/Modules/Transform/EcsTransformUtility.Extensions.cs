@@ -10,14 +10,6 @@ using System.Runtime.CompilerServices;
 
 namespace Saro.Entities.Transforms
 {
-    //private static readonly Vector3 zeroVector = new Vector3(0f, 0f, 0f);
-    //private static readonly Vector3 oneVector = new Vector3(1f, 1f, 1f);
-    //private static readonly Vector3 upVector = new Vector3(0f, 1f, 0f);
-    //private static readonly Vector3 downVector = new Vector3(0f, -1f, 0f);
-    //private static readonly Vector3 leftVector = new Vector3(-1f, 0f, 0f);
-    //private static readonly Vector3 rightVector = new Vector3(1f, 0f, 0f);
-    //private static readonly Vector3 forwardVector = new Vector3(0f, 0f, 1f);
-    
     public static partial class EcsTransformUtility
     {
         public static readonly float3 _one = new((Single)1f, (Single)1f, (Single)1f);
