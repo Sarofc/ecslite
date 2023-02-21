@@ -17,44 +17,56 @@ namespace Saro.Entities.Transforms
     //private static readonly Vector3 leftVector = new Vector3(-1f, 0f, 0f);
     //private static readonly Vector3 rightVector = new Vector3(1f, 0f, 0f);
     //private static readonly Vector3 forwardVector = new Vector3(0f, 0f, 1f);
-
+    
     public static partial class EcsTransformUtility
     {
         public static readonly float3 _one = new((Single)1f, (Single)1f, (Single)1f);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float3 GetForward(this int entity, EcsWorld world)
             => math.mul(entity.GetRotation(world), math.forward());
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float3 GetForward(this EcsEntity entity)
             => entity.id.GetForward(entity.World);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void SetForward(this int entity, in float3 forward, EcsWorld world)
             => entity.SetRotation(world, quaternion.LookRotationSafe(forward, math.up()));
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void SetForward(this EcsEntity entity, in float3 forward)
             => entity.id.SetForward(forward, entity.World);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void GetRight(this EcsEntity entity)
             => entity.id.GetRight(entity.World);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float3 GetRight(this int entity, EcsWorld world)
             => math.mul(entity.GetRotation(world), math.right());
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void SetRight(this EcsEntity entity, in float3 right)
             => entity.id.SetRight(right, entity.World);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void SetRight(this int entity, in float3 right, EcsWorld world)
             => entity.SetRotation(world, FromToRotation(right, math.right()));
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void GetUp(this EcsEntity entity)
             => entity.id.GetUp(entity.World);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float3 GetUp(this int entity, EcsWorld world)
             => math.mul(entity.GetRotation(world), math.up());
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void SetUp(this EcsEntity entity, in float3 up)
             => entity.id.SetUp(up, entity.World);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void SetUp(this int entity, in float3 up, EcsWorld world)
             => entity.SetRotation(world, FromToRotation(up, math.up()));
 
