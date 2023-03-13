@@ -28,7 +28,7 @@ namespace Saro.Entities.Inspectors
             {
                 if (value.World == value.World)
                 {
-                    var entityName = Name.GetEntityName(value.id, value.World);
+                    var entityName = EntityName.GetEntityName(value.id, value.World);
                     if (GUILayout.Button($"Ping [{entityName}]"))
                     {
                         var debugViews = GameObject.FindObjectsOfType<EcsEntityDebugView>(true);

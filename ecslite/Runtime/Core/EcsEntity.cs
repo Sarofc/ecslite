@@ -94,7 +94,7 @@ namespace Saro.Entities
             }
         }
 
-        public override string ToString() => Name.GetEntityInfo(id, World);
+        public override string ToString() => EntityName.GetEntityInfo(id, World);
 #endif
     }
 }

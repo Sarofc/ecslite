@@ -8,38 +8,38 @@ namespace Saro.Entities
     /// Name component for entity
     /// </summary>
     [FSnapshotable]
-    public partial class Name : IEcsComponent, IEcsCleanup<Name>
+    public partial class EntityName : IEcsComponent, IEcsCleanup<EntityName>
     {
         [FSnapshot] public string name; // TODO FixedString 后，可以
 
-        public Name() : this(null) { }
+        public EntityName() : this(null) { }
 
-        public Name(string name)
+        public EntityName(string name)
         {
             this.name = name;
         }
 
-        public void Cleanup(ref Name c)
+        public void Cleanup(ref EntityName c)
         {
             c.name = null;
         }
     }
 
-    partial class Name : IEquatable<Name>
+    partial class EntityName : IEquatable<EntityName>
     {
-        public bool Equals(Name other)
+        public bool Equals(EntityName other)
         {
             if (other is null) return false;
             return name == other.name;
         }
 
-        public override bool Equals(object obj) => obj is Name other && Equals(other);
+        public override bool Equals(object obj) => obj is EntityName other && Equals(other);
 
         public override int GetHashCode() => (name != null ? name.GetHashCode() : 0);
 
-        public static bool operator !=(in Name x, in Name y) => !(x == y);
+        public static bool operator !=(in EntityName x, in EntityName y) => !(x == y);
 
-        public static bool operator ==(in Name x, in Name y)
+        public static bool operator ==(in EntityName x, in EntityName y)
         {
             if (x is null && y is null) return true;
             if (x is null) return false;
@@ -47,7 +47,7 @@ namespace Saro.Entities
         }
     }
 
-    partial class Name // utility
+    partial class EntityName // utility
     {
         public const string k_EntityNameFormat = "X8";
 
@@ -68,7 +68,7 @@ namespace Saro.Entities
                 return "Entity-NonAlive";
             }
 
-            var namePool = world.NamePool;
+            var namePool = world.EntityNamePool;
             if (namePool.Has(entity))
             {
                 return $"{namePool.Get(entity).name}";
@@ -85,7 +85,7 @@ namespace Saro.Entities
 
         public static string GetEntityInfo(int entity, EcsWorld world, string entityNameFormat = k_EntityNameFormat)
         {
-            return $"{world.worldId}:{entity}.{world.GetEntityGen(entity)}({Name.GetEntityName(entity, world, entityNameFormat)})";
+            return $"{world.worldId}:{entity}.{world.GetEntityGen(entity)}({EntityName.GetEntityName(entity, world, entityNameFormat)})";
         }
 
         public static string GetEntityDetial(int entity, EcsWorld world, string entityNameFormat = k_EntityNameFormat)
@@ -109,7 +109,7 @@ namespace Saro.Entities
                 }
             }
 
-            return $"{Name.GetEntityInfo(entity, world, entityNameFormat)} [{sb}]";
+            return $"{EntityName.GetEntityInfo(entity, world, entityNameFormat)} [{sb}]";
         }
     }
 }
