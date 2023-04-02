@@ -126,8 +126,8 @@ namespace Saro.Entities.Collections
                 node.Destroy();
             }
 
-            m_Root = EcsEntity.k_Null;
-            m_Head = EcsEntity.k_Null;
+            m_Root = EcsEntity.Null;
+            m_Head = EcsEntity.Null;
             m_Count = 0;
         }
 
@@ -228,7 +228,7 @@ namespace Saro.Entities.Collections
 #endif
         public EcsEntity GetValue(int index)
         {
-            if (m_Count == 0) return EcsEntity.k_Null;
+            if (m_Count == 0) return EcsEntity.Null;
 
             var node = FindNode(index);
             if (node.IsAlive() == true)
@@ -237,7 +237,7 @@ namespace Saro.Entities.Collections
                 //return node.Get<IntrusiveListNode>().data;
             }
 
-            return EcsEntity.k_Null;
+            return EcsEntity.Null;
         }
 
         /// <summary>
@@ -444,7 +444,7 @@ namespace Saro.Entities.Collections
         /// <returns>Returns instance, default if not found</returns>
         public EcsEntity GetFirst()
         {
-            if (m_Root.IsAlive() == false) return EcsEntity.k_Null;
+            if (m_Root.IsAlive() == false) return EcsEntity.Null;
 
             return m_Root.World.NodePool.Get(m_Root.id).data;
             //return root.Get<IntrusiveListNode>().data;
@@ -456,7 +456,7 @@ namespace Saro.Entities.Collections
         /// <returns>Returns instance, default if not found</returns>
         public EcsEntity GetLast()
         {
-            if (m_Head.IsAlive() == false) return EcsEntity.k_Null;
+            if (m_Head.IsAlive() == false) return EcsEntity.Null;
 
             return m_Head.World.NodePool.Get(m_Head.id).data;
             //return head.Get<IntrusiveListNode>().data;
@@ -493,7 +493,7 @@ namespace Saro.Entities.Collections
 #endif
         private EcsEntity FindNode(EcsEntity entity)
         {
-            if (m_Count == 0) return EcsEntity.k_Null;
+            if (m_Count == 0) return EcsEntity.Null;
 
             var node = m_Root;
             do
@@ -511,7 +511,7 @@ namespace Saro.Entities.Collections
             while (node.IsAlive() == true);
 
 
-            return EcsEntity.k_Null;
+            return EcsEntity.Null;
         }
 
 #if INLINE_METHODS
@@ -533,7 +533,7 @@ namespace Saro.Entities.Collections
                 if (idx >= m_Count) break;
             } while (node.IsAlive() == true);
 
-            return EcsEntity.k_Null;
+            return EcsEntity.Null;
         }
 
 #if INLINE_METHODS
@@ -556,8 +556,8 @@ namespace Saro.Entities.Collections
             if (node == m_Head) m_Head = link.prev;
             if (m_Head == m_Root && m_Root == node)
             {
-                m_Root = EcsEntity.k_Null;
-                m_Head = EcsEntity.k_Null;
+                m_Root = EcsEntity.Null;
+                m_Head = EcsEntity.Null;
             }
 
             if (destroyData)

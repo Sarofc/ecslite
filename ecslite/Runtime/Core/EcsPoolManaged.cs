@@ -254,4 +254,13 @@ namespace Saro.Entities
             }
         }
     }
+
+    partial class EcsPoolManaged<T>
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool Has(EcsEntity entity) => Has(entity.id);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ref T Get(EcsEntity entity) => ref Get(entity.id);
+    }
 }

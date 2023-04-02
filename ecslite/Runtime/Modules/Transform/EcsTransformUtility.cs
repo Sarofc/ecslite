@@ -16,7 +16,7 @@ namespace Saro.Entities.Transforms
         {
             if (toDestroy.World.ParentPool.Has(toDestroy.id))
             {
-                SetParent_Internal(toDestroy, EcsEntity.k_Null);
+                SetParent_Internal(toDestroy, EcsEntity.Null);
             }
 
             using (StackPool<EcsEntity>.Rent(out var stack))
@@ -125,7 +125,7 @@ namespace Saro.Entities.Transforms
         {
             if (entity == root) return;
 
-            if (root == EcsEntity.k_Null)
+            if (root == EcsEntity.Null)
             {
                 ref readonly var parent = ref entity.World.ParentPool.GetOrAdd(entity.id).entity;
                 if (!parent.IsAlive()) return;
@@ -147,7 +147,7 @@ namespace Saro.Entities.Transforms
 
                 if (parent.IsAlive())
                 {
-                    entity.SetParent(EcsEntity.k_Null);
+                    entity.SetParent(EcsEntity.Null);
                 }
 
                 parent = root;

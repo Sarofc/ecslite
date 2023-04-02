@@ -15,7 +15,7 @@ namespace Saro.Entities
     [Unity.VisualScripting.IncludeInSettings(true)]
     public readonly partial struct EcsEntity : IEquatable<EcsEntity>
     {
-        public static readonly EcsEntity k_Null = default;
+        public static readonly EcsEntity Null = default;
 
         public readonly int id;
         internal readonly short gen;
@@ -36,7 +36,7 @@ namespace Saro.Entities
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly bool IsNull() => this == k_Null;
+        public readonly bool IsNull() => this == Null;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly bool IsAlive()

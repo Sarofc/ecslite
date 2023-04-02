@@ -84,7 +84,7 @@ namespace Saro.Entities
         public static ref T Get<T>(this EcsEntity self) where T : class, IEcsComponent, new()
         {
             var pool = self.World.GetPool<T>();
-            return ref pool.Get(self.id);
+            return ref pool.Get(self);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

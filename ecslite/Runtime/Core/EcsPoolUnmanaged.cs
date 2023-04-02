@@ -251,4 +251,13 @@ namespace Saro.Entities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private ref T GetDenseItem(int index) => ref Unsafe.Add(ref MemoryMarshal.GetReference<T>(m_DenseItems), index);
     }
+
+    partial class EcsPoolUnmanaged<T>
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool Has(EcsEntity entity) => Has(entity.id);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ref T Get(EcsEntity entity) => ref Get(entity.id);
+    }
 }
