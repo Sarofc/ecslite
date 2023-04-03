@@ -38,15 +38,15 @@ namespace Saro.Entities
         private readonly int m_PoolRecycledSize;
         private readonly Dictionary<Type, IEcsPool> m_PoolHashes;
         private readonly Dictionary<int, EcsFilter> m_HashedFilters;
-        private List<EcsFilter>[] m_FiltersByIncludedComponents;
-        private List<EcsFilter>[] m_FiltersByExcludedComponents;
+        internal List<EcsFilter>[] m_FiltersByIncludedComponents;
+        internal List<EcsFilter>[] m_FiltersByExcludedComponents;
 
         private readonly static object k_LockObject = new();
 
         internal readonly List<EcsSystems> ecsSystemsList = new();
 
 #if DEBUG || LEOECSLITE_WORLD_EVENTS
-        private readonly List<IEcsWorldEventListener> m_EventListeners;
+        internal readonly List<IEcsWorldEventListener> m_EventListeners;
 
         public void AddEventListener(IEcsWorldEventListener listener)
         {
@@ -355,10 +355,13 @@ namespace Saro.Entities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int GetFreeMaskCount() => m_FreeMasksCount;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public EcsPoolManaged<T> GetPool<T>() where T : class, IEcsComponent, new() => GetPool<T>(m_PoolDenseSize, m_Entities.Length, m_PoolRecycledSize);
+        [System.Obsolete("use 'GetOrAddPool' instead", true)]
+        public EcsPoolManaged<T> GetPool<T>() where T : class, IEcsComponent, new() => GetOrAddPool<T>(m_PoolDenseSize, m_Entities.Length, m_PoolRecycledSize);
 
-        internal EcsPoolManaged<T> GetPool<T>(int denseCapacity, int sparseCapacity, int recycledCapacity) where T : class, IEcsComponent, new()
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public EcsPoolManaged<T> GetOrAddPool<T>() where T : class, IEcsComponent, new() => GetOrAddPool<T>(m_PoolDenseSize, m_Entities.Length, m_PoolRecycledSize);
+
+        internal EcsPoolManaged<T> GetOrAddPool<T>(int denseCapacity, int sparseCapacity, int recycledCapacity) where T : class, IEcsComponent, new()
         {
             var poolType = typeof(T);
             if (m_PoolHashes.TryGetValue(poolType, out var rawPool))
@@ -380,8 +383,8 @@ namespace Saro.Entities
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal EcsPoolUnmanaged<T> GetPoolUnmanaged<T>() where T : unmanaged, IEcsComponent => GetPoolUnmanaged<T>(m_PoolDenseSize, m_Entities.Length, m_PoolRecycledSize);
-        internal EcsPoolUnmanaged<T> GetPoolUnmanaged<T>(int denseCapacity, int sparseCapacity, int recycledCapacity) where T : unmanaged, IEcsComponent
+        internal EcsPoolUnmanaged<T> GetOrAddPoolUnmanaged<T>() where T : unmanaged, IEcsComponent => GetOrAddPoolUnmanaged<T>(m_PoolDenseSize, m_Entities.Length, m_PoolRecycledSize);
+        internal EcsPoolUnmanaged<T> GetOrAddPoolUnmanaged<T>(int denseCapacity, int sparseCapacity, int recycledCapacity) where T : unmanaged, IEcsComponent
         {
             var poolType = typeof(T);
             if (m_PoolHashes.TryGetValue(poolType, out var rawPool))
@@ -567,46 +570,9 @@ namespace Saro.Entities
             m_HashedFilters[hash] = filter;
             m_AllFilters.Add(filter);
 
-            // add to component dictionaries for fast compatibility scan.
-            for (int i = 0, iMax = mask.includeCount; i < iMax; i++)
-            {
-                var list = m_FiltersByIncludedComponents[mask.include[i]];
-                if (list == null)
-                {
-                    list = new List<EcsFilter>(8);
-                    m_FiltersByIncludedComponents[mask.include[i]] = list;
-                }
+            // update filter
+            filter.Update();
 
-                list.Add(filter);
-            }
-
-            for (int i = 0, iMax = mask.excludeCount; i < iMax; i++)
-            {
-                var list = m_FiltersByExcludedComponents[mask.exclude[i]];
-                if (list == null)
-                {
-                    list = new List<EcsFilter>(8);
-                    m_FiltersByExcludedComponents[mask.exclude[i]] = list;
-                }
-
-                list.Add(filter);
-            }
-
-            // scan exist entities for compatibility with new filter.
-            for (int i = 1, iMax = m_EntitiesCount; i < iMax; i++)
-            {
-                ref var entityData = ref m_Entities[i];
-                if (entityData.compsCount > 0 && IsMaskCompatible(mask, i))
-                {
-                    filter.AddEntity(i);
-                }
-            }
-#if DEBUG || LEOECSLITE_WORLD_EVENTS
-            for (int ii = 0, iMax = m_EventListeners.Count; ii < iMax; ii++)
-            {
-                m_EventListeners[ii].OnFilterCreated(filter);
-            }
-#endif
             return (filter, true);
         }
 
@@ -693,7 +659,7 @@ namespace Saro.Entities
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool IsMaskCompatible(Mask filterMask, int entity)
+        internal bool IsMaskCompatible(Mask filterMask, int entity)
         {
             for (int i = 0, iMax = filterMask.includeCount; i < iMax; i++)
             {
@@ -797,7 +763,7 @@ namespace Saro.Entities
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public Mask Inc<T>() where T : class, IEcsComponent, new()
             {
-                var poolId = m_World.GetPool<T>().GetComponentId();
+                var poolId = m_World.GetOrAddPool<T>().GetComponentId();
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
                 if (m_Built)
                 {
@@ -829,7 +795,7 @@ namespace Saro.Entities
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public Mask Exc<T>() where T : class, IEcsComponent, new()
             {
-                var poolId = m_World.GetPool<T>().GetComponentId();
+                var poolId = m_World.GetOrAddPool<T>().GetComponentId();
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
                 if (m_Built)
                 {
@@ -858,7 +824,7 @@ namespace Saro.Entities
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             internal Mask IncUnmanaged<T>() where T : unmanaged, IEcsComponent
             {
-                var poolId = m_World.GetPoolUnmanaged<T>().GetComponentId();
+                var poolId = m_World.GetOrAddPoolUnmanaged<T>().GetComponentId();
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
                 if (m_Built)
                 {
@@ -887,7 +853,7 @@ namespace Saro.Entities
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             internal Mask ExcUnmanaged<T>() where T : unmanaged, IEcsComponent
             {
-                var poolId = m_World.GetPoolUnmanaged<T>().GetComponentId();
+                var poolId = m_World.GetOrAddPoolUnmanaged<T>().GetComponentId();
 #if DEBUG && !LEOECSLITE_NO_SANITIZE_CHECKS
                 if (m_Built)
                 {
@@ -992,8 +958,11 @@ namespace Saro.Entities
 
     public static class EcsWorldExtensionUnmanaged
     {
+        [System.Obsolete("use 'GetOrAddPool' instead", true)]
+        public static EcsPoolUnmanaged<T> GetPool<T>(this EcsWorld world) where T : unmanaged, IEcsComponent => world.GetOrAddPoolUnmanaged<T>();
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static EcsPoolUnmanaged<T> GetPool<T>(this EcsWorld world) where T : unmanaged, IEcsComponent => world.GetPoolUnmanaged<T>();
+        public static EcsPoolUnmanaged<T> GetOrAddPool<T>(this EcsWorld world) where T : unmanaged, IEcsComponent => world.GetOrAddPoolUnmanaged<T>();
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ref T GetSingleton<T>(this EcsWorld world) where T : unmanaged, IEcsComponentSingleton => ref world.GetSingletonUnmanaged<T>();
 

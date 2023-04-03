@@ -14,9 +14,9 @@ namespace Saro.Entities
 #endif
     public sealed partial class EcsPoolUnmanaged<T> : IEcsPool where T : unmanaged, IEcsComponent
     {
-        private readonly Type m_Type;
-        private readonly EcsWorld m_World;
-        private readonly int m_ID;
+        private Type m_Type;
+        private EcsWorld m_World;
+        private int m_ID;
 
         // 1-based index.
         private T[] m_DenseItems;
@@ -39,6 +39,11 @@ namespace Saro.Entities
         }
 
         internal EcsPoolUnmanaged(EcsWorld world, int id, int denseCapacity, int sparseCapacity, int recycledCapacity)
+        {
+            ((IEcsPool)this).Init(world, id, denseCapacity, sparseCapacity, recycledCapacity);
+        }
+
+        void IEcsPool.Init(EcsWorld world, int id, int denseCapacity, int sparseCapacity, int recycledCapacity)
         {
             m_Type = typeof(T);
 
@@ -88,7 +93,7 @@ namespace Saro.Entities
 #endif
         private void ReflectionSupportHack()
         {
-            m_World.GetPoolUnmanaged<T>();
+            m_World.GetOrAddPoolUnmanaged<T>();
             m_World.Filter().IncUnmanaged<T>().ExcUnmanaged<T>().End();
         }
 

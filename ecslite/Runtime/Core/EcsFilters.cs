@@ -4,6 +4,7 @@
 // ----------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace Saro.Entities
@@ -256,6 +257,57 @@ namespace Saro.Entities
             sb.Append("  hash: " + m_Mask.hash);
 
             return StringBuilderCache.GetStringAndRelease(sb);
+        }
+
+        internal void Update()
+        {
+            var mask = m_Mask;
+            var m_FiltersByIncludedComponents = m_World.m_FiltersByIncludedComponents;
+            var m_FiltersByExcludedComponents = m_World.m_FiltersByExcludedComponents;
+            var m_Entities = m_World.m_Entities;
+            var m_EntitiesCount = m_World.m_EntitiesCount;
+            var m_EventListeners = m_World.m_EventListeners;
+
+            // add to component dictionaries for fast compatibility scan.
+            for (int i = 0, iMax = mask.includeCount; i < iMax; i++)
+            {
+                var list = m_FiltersByIncludedComponents[mask.include[i]];
+                if (list == null)
+                {
+                    list = new List<EcsFilter>(8);
+                    m_FiltersByIncludedComponents[mask.include[i]] = list;
+                }
+
+                list.Add(this);
+            }
+
+            for (int i = 0, iMax = mask.excludeCount; i < iMax; i++)
+            {
+                var list = m_FiltersByExcludedComponents[mask.exclude[i]];
+                if (list == null)
+                {
+                    list = new List<EcsFilter>(8);
+                    m_FiltersByExcludedComponents[mask.exclude[i]] = list;
+                }
+
+                list.Add(this);
+            }
+
+            // scan exist entities for compatibility with new filter.
+            for (int i = 1, iMax = m_EntitiesCount; i < iMax; i++)
+            {
+                ref var entityData = ref m_Entities[i];
+                if (entityData.compsCount > 0 && m_World.IsMaskCompatible(mask, i))
+                {
+                    this.AddEntity(i);
+                }
+            }
+#if DEBUG || LEOECSLITE_WORLD_EVENTS
+            for (int ii = 0, iMax = m_EventListeners.Count; ii < iMax; ii++)
+            {
+                m_EventListeners[ii].OnFilterCreated(this);
+            }
+#endif
         }
 
         public struct Enumerator : IDisposable

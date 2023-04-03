@@ -15,9 +15,9 @@ namespace Saro.Entities
 #endif
     public sealed partial class EcsPoolManaged<T> : IEcsPool where T : class, IEcsComponent, new()
     {
-        private readonly Type m_Type;
-        private readonly EcsWorld m_World;
-        private readonly int m_ID;
+        private Type m_Type;
+        private EcsWorld m_World;
+        private int m_ID;
 
         private EcsCleanupHandler<T> m_CleanupHandler;
 
@@ -40,6 +40,11 @@ namespace Saro.Entities
         }
 
         internal EcsPoolManaged(EcsWorld world, int id, int denseCapacity, int sparseCapacity, int recycledCapacity)
+        {
+            ((IEcsPool)this).Init(world, id, denseCapacity, sparseCapacity, recycledCapacity);
+        }
+
+        void IEcsPool.Init(EcsWorld world, int id, int denseCapacity, int sparseCapacity, int recycledCapacity)
         {
             m_Type = typeof(T);
 
@@ -99,7 +104,7 @@ namespace Saro.Entities
 #endif
         private void ReflectionSupportHack()
         {
-            m_World.GetPool<T>();
+            m_World.GetOrAddPool<T>();
             m_World.Filter().Inc<T>().Exc<T>().End();
         }
 

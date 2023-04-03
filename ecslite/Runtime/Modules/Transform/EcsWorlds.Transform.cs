@@ -9,32 +9,32 @@ namespace Saro.Entities
         internal EcsPoolUnmanaged<Position> PositionPool
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => m_PositionPool ??= GetPoolUnmanaged<Position>();
+            get => m_PositionPool ??= GetOrAddPoolUnmanaged<Position>();
         }
         internal EcsPoolUnmanaged<Rotation> RotationPool
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => m_RotationPool ??= GetPoolUnmanaged<Rotation>();
+            get => m_RotationPool ??= GetOrAddPoolUnmanaged<Rotation>();
         }
         internal EcsPoolUnmanaged<Scale> ScalePool
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => m_ScalePool ??= GetPoolUnmanaged<Scale>();
+            get => m_ScalePool ??= GetOrAddPoolUnmanaged<Scale>();
         }
         internal EcsPoolUnmanaged<Parent> ParentPool
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => m_ParentPool ??= GetPoolUnmanaged<Parent>();
+            get => m_ParentPool ??= GetOrAddPoolUnmanaged<Parent>();
         }
         internal EcsPoolUnmanaged<Children> ChildrenPool
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => m_ChildrenPool ??= GetPoolUnmanaged<Children>();
+            get => m_ChildrenPool ??= GetOrAddPoolUnmanaged<Children>();
         }
         internal EcsPoolUnmanaged<IntrusiveListNode> NodePool
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => m_NodePool ??= GetPoolUnmanaged<IntrusiveListNode>();
+            get => m_NodePool ??= GetOrAddPoolUnmanaged<IntrusiveListNode>();
         }
 
         private EcsPoolUnmanaged<Position> m_PositionPool;

@@ -31,6 +31,15 @@ namespace Saro.Entities
         /// </summary>
         bool IsSingleton { get; }
         /// <summary>
+        /// 初始化
+        /// </summary>
+        /// <param name="world"></param>
+        /// <param name="id"></param>
+        /// <param name="denseCapacity"></param>
+        /// <param name="sparseCapacity"></param>
+        /// <param name="recycledCapacity"></param>
+        void Init(EcsWorld world, int id, int denseCapacity, int sparseCapacity, int recycledCapacity);
+        /// <summary>
         /// 改变大小
         /// </summary>
         /// <param name="capacity"></param>

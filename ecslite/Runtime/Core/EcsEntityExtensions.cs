@@ -35,21 +35,21 @@ namespace Saro.Entities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Del<T>(in this EcsEntity self) where T : unmanaged, IEcsComponent
         {
-            var pool = self.World.GetPoolUnmanaged<T>();
+            var pool = self.World.GetOrAddPoolUnmanaged<T>();
             pool.Del(self.id);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Del<T>(this int self, EcsWorld world) where T : unmanaged, IEcsComponent
         {
-            var pool = world.GetPoolUnmanaged<T>();
+            var pool = world.GetOrAddPoolUnmanaged<T>();
             pool.Del(self);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ref T GetOrAdd<T>(this EcsEntity self) where T : unmanaged, IEcsComponent
         {
-            var pool = self.World.GetPoolUnmanaged<T>();
+            var pool = self.World.GetOrAddPoolUnmanaged<T>();
             return ref pool.GetOrAdd(self.id);
         }
 
@@ -57,14 +57,14 @@ namespace Saro.Entities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ref T Add<T>(this EcsEntity self) where T : unmanaged, IEcsComponent
         {
-            var pool = self.World.GetPoolUnmanaged<T>();
+            var pool = self.World.GetOrAddPoolUnmanaged<T>();
             return ref pool.GetOrAdd(self.id);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ref T GetOrAdd<T>(this int self, EcsWorld world) where T : unmanaged, IEcsComponent
         {
-            var pool = world.GetPoolUnmanaged<T>();
+            var pool = world.GetOrAddPoolUnmanaged<T>();
             return ref pool.GetOrAdd(self);
         }
 
@@ -72,21 +72,21 @@ namespace Saro.Entities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ref T Add<T>(this int self, EcsWorld world) where T : unmanaged, IEcsComponent
         {
-            var pool = world.GetPoolUnmanaged<T>();
+            var pool = world.GetOrAddPoolUnmanaged<T>();
             return ref pool.GetOrAdd(self);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ref T Get<T>(in this EcsEntity self) where T : unmanaged, IEcsComponent
         {
-            var pool = self.World.GetPoolUnmanaged<T>();
+            var pool = self.World.GetOrAddPoolUnmanaged<T>();
             return ref pool.Get(self.id);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ref T Get<T>(this int self, EcsWorld world) where T : unmanaged, IEcsComponent
         {
-            var pool = world.GetPoolUnmanaged<T>();
+            var pool = world.GetOrAddPoolUnmanaged<T>();
             return ref pool.Get(self);
         }
     }

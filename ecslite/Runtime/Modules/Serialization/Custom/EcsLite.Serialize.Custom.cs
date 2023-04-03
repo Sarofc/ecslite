@@ -6,6 +6,16 @@ using Saro.Utility;
 
 namespace Saro.Entities
 {
+    /*
+     * TODO
+     * 
+     * 1. 目前很多地方都是惰性初始化，反序列化回来后，可能存在一些问题，例如EcsFilter
+     *    - EcsFilter 每次反序列化时，都Update一下，这样就不用保存filter的数据了
+     *    
+     * 2. 要实现文件保存，不能只实现内存的反序列化，目前EcsPool的创建存在泛型问题
+     *    - 使用代码自动生成，一次性GetOrAddPool<>所有的pool？=》貌似不太行，需要保证id to type对应
+     */
+
     partial class EcsWorld
     {
         internal void Serialize(IBufferWriter<byte> bufferWriter = null)
@@ -53,14 +63,17 @@ namespace Saro.Entities
             for (int poolId = 1; poolId < m_PoolsCount; poolId++) // 0号pool是Dummy，忽略掉
             {
                 var pool = m_Pools[poolId];
+                // TODO
+                //var typeInfo = TypeUtility.GetTypeInfo(pool.GetType()); 
+                //writer.WriteString(typeInfo);
                 pool.Serialize(ref writer);
             }
-            writer.WriteUnmanaged(m_AllFilters.Count);
-            for (int i = 0; i < m_AllFilters.Count; i++)
-            {
-                var filter = m_AllFilters[i];
-                filter.Serialize(ref writer);
-            }
+            //writer.WriteUnmanaged(m_AllFilters.Count);
+            //for (int i = 0; i < m_AllFilters.Count; i++)
+            //{
+            //    var filter = m_AllFilters[i];
+            //    filter.Serialize(ref writer);
+            //}
         }
 
         private void Deserialize(ref FSnapshotReader reader)
@@ -75,6 +88,8 @@ namespace Saro.Entities
                 int poolId = 1; // 0号index，肯定是 Dummy，可以忽略掉
                 for (; poolId < m_PoolsCount; poolId++)
                 {
+                    // TODO 这里直接使用 poolId 有问题，需要保证结束游戏后仍然能反序列化回来
+                    // 考虑还是保存类型字符串，然后反射吧
                     var pool = m_Pools[poolId];
                     //if (pool == null) continue; // TODO 没有对象，就需要创建
                     pool.Deserialize(ref reader);
@@ -87,20 +102,14 @@ namespace Saro.Entities
                 }
             }
 
+            // 更新filter
             {
-                var filterCount = 0;
-                reader.ReadUnmanaged(ref filterCount);
-                int filterIndex = 0;
-                for (; filterIndex < filterCount; filterIndex++)
+                for (int i = 0; i < m_AllFilters.Count; i++)
                 {
-                    var filter = m_AllFilters[filterIndex];
-                    filter.Deserialize(ref reader);
-                }
-                for (; filterIndex < m_AllFilters.Count; filterIndex++)
-                {
-                    var filter = m_AllFilters[filterIndex];
+                    var filter = m_AllFilters[i];
                     if (filter == null) continue;
                     filter.Reset();
+                    filter.Update();
                 }
             }
         }
@@ -110,22 +119,22 @@ namespace Saro.Entities
     {
         private int m_SparseItemsCount => Math.Min(m_World.m_EntitiesCount, m_SparseItems.Length);
 
-        internal void Deserialize(ref FSnapshotReader reader)
-        {
-            Span<int> m_DenseItemsSpan = m_DenseItems;
-            m_DenseItemsCount = reader.ReadUnmanagedSpan(ref m_DenseItemsSpan);
-            Span<DelayedOp> m_DelayedOpsSpan = m_DelayedOps;
-            m_DelayedOpsCount = reader.ReadUnmanagedSpan(ref m_DelayedOpsSpan);
-            Span<int> m_SparseItemsSpan = m_SparseItems;
-            reader.ReadUnmanagedSpan(ref m_SparseItemsSpan);
-        }
+        //internal void Deserialize(ref FSnapshotReader reader)
+        //{
+        //    Span<int> m_DenseItemsSpan = m_DenseItems;
+        //    m_DenseItemsCount = reader.ReadUnmanagedSpan(ref m_DenseItemsSpan);
+        //    Span<DelayedOp> m_DelayedOpsSpan = m_DelayedOps;
+        //    m_DelayedOpsCount = reader.ReadUnmanagedSpan(ref m_DelayedOpsSpan);
+        //    Span<int> m_SparseItemsSpan = m_SparseItems;
+        //    reader.ReadUnmanagedSpan(ref m_SparseItemsSpan);
+        //}
 
-        internal void Serialize(ref FSnapshotWriter writer)
-        {
-            writer.WriteUnmanagedSpan(m_DenseItems.AsSpan(0, m_DenseItemsCount));
-            writer.WriteUnmanagedSpan(m_DelayedOps.AsSpan(0, m_DelayedOpsCount));
-            writer.WriteUnmanagedSpan(m_SparseItems.AsSpan(0, m_SparseItemsCount));
-        }
+        //internal void Serialize(ref FSnapshotWriter writer)
+        //{
+        //    writer.WriteUnmanagedSpan(m_DenseItems.AsSpan(0, m_DenseItemsCount));
+        //    writer.WriteUnmanagedSpan(m_DelayedOps.AsSpan(0, m_DelayedOpsCount));
+        //    writer.WriteUnmanagedSpan(m_SparseItems.AsSpan(0, m_SparseItemsCount));
+        //}
 
         internal void Reset()
         {

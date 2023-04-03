@@ -7,7 +7,7 @@ namespace Saro.Entities
         public EcsPoolManaged<EntityName> EntityNamePool
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => m_EntityNamePool ??= GetPool<EntityName>();
+            get => m_EntityNamePool ??= GetOrAddPool<EntityName>();
         }
 
         private EcsPoolManaged<EntityName> m_EntityNamePool;
