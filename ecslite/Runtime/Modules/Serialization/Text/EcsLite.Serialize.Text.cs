@@ -29,6 +29,8 @@ namespace Saro.Entities
     {
         void IEcsPool.Dump(ref FTextWriter writer)
         {
+            if (!m_HasEcsSerializeInterface) return;
+
             for (int i = 1; i < m_DenseItemsCount - 1; i++)
             {
                 var item = m_DenseItems[i];

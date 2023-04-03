@@ -193,7 +193,7 @@ namespace Saro.Entities
                 {
                     ref var c = ref m_DenseItems[index];
                     if (c == null) c = CreateComponentInstance(); //  没有对象，就需要创建
-                    ((IFSnapshotable)c).RestoreSnapshot(ref reader);
+                    reader.ReadObject(ref c);
 
                     used.Add(index);
                 }
@@ -237,7 +237,7 @@ namespace Saro.Entities
                 if (index > 0)
                 {
                     ref var c = ref m_DenseItems[index];
-                    ((IFSnapshotable)c).TakeSnapshot(ref writer);
+                    writer.WriteObject(c);
 #if DEBUG
                     used.Add(index);
 #endif
