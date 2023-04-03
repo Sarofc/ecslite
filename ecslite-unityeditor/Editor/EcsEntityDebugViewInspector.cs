@@ -68,7 +68,7 @@ namespace Saro.Entities.UnityEditor
             var compType = component.GetType();
             GUILayout.BeginVertical("helpbox");
             var typeName = EditorExtensions.GetCleanGenericTypeName(compType);
-            var pool = debugView.entity.World.GetPoolByType(compType);
+            var pool = debugView.entity.World.GetOrAddPool(compType);
 
             var rect = EditorGUILayout.GetControlRect();
             var headerRect = rect;

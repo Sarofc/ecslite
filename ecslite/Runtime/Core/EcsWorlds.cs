@@ -356,60 +356,54 @@ namespace Saro.Entities
         public int GetFreeMaskCount() => m_FreeMasksCount;
 
         [System.Obsolete("use 'GetOrAddPool' instead", true)]
-        public EcsPoolManaged<T> GetPool<T>() where T : class, IEcsComponent, new() => GetOrAddPool<T>(m_PoolDenseSize, m_Entities.Length, m_PoolRecycledSize);
+        public EcsPoolManaged<T> GetPool<T>() where T : class, IEcsComponent, new() => GetOrAddPool(typeof(T), m_PoolDenseSize, m_Entities.Length, m_PoolRecycledSize) as EcsPoolManaged<T>;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public EcsPoolManaged<T> GetOrAddPool<T>() where T : class, IEcsComponent, new() => GetOrAddPool<T>(m_PoolDenseSize, m_Entities.Length, m_PoolRecycledSize);
-
-        internal EcsPoolManaged<T> GetOrAddPool<T>(int denseCapacity, int sparseCapacity, int recycledCapacity) where T : class, IEcsComponent, new()
-        {
-            var poolType = typeof(T);
-            if (m_PoolHashes.TryGetValue(poolType, out var rawPool))
-            {
-                return (EcsPoolManaged<T>)rawPool;
-            }
-
-            var pool = new EcsPoolManaged<T>(this, m_PoolsCount, denseCapacity, sparseCapacity, recycledCapacity);
-            m_PoolHashes[poolType] = pool;
-            if (m_PoolsCount == m_Pools.Length)
-            {
-                var newSize = m_PoolsCount << 1;
-                Array.Resize(ref m_Pools, newSize);
-                Array.Resize(ref m_FiltersByIncludedComponents, newSize);
-                Array.Resize(ref m_FiltersByExcludedComponents, newSize);
-            }
-            m_Pools[m_PoolsCount++] = pool;
-            return pool;
-        }
+        public EcsPoolManaged<T> GetOrAddPool<T>() where T : class, IEcsComponent, new() => GetOrAddPool(typeof(T), m_PoolDenseSize, m_Entities.Length, m_PoolRecycledSize) as EcsPoolManaged<T>;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal EcsPoolUnmanaged<T> GetOrAddPoolUnmanaged<T>() where T : unmanaged, IEcsComponent => GetOrAddPoolUnmanaged<T>(m_PoolDenseSize, m_Entities.Length, m_PoolRecycledSize);
-        internal EcsPoolUnmanaged<T> GetOrAddPoolUnmanaged<T>(int denseCapacity, int sparseCapacity, int recycledCapacity) where T : unmanaged, IEcsComponent
-        {
-            var poolType = typeof(T);
-            if (m_PoolHashes.TryGetValue(poolType, out var rawPool))
-            {
-                return (EcsPoolUnmanaged<T>)rawPool;
-            }
-
-            var pool = new EcsPoolUnmanaged<T>(this, m_PoolsCount, denseCapacity, sparseCapacity, recycledCapacity);
-            m_PoolHashes[poolType] = pool;
-            if (m_PoolsCount == m_Pools.Length)
-            {
-                var newSize = m_PoolsCount << 1;
-                Array.Resize(ref m_Pools, newSize);
-                Array.Resize(ref m_FiltersByIncludedComponents, newSize);
-                Array.Resize(ref m_FiltersByExcludedComponents, newSize);
-            }
-            m_Pools[m_PoolsCount++] = pool;
-            return pool;
-        }
+        internal EcsPoolUnmanaged<T> GetOrAddPoolUnmanaged<T>() where T : unmanaged, IEcsComponent => GetOrAddPool(typeof(T), m_PoolDenseSize, m_Entities.Length, m_PoolRecycledSize) as EcsPoolUnmanaged<T>;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEcsPool GetPoolById(int id) => id >= 0 && id < m_PoolsCount ? m_Pools[id] : null;
 
+        [System.Obsolete("use 'GetOrAddPool' instead", true)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEcsPool GetPoolByType(Type type) => m_PoolHashes.TryGetValue(type, out var pool) ? pool : null;
+
+        public IEcsPool GetOrAddPool(Type componentType) => GetOrAddPool(componentType, m_PoolDenseSize, m_Entities.Length, m_PoolRecycledSize);
+        internal IEcsPool GetOrAddPool(Type componentType, int denseCapacity, int sparseCapacity, int recycledCapacity)
+        {
+            if (m_PoolHashes.TryGetValue(componentType, out var pool))
+                return pool;
+
+            Type poolType = null;
+            try
+            {
+                if (componentType.IsUnmanagedEx())
+                    poolType = typeof(EcsPoolUnmanaged<>).MakeGenericType(componentType);
+                else
+                    poolType = typeof(EcsPoolManaged<>).MakeGenericType(componentType);
+            }
+            catch (Exception e)
+            {
+                Log.ERROR($"GetOrAddPool failed. Invalid componentType: {componentType}\n{e}");
+            }
+
+            pool = Activator.CreateInstance(poolType) as IEcsPool;
+            pool.Init(this, m_PoolsCount, denseCapacity, sparseCapacity, recycledCapacity);
+
+            m_PoolHashes[componentType] = pool;
+            if (m_PoolsCount == m_Pools.Length)
+            {
+                var newSize = m_PoolsCount << 1;
+                Array.Resize(ref m_Pools, newSize);
+                Array.Resize(ref m_FiltersByIncludedComponents, newSize);
+                Array.Resize(ref m_FiltersByExcludedComponents, newSize);
+            }
+            m_Pools[m_PoolsCount++] = pool;
+            return pool;
+        }
 
         public int GetAllEntities(ref int[] entities)
         {

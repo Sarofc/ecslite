@@ -24,14 +24,14 @@ namespace Saro.Entities
         public ref T GetSingleton<T>() where T : class, IEcsComponentSingleton, new()
         {
             var singletonID = GetSingletonEntity();
-            return ref GetOrAddPool<T>(2, 2, 1).GetOrAddInternal(singletonID);
+            return ref ((EcsPoolManaged<T>)GetOrAddPool(typeof(T), 2, 2, 1)).GetOrAddInternal(singletonID);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal ref T GetSingletonUnmanaged<T>() where T : unmanaged, IEcsComponentSingleton
         {
             var singletonID = GetSingletonEntity();
-            return ref GetOrAddPoolUnmanaged<T>(2, 2, 1).GetOrAddInternal(singletonID);
+            return ref ((EcsPoolUnmanaged<T>)GetOrAddPool(typeof(T), 2, 2, 1)).GetOrAddInternal(singletonID);
         }
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace Saro.Entities
         {
             // dummy
             var dummy = NewEntity();
-            GetOrAddPoolUnmanaged<Dummy>(2, 2, 1).GetOrAddInternal(dummy);
+            ((EcsPoolUnmanaged<Dummy>)GetOrAddPool(typeof(Dummy), 2, 2, 1)).GetOrAddInternal(dummy);
 
             // singleton
             GetSingletonUnmanaged<Dummy>();

@@ -38,6 +38,8 @@ namespace Saro.Entities
             return $"type: {m_Type.Name} id: {m_ID} denseItem: {m_DenseItems.Length} recycledItems: {m_RecycledItems.Length} sparseItems: {m_SparseItems.Length}";
         }
 
+        public EcsPoolUnmanaged() { }
+
         internal EcsPoolUnmanaged(EcsWorld world, int id, int denseCapacity, int sparseCapacity, int recycledCapacity)
         {
             ((IEcsPool)this).Init(world, id, denseCapacity, sparseCapacity, recycledCapacity);

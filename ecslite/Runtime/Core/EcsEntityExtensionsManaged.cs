@@ -37,7 +37,7 @@ namespace Saro.Entities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Has<T>(this int self, EcsWorld world) where T : class, IEcsComponent, new()
         {
-            var pool = world.GetPoolByType(typeof(T));
+            var pool = world.GetOrAddPool(typeof(T));
             if (pool == null)
                 return false;
             return pool.Has(self);
@@ -46,7 +46,7 @@ namespace Saro.Entities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Has<T>(this EcsEntity self) where T : class, IEcsComponent, new()
         {
-            var pool = self.World.GetPoolByType(typeof(T));
+            var pool = self.World.GetOrAddPool(typeof(T));
             if (pool == null)
                 return false;
             return pool.Has(self.id);
