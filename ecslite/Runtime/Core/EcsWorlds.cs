@@ -784,7 +784,7 @@ namespace Saro.Entities
             }
 
 #if UNITY_2020_3_OR_NEWER
-            [UnityEngine.Scripting.Preserve] // TODO 好像没啥用？
+            [UnityEngine.Scripting.Preserve]
 #endif
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public Mask Exc<T>() where T : class, IEcsComponent, new()

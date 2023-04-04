@@ -266,7 +266,6 @@ namespace Saro.Entities
             var m_FiltersByExcludedComponents = m_World.m_FiltersByExcludedComponents;
             var m_Entities = m_World.m_Entities;
             var m_EntitiesCount = m_World.m_EntitiesCount;
-            var m_EventListeners = m_World.m_EventListeners;
 
             // add to component dictionaries for fast compatibility scan.
             for (int i = 0, iMax = mask.includeCount; i < iMax; i++)
@@ -302,7 +301,9 @@ namespace Saro.Entities
                     this.AddEntity(i);
                 }
             }
+
 #if DEBUG || LEOECSLITE_WORLD_EVENTS
+            var m_EventListeners = m_World.m_EventListeners;
             for (int ii = 0, iMax = m_EventListeners.Count; ii < iMax; ii++)
             {
                 m_EventListeners[ii].OnFilterCreated(this);
