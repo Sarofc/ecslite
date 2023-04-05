@@ -65,6 +65,8 @@ namespace Saro.Entities
 
         public static bool operator ==(EcsEntity x, EcsEntity y) => x.Equals(y);
 
+        public override string ToString() => EntityName.GetEntityInfo(id, World);
+
 #if DEBUG // For using in IDE debugger.
         private readonly object[] DebugComponentsViewForIDE
         {
@@ -93,8 +95,6 @@ namespace Saro.Entities
                 return 0;
             }
         }
-
-        public override string ToString() => EntityName.GetEntityInfo(id, World);
 #endif
     }
 }
