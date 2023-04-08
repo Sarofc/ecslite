@@ -118,7 +118,7 @@ namespace Saro.Entities.Transforms
                 ref readonly var parent = ref world.ParentPool.Get(entity).entity;
 
 #if DEBUG
-                Log.Assert(parent.IsNull() == false, $"{EntityName.GetEntityName(entity, world)}'s parent Dont Must be null");
+                Log.Assert(parent.IsNull() == false, $"{entity.GetEntityName(world)}'s parent Dont Must be null");
 #endif
 
                 if (!parent.IsNull())
@@ -149,7 +149,7 @@ namespace Saro.Entities.Transforms
             {
                 ref readonly var parent = ref world.ParentPool.Get(entity).entity;
 #if DEBUG
-                Log.Assert(parent.IsNull() == false, $"{EntityName.GetEntityName(entity, world)}'s parent Dont Must be null");
+                Log.Assert(parent.IsNull() == false, $"{entity.GetEntityName(world)}'s parent Dont Must be null");
 #endif
                 if (!parent.IsNull())
                 {

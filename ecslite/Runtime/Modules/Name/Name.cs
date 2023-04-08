@@ -47,16 +47,27 @@ namespace Saro.Entities
         }
     }
 
-    partial class EntityName // utility
+    public static class EntityNameUtility
     {
         public const string k_EntityNameFormat = "X8";
 
-        public static string GetEntityName(EcsEntity entity, string entityNameFormat = k_EntityNameFormat)
+        public static void SetEntityName(this EcsEntity entity, string name)
         {
-            return GetEntityName(entity.id, entity.World, entityNameFormat);
+            SetEntityName(entity.id, entity.World, name);
         }
 
-        public static string GetEntityName(int entity, EcsWorld world, string entityNameFormat = k_EntityNameFormat)
+        public static void SetEntityName(this int entity, EcsWorld world, string name)
+        {
+            ref var cName = ref world.EntityNamePool.GetOrAdd(entity);
+            cName.name = name;
+        }
+
+        public static string GetEntityName(this EcsEntity entity)
+        {
+            return GetEntityName(entity.id, entity.World);
+        }
+
+        public static string GetEntityName(this int entity, EcsWorld world)
         {
             if (entity <= EcsEntity.Null.id)
             {
@@ -74,21 +85,21 @@ namespace Saro.Entities
                 return $"{namePool.Get(entity).name}";
             }
 
-            return entity.ToString(entityNameFormat);
+            return null;
         }
 
 
-        public static string GetEntityInfo(EcsEntity entity, string entityNameFormat = k_EntityNameFormat)
+        public static string GetEntityInfo(this EcsEntity entity)
         {
-            return GetEntityInfo(entity.id, entity.World, entityNameFormat);
+            return GetEntityInfo(entity.id, entity.World);
         }
 
-        public static string GetEntityInfo(int entity, EcsWorld world, string entityNameFormat = k_EntityNameFormat)
+        public static string GetEntityInfo(this int entity, EcsWorld world)
         {
-            return $"{world.worldId}:{entity}.{world.GetEntityGen(entity)}({EntityName.GetEntityName(entity, world, entityNameFormat)})";
+            return $"{world.worldId}:{entity}.{world.GetEntityGen(entity)}({EntityNameUtility.GetEntityName(entity, world)})";
         }
 
-        public static string GetEntityDetial(int entity, EcsWorld world, string entityNameFormat = k_EntityNameFormat)
+        public static string GetEntityDetial(this int entity, EcsWorld world)
         {
             StringBuilder sb = null;
             if (world.IsAlive() && world.IsEntityAlive(entity))
@@ -109,7 +120,7 @@ namespace Saro.Entities
                 }
             }
 
-            return $"{EntityName.GetEntityInfo(entity, world, entityNameFormat)} [{sb}]";
+            return $"{EntityNameUtility.GetEntityInfo(entity, world)} [{sb}]";
         }
     }
 }

@@ -33,7 +33,7 @@ namespace Saro.Entities.UnityEditor
                 buttonRect.x += entityInfoRect.width;
                 buttonRect.width = buttonWidth;
 
-                EditorGUI.LabelField(entityInfoRect, EntityName.GetEntityInfo(debugView.entity));
+                EditorGUI.LabelField(entityInfoRect, debugView.entity.GetEntityInfo());
 
                 bool guiEnable = UnityEngine.GUI.enabled;
                 UnityEngine.GUI.enabled = debugView.entity.IsAlive();

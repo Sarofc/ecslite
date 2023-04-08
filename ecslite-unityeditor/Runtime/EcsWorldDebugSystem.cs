@@ -32,7 +32,7 @@ namespace Saro.Entities.UnityEditor
         private Dictionary<int, byte> m_DirtyEntities;
         private Type[] m_TypeCaches;
 
-        public EcsWorldDebugSystem(EcsWorld world, bool bakeComponentsInName = true, string entityNameFormat = EntityName.k_EntityNameFormat)
+        public EcsWorldDebugSystem(EcsWorld world, bool bakeComponentsInName = true, string entityNameFormat = EntityNameUtility.k_EntityNameFormat)
         {
             m_World = world;
             m_BakeComponentsInName = bakeComponentsInName;
@@ -88,7 +88,7 @@ namespace Saro.Entities.UnityEditor
                 ProcessParent(entity);
 
                 // process entity name
-                var entityName = EntityName.GetEntityName(entity, m_World, m_EntityNameFormat);
+                var entityName = entity.GetEntityName(m_World);
 
                 if (m_World.GetEntityGen(entity) > 0)
                 {
