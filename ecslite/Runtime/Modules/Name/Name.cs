@@ -85,7 +85,7 @@ namespace Saro.Entities
                 return $"{namePool.Get(entity).name}";
             }
 
-            return null;
+            return string.Empty; // 更安全
         }
 
 

@@ -7,6 +7,7 @@ using Single = System.Single;
 #endif
 
 using System.Runtime.CompilerServices;
+using System;
 
 namespace Saro.Entities.Transforms
 {
@@ -319,7 +320,7 @@ namespace Saro.Entities.Transforms
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static float3 GetInvScale_Internal(EcsEntity entity)
-            => GetInvScale_Internal(entity.id, entity.World);
+                    => GetInvScale_Internal(entity.id, entity.World);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static float3 GetScale_Internal(int entity, EcsWorld world)
@@ -344,4 +345,29 @@ namespace Saro.Entities.Transforms
                 axis: math.normalizesafe(math.cross(from, to))
             );
     }
+
+    //partial class EcsTransformUtility // TODO 需要测试
+    //{
+    //    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    //    public static float3 TransformDirection(this EcsEntity entity, in float3 inDirection)
+    //        => entity.id.TransformDirection(entity.World, inDirection);
+
+    //    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    //    public static float3 InverseTransformDirection(this EcsEntity entity, in float3 inDirection)
+    //        => entity.id.InverseTransformDirection(entity.World, inDirection);
+
+    //    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    //    public static float3 TransformDirection(this int entity, EcsWorld world, in float3 inDirection)
+    //    {
+    //        return math.rotate(entity.GetRotation(world), inDirection);
+    //        //return RotateVectorByQuat(GetRotation(), inDirection);
+    //    }
+
+    //    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    //    public static float3 InverseTransformDirection(this int entity, EcsWorld world, in float3 inDirection)
+    //    {
+    //        return math.rotate(math.inverse(entity.GetRotation(world)), inDirection);
+    //        //return RotateVectorByQuat(Inverse(GetRotation()), inDirection);
+    //    }
+    //}
 }

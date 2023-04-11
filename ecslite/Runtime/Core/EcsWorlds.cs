@@ -380,14 +380,14 @@ namespace Saro.Entities
             Type poolType = null;
             try
             {
-                if (componentType.IsUnmanagedEx())
+                if (componentType.IsUnmanaged())
                     poolType = typeof(EcsPoolUnmanaged<>).MakeGenericType(componentType);
                 else
                     poolType = typeof(EcsPoolManaged<>).MakeGenericType(componentType);
             }
             catch (Exception e)
             {
-                Log.ERROR($"GetOrAddPool failed. Invalid componentType: {componentType}\n{e}");
+                Log.ERROR($"GetOrAddPool failed.IsUnmanaged: {componentType.IsUnmanaged()}. Invalid componentType: {componentType}\n{e} ");
             }
 
             pool = Activator.CreateInstance(poolType) as IEcsPool;
