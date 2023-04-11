@@ -4,6 +4,15 @@
 // ----------------------------------------------------------------------------
 
 #if UNITY_EDITOR
+
+#if FIXED_POINT_MATH
+using Saro.FPMath;
+using Single = Saro.FPMath.sfloat;
+#else
+using Unity.Mathematics;
+using Single = System.Single;
+#endif
+
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -36,6 +45,27 @@ namespace Saro.Entities.UnityEditor
 
         [NonSerialized]
         public EcsWorldDebugSystem debugSystem;
+
+        public void SyncTransformToEntity()
+        {
+            var debugView = this;
+            if (debugView)
+            {
+                var world = EcsWorld.GetWorld(worldId);
+
+                if (debugView.transform.hasChanged)
+                {
+                    if (world.PositionPool.Has(entityId))
+                        world.PositionPool.Get(entity).value = ((float3)debugView.transform.localPosition);
+
+                    if (world.RotationPool.Has(entityId))
+                        world.RotationPool.Get(entity).value = ((quaternion)debugView.transform.localRotation);
+
+                    if (world.ScalePool.Has(entityId))
+                        world.ScalePool.Get(entity).value = ((float3)debugView.transform.localScale);
+                }
+            }
+        }
     }
 
     public sealed class EcsSystemsDebugView : MonoBehaviour

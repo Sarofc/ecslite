@@ -106,5 +106,20 @@ namespace Saro.Entities.UnityEditor
 
             GUILayout.EndVertical();
         }
+
+        private void OnSceneGUI()
+        {
+            SyncTransform();
+        }
+
+        private void SyncTransform()
+        {
+            var debugView = (EcsEntityDebugView)target;
+
+            if (debugView)
+            {
+                debugView.SyncTransformToEntity();
+            }
+        }
     }
 }

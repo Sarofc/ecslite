@@ -112,11 +112,13 @@ namespace Saro.Entities.UnityEditor
                 var entity = m_Entities[i].entity;
                 if (!m_World.IsEntityAlive(entity.id)) continue;
 
+                // sync position
                 if (m_World.PositionPool.Has(entity.id))
                     m_Entities[entity.id].transform.localPosition = (Vector3)m_World.PositionPool.Get(entity.id).value;
                 else
                     m_Entities[entity.id].transform.localPosition = Vector3.zero;
 
+                // sync rotation
                 if (m_World.RotationPool.Has(entity.id))
                 {
                     var localRot = m_World.RotationPool.Get(entity.id).value;
@@ -130,6 +132,14 @@ namespace Saro.Entities.UnityEditor
                 }
                 else
                     m_Entities[entity.id].transform.localRotation = Quaternion.identity;
+
+                // sync scale
+                if (m_World.ScalePool.Has(entity.id))
+                    m_Entities[entity.id].transform.localScale = (Vector3)m_World.ScalePool.Get(entity.id).value;
+                else
+                    m_Entities[entity.id].transform.localScale = Vector3.one;
+
+                m_Entities[entity.id].transform.hasChanged = false; // TODO 这里修改了hasChanged，看看有没有其他影响？
             }
 
             GProfiler.EndSample();
