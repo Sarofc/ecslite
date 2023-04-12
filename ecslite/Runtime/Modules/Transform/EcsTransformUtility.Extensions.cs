@@ -8,6 +8,7 @@ using Single = System.Single;
 
 using System.Runtime.CompilerServices;
 using System;
+using Saro.Diagnostics;
 
 namespace Saro.Entities.Transforms
 {
@@ -119,7 +120,7 @@ namespace Saro.Entities.Transforms
                 ref readonly var parent = ref world.ParentPool.Get(entity).entity;
 
 #if DEBUG
-                Log.Assert(parent.IsNull() == false, $"{entity.GetEntityName(world)}'s parent Dont Must be null");
+                Log.Assert(parent.IsNull() == false);
 #endif
 
                 if (!parent.IsNull())
@@ -150,7 +151,7 @@ namespace Saro.Entities.Transforms
             {
                 ref readonly var parent = ref world.ParentPool.Get(entity).entity;
 #if DEBUG
-                Log.Assert(parent.IsNull() == false, $"{entity.GetEntityName(world)}'s parent Dont Must be null");
+                Log.Assert(parent.IsNull() == false);
 #endif
                 if (!parent.IsNull())
                 {
@@ -180,7 +181,8 @@ namespace Saro.Entities.Transforms
                 worldPos = float3.zero;
 
 #if DEBUG
-            Log.Assert(!math.any(math.isnan(worldPos)), $"{entity}'s Position is NaN");
+            //Log.Assert(!math.any(math.isnan(worldPos)), $"{entity}'s Position is NaN");
+            Log.Assert(!math.any(math.isnan(worldPos)));
 #endif
 
             if (!world.ParentPool.Has(entity))
@@ -195,7 +197,8 @@ namespace Saro.Entities.Transforms
                     var parentRot = parent.entity.GetLocalRotation();
 
 #if DEBUG
-                    Log.Assert(!math.any(math.isnan(parentRot.value)), $"{parent.entity.id}'s Rotation is NaN");
+                    //Log.Assert(!math.any(math.isnan(parentRot.value)), $"{parent.entity.id}'s Rotation is NaN");
+                    Log.Assert(!math.any(math.isnan(parentRot.value)));
 #endif
 
                     worldPos = math.mul(parentRot, Multiply_Internal(GetScale_Internal(parent.entity), worldPos));
@@ -226,7 +229,8 @@ namespace Saro.Entities.Transforms
                 worldRot = quaternion.identity;
 
 #if DEBUG
-            Log.Assert(!math.any(math.isnan(worldRot.value)), $"{entity}'s Rotation is NaN");
+            //Log.Assert(!math.any(math.isnan(worldRot.value)), $"{entity}'s Rotation is NaN");
+            Log.Assert(!math.any(math.isnan(worldRot.value)));
 #endif
 
             if (!world.ParentPool.Has(entity))
@@ -241,7 +245,8 @@ namespace Saro.Entities.Transforms
                     var parentRot = world.RotationPool.Get(parent.entity.id).value;
 
 #if DEBUG
-                    Log.Assert(!math.any(math.isnan(parentRot.value)), $"{parent.entity.id}'s Rotation is NaN");
+                    //Log.Assert(!math.any(math.isnan(parentRot.value)), $"{parent.entity.id}'s Rotation is NaN");
+                    Log.Assert(!math.any(math.isnan(parentRot.value)));
 #endif
 
                     worldRot = math.mul(parentRot, worldRot);

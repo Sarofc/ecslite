@@ -888,8 +888,8 @@ namespace Saro.Entities
 
                 // sort include and exclude
                 // mono的库，sort有gc，换成自己的
-                ArrayUtility.Sort(include, 0, includeCount);
-                ArrayUtility.Sort(exclude, 0, excludeCount);
+                ArrayNonAlloc.Sort(include, 0, includeCount);
+                ArrayNonAlloc.Sort(exclude, 0, excludeCount);
 
                 // calculate hash.
                 hash = includeCount + excludeCount;
