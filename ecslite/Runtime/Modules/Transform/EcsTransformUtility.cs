@@ -9,7 +9,7 @@ namespace Saro.Entities.Transforms
     [Unity.IL2CPP.CompilerServices.Il2CppSetOption(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
     [Unity.IL2CPP.CompilerServices.Il2CppSetOption(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
 #endif
-    [Unity.VisualScripting.IncludeInSettings(true)]
+    
     public static partial class EcsTransformUtility
     {
         internal static void OnEntityDestroy(EcsEntity toDestroy)
